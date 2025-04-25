@@ -6,9 +6,9 @@ const { category } = require("./models/category")
 const { images } = require("./models/images")
 const { order } = require("./models/order")
 const { product } = require("./models/product")
-const {review} = require("./models/review")
-const {shipping} = require("./models/shhipping")
-const {transaction} = require("./models/transaction")
+const { review } = require("./models/review")
+const { shipping } = require("./models/shhipping")
+const { transaction } = require("./models/transaction")
 // const {} = require("./models/wishlist")
 
 exports.sync = async () => {

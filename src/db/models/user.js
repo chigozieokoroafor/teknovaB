@@ -30,6 +30,10 @@ const user = conn.define(MODEL_NAMES.user, {
     },
     password:{
         type:DataTypes.TEXT("long")
+    },
+    isVerified:{
+        type:DataTypes.BOOLEAN,
+        defaultValue:false
     }
 }, {
     tableName:MODEL_NAMES.user,

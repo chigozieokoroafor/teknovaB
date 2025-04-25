@@ -15,3 +15,10 @@ exports.STATUSES = {
     pending: "PENDING",
     to_be_delivered:""
 }
+
+exports.PARAMS = {
+    id:"id",
+    email:"email",
+    name:"name",
+    password:"password"
+}

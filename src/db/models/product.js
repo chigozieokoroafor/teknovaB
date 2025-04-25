@@ -2,7 +2,7 @@ const { DataTypes } = require("sequelize");
 const { MODEL_NAMES } = require("../../util/consts");
 const { conn } = require("../base");
 
-const product = conn.define(MODEL_NAMES.user, {
+const product = conn.define(MODEL_NAMES.product, {
     id: {
         type: DataTypes.INTEGER,
         unique: true,
@@ -47,8 +47,8 @@ const product = conn.define(MODEL_NAMES.user, {
 
 
 }, {
-    tableName: MODEL_NAMES.user,
-    modelName: MODEL_NAMES.user
+    tableName: MODEL_NAMES.product,
+    modelName: MODEL_NAMES.product
 })
 
 module.exports = {
