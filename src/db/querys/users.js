@@ -14,5 +14,14 @@ exports.createUserAccount = async (body) => {
 }
 
 exports.verifyUser = async (uid) => {
-    return await user.update({isVerified:true}, {where:{uid}})
+    return await user.update({ isVerified: true }, { where: { uid } })
+}
+
+exports.fetchUserForMiddleware = async (uid) => {
+    return await user.findOne(
+        {
+            where:{uid},
+            attributes:[PARAMS.email, PARAMS.uid]
+        }
+    )
 }
