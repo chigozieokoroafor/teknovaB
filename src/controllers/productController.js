@@ -3,6 +3,7 @@ const { uploadProduct, getProductsByCategory } = require("../db/querys/products"
 const { catchAsync } = require("../errorHandler/allCatch");
 const { generalError, success, notFound } = require("../errorHandler/statusCodes");
 const { createUUID } = require("../util/base");
+const { FETCH_LIMIT } = require("../util/consts");
 const { categoryCreationSchema } = require("../util/validators/categoryValidator");
 const { productUploadSchema } = require("../util/validators/productsValidator");
 
@@ -79,8 +80,11 @@ exports.fetchProductsUnderCategory = catchAsync(async (req, res) => {
     if (page <= 0){
         return generalError(res, "Page cannot be less than 1") 
     }
+    const offset = (Number(page) -1) * FETCH_LIMIT
 
-    data = await getProductsByCategory(category_id, )
+    const data = await getProductsByCategory(category_id, FETCH_LIMIT, offset)
+
+    return success(res, data, "Fetched")
 
 
 

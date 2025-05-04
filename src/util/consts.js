@@ -24,6 +24,8 @@ exports.PARAMS = {
     uid:"uid"
 }
 
+exports.FETCH_LIMIT = 20
+
 exports.ALL_MIME_TYPES = {
     "123": "application/vnd.lotus-1-2-3",
     "3dml": "text/vnd.in3d.3dml",
