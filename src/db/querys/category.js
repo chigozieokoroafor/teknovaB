@@ -3,9 +3,10 @@ const { Op } = require("sequelize");
 const { PARAMS } = require("../../util/consts");
 const { category } = require("../models/category");
 
-exports.createCategoryQuery = async(name, img_blob) =>{
+exports.createCategoryQuery = async(data) =>{
     return await category.create(
-        {name, img_blob}
+        data
+        // {name, img_blob}
     )
 }
 
@@ -14,7 +15,7 @@ exports.checkCategoryExists = async(searchKeyword) =>{
         {
             where:{ 
                 [PARAMS.name]: {
-                    [Op.iLike]: `%${searchKeyword}%`
+                    [Op.like]: `%${searchKeyword}%`
                 }
             }
         }

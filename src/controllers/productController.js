@@ -1,5 +1,5 @@
 const { checkCategoryExists, createCategoryQuery, fetchCategoryQuery } = require("../db/querys/category");
-const { uploadProduct, getProductsByCategory } = require("../db/querys/products");
+const { uploadProduct, getProductsByCategory, getspecificProduct } = require("../db/querys/products");
 const { catchAsync } = require("../errorHandler/allCatch");
 const { generalError, success, notFound } = require("../errorHandler/statusCodes");
 const { createUUID } = require("../util/base");
@@ -56,7 +56,7 @@ exports.createCategory = catchAsync(async (req, res) => {
         return generalError(res, `Category "${req.body?.name}" exists`)
     }
 
-    await createCategoryQuery(...data)
+    await createCategoryQuery(data)
 
     return success(res, {}, "Category Created")
 
@@ -88,4 +88,13 @@ exports.fetchProductsUnderCategory = catchAsync(async (req, res) => {
 
 
 
+})
+
+exports.getSpecificProduct = catchAsync(async(req, res) =>{
+    const product_id = req.params?.product_id
+    
+    const data = await getspecificProduct(product_id)
+
+    return success(res, data, "Fetched")
+    
 })

@@ -18,6 +18,6 @@ exports.categoryCreationSchema = Joi.object(
     }
 ).required().messages(
     {
-        "any.required": "Kindly upload a product to continue."
+        "any.required": "Kindly upload a category to continue."
     }
 )

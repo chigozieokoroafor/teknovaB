@@ -21,7 +21,16 @@ exports.PARAMS = {
     email:"email",
     name:"name",
     password:"password",
-    uid:"uid"
+    uid:"uid",
+    categoryId:"categoryId",
+    discount:"discount",
+    price:"price",
+    img_blob:"img_blob",
+    img_url:"img_url",
+    colors:"colors",
+    description:"description",
+    units:"units",
+    specifications:"specifications"
 }
 
 exports.FETCH_LIMIT = 20

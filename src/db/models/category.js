@@ -21,7 +21,7 @@ const category = conn.define(MODEL_NAMES.user, {
         allowNull: true
     },
     img_blob:{
-        type:DataTypes.BLOB
+        type:DataTypes.BLOB("long")
     },
     img_url: {
         type: DataTypes.TEXT("medium"),
