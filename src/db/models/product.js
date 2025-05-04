@@ -1,6 +1,7 @@
 const { DataTypes } = require("sequelize");
 const { MODEL_NAMES } = require("../../util/consts");
 const { conn } = require("../base");
+const { createUUID } = require("../../util/base");
 
 const product = conn.define(MODEL_NAMES.product, {
     id: {
@@ -8,6 +9,12 @@ const product = conn.define(MODEL_NAMES.product, {
         unique: true,
         autoIncrement: true,
         primaryKey: true
+    },
+    uid: {
+        type: DataTypes.STRING(255),
+        allowNull: false,
+        unique: true,
+        defaultValue: createUUID
     },
     categoryId: {
         type: DataTypes.INTEGER,
@@ -25,6 +32,14 @@ const product = conn.define(MODEL_NAMES.product, {
     price: {
         type: DataTypes.DOUBLE
     },
+    img_blob: {
+        type: DataTypes.BLOB("long"),
+        allowNull: false
+    },
+    img_url: {
+        type: DataTypes.TEXT("medium"),
+        allowNull: true
+    },
 
     colors: {
         type: DataTypes.JSON,
@@ -40,15 +55,22 @@ const product = conn.define(MODEL_NAMES.product, {
         defaultValue: 0
     },
 
-    specifications:{
+    specifications: {
         type: DataTypes.JSON,
-        allowNull:true
+        allowNull: true
     }
 
 
 }, {
     tableName: MODEL_NAMES.product,
-    modelName: MODEL_NAMES.product
+    modelName: MODEL_NAMES.product,
+    hooks: {
+        beforeCreate: (product, options) => {
+            if (!product.img_url && product.uid) {
+                product.img_url = `https://yourdomain.com/images/${product.uid}`;
+            }
+        }
+    }
 })
 
 module.exports = {

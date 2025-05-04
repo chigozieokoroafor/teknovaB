@@ -8,6 +8,12 @@ exports.productUploadSchema = Joi.object(
                 "string.empty": "Kindly provide a name of the product"
             }
         ),
+        categoryId:Joi.string().required().messages(
+            {
+                "any.required": "Kindly select a category the product falls under",
+                "string.empty": "Kindly provide a category"
+            }
+        ),
         discount: Joi.number().messages(
             {
                 "number.base": "Discount required as a number.",
@@ -47,7 +53,14 @@ exports.productUploadSchema = Joi.object(
         ).messages({
             "array.base": "Specifications must be an array",
             "array.includesRequiredUnknowns": "Specifications items must contain spec and extraCost"
-        })
+        }),
+        file:Joi.string().regex(/^data:image\/png;base64,/).required().messages(
+            {
+                "any.required":"file required",
+                "string.regex.base":"file required as a base64 string",
+                "string.empty":"file cannot be empty"
+            }
+        )
     }
 ).required().messages(
     {

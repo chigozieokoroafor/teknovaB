@@ -42,14 +42,3 @@ exports.login = catchAsync(async (req, res) => {
     return success(res, { token }, "Login successful")
 
 })
-
-exports.addProducts = catchAsync(async (req, res,) => {
-    const valid_ = productUploadSchema.validate(req.body)
-    if (valid_.error){
-        return generalError(res, valid_.error.message)
-    }
-
-    console.log("body:::", req.body)
-
-    return success(res, {}, "xdscf")
-})

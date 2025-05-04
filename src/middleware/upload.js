@@ -27,10 +27,11 @@ const upload = multer({storage:storage, fileFilter:fileFilter, limits: {
 const uploadMiddleWare = (req, res, next) =>{
     // console.log("tests:::1")
     const uploadF = upload.single("file")
-    // console.log("tests:::3")
+    console.log("tests:::3", req.file)
 
     uploadF(req, res, (err)=>{
         if (err){
+            console.log(err)
             return generalError(res, err.message)
         }
 
