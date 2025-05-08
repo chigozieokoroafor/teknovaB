@@ -11,7 +11,7 @@ exports.getProductsByCategory = async (categoryId, limit, offset) => {
             where: {
                 categoryId
             },
-            attributes:[
+            attributes: [
                 PARAMS.uid,
                 PARAMS.name,
                 PARAMS.img_url,
@@ -32,5 +32,16 @@ exports.getspecificProduct = async (productId) => {
             }
 
         }
+    )
+}
+
+exports.searchProduct = async (query, offset, limit) => {
+    return await product.findAll(
+        { 
+            where: query ,
+            offset,
+            limit
+        }
+        
     )
 }

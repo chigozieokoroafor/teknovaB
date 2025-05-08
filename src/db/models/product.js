@@ -1,5 +1,5 @@
 const { DataTypes } = require("sequelize");
-const { MODEL_NAMES } = require("../../util/consts");
+const { MODEL_NAMES, PARAMS } = require("../../util/consts");
 const { conn } = require("../base");
 const { createUUID } = require("../../util/base");
 
@@ -64,6 +64,13 @@ const product = conn.define(MODEL_NAMES.product, {
 }, {
     tableName: MODEL_NAMES.product,
     modelName: MODEL_NAMES.product,
+    indexes:[
+        {
+            type: 'FULLTEXT',
+            name: "product_text_idx",
+            fields: [PARAMS.name]
+        },
+    ],
     hooks: {
         beforeCreate: (product, options) => {
             if (!product.img_url && product.uid) {
