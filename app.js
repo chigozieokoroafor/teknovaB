@@ -1,7 +1,7 @@
 const express = require("express")
 const cors = require("cors")
 const { errorHandler } = require("./src/errorHandler/errorHandler")
-const { success } = require("./src/errorHandler/statusCodes")
+const { success, notFound } = require("./src/errorHandler/statusCodes")
 const { sync } = require("./src/db/sync")
 const { createDatabaseIfNotExists } = require("./src/db/base")
 const { baseRouter } = require("./src/routes/baseRouter")
@@ -19,7 +19,9 @@ app.use("/api", baseRouter)
 app.use("/admin", adminRouter)
 
 app.use("/", (req, res) => {
-    success(res, {}, "Welcome to TekNova")
+    console.log(req.url)
+    return notFound(res, `Path not found : ${req.url}`)
+    // (res, {}, `Welcome to TekNova. Kindly note path specified not found {} `)
 })
 
 

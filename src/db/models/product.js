@@ -2,6 +2,7 @@ const { DataTypes } = require("sequelize");
 const { MODEL_NAMES, PARAMS } = require("../../util/consts");
 const { conn } = require("../base");
 const { createUUID } = require("../../util/base");
+const { cart } = require("./cart");
 
 const product = conn.define(MODEL_NAMES.product, {
     id: {
@@ -79,6 +80,9 @@ const product = conn.define(MODEL_NAMES.product, {
         }
     }
 })
+
+product.hasMany(cart, {foreignKey:PARAMS.productId, sourceKey:PARAMS.uid})
+cart.belongsTo(product, {foreignKey:PARAMS.productId, targetKey:PARAMS.uid})
 
 module.exports = {
     product

@@ -30,7 +30,10 @@ exports.PARAMS = {
     colors:"colors",
     description:"description",
     units:"units",
-    specifications:"specifications"
+    specifications:"specifications",
+    productId:"productId",
+    unit_price:"unit_price",
+    total_amount:"total_amount"
 }
 
 exports.FETCH_LIMIT = 20

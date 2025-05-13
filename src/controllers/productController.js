@@ -100,10 +100,11 @@ exports.getSpecificProduct = catchAsync(async (req, res) => {
 
 })
 
+// for search
 exports.getAllProductsWithFilter = catchAsync(async (req, res) => {
     const { category, search, max_price, min_price, page } = req.query
 
-    if (page <= 0) {
+    if (page <= 0 || !page) {
         return generalError(res, "Page cannot be less than 1")
     }
 
@@ -115,9 +116,9 @@ exports.getAllProductsWithFilter = catchAsync(async (req, res) => {
     if (search) {
         query_list.push(Sequelize.literal(`MATCH (${PARAMS.name}) AGAINST("${search}" IN BOOLEAN MODE)`),)
         actual_query[PARAMS.name] = {
-            [Op.like] : `%${search}%`
+            [Op.like]: `%${search}%`
         }
-    
+
     }
     if (category) {
         actual_query[PARAMS.categoryId] = category
@@ -132,9 +133,14 @@ exports.getAllProductsWithFilter = catchAsync(async (req, res) => {
 
     return success(res, data, "testing")
 
+})
 
 
+// merge these 2 items into 1 for the home page.
+exports.getPopularProducts = catchAsync(async (req, res) => {
 
+})
 
+exports.getNewArrivals = catchAsync(async (req, res) => {
 
 })
