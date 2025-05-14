@@ -1,8 +1,8 @@
-const { addToCartQuery } = require("../db/querys/cart");
+const { addToCartQuery, fetchCartItems } = require("../db/querys/cart");
 const { getspecificProduct } = require("../db/querys/products");
 const { catchAsync } = require("../errorHandler/allCatch");
 const { generalError, notFound, internalServerError, success } = require("../errorHandler/statusCodes");
-const { PARAMS } = require("../util/consts");
+const { PARAMS, FETCH_LIMIT } = require("../util/consts");
 const { addToCartSchema } = require("../util/validators/cartValidator");
 
 exports.addItemToCart = catchAsync(async (req, res) => {
@@ -22,7 +22,8 @@ exports.addItemToCart = catchAsync(async (req, res) => {
 
 
 
-    data["unit_price"] = product[PARAMS.price]
+    // data["unit_price"] = product[PARAMS.price]
+
     data[PARAMS.uid] = user_id
     data[PARAMS.total_amount] = data["unit_price"] * data[PARAMS.units]
 
@@ -41,5 +42,16 @@ exports.addItemToCart = catchAsync(async (req, res) => {
 exports.getCart = catchAsync(async (req, res) => {
     const user_id = req.user?.uid
 
-    return success(res, {}, "Working")
+    offset = 0
+    const data = await fetchCartItems(user_id, offset, FETCH_LIMIT)
+
+    const total = data.reduce((total, item) => total + item[PARAMS.total_amount], 0)
+
+    return success(res, { cart: data, total }, "Working")
+})
+
+exports.checkout = catchAsync(async (req, res) => {
+    const user_id = req.user?.uid
+    
+
 })

@@ -33,7 +33,8 @@ exports.PARAMS = {
     specifications:"specifications",
     productId:"productId",
     unit_price:"unit_price",
-    total_amount:"total_amount"
+    total_amount:"total_amount",
+    isDeleted:"isDeleted"
 }
 
 exports.FETCH_LIMIT = 20

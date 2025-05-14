@@ -42,17 +42,21 @@ exports.productUploadSchema = Joi.object(
         ),
         specifications: Joi.array().items(
             Joi.object({
-                spec: Joi.string().required().messages({
-                    "any.required": "Specification name is required",
-                    "string.empty": "Specification name cannot be empty"
+                ram: Joi.string().messages({
+                    "any.required": "RAM is required",
+                    "string.empty": "RAM  cannot be empty"
                 }),
-                extraCost: Joi.number().default(0).messages({
-                    "number.base": "Extra cost must be a number"
+                rom: Joi.string().messages({
+                    "any.required": "ROM is required",
+                    "string.empty": "ROM cannot be empty"
+                }),
+                cost: Joi.number().default(0).messages({
+                    "number.base": "Cost for specification must be a number"
                 })
             })
         ).messages({
             "array.base": "Specifications must be an array",
-            "array.includesRequiredUnknowns": "Specifications items must contain spec and extraCost"
+            "array.includesRequiredUnknowns": "Specifications items must contain ram, rom and cost."
         }),
         file:Joi.string().regex(/^data:image\/png;base64,/).required().messages(
             {

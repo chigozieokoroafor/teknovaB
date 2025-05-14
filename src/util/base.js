@@ -221,3 +221,44 @@ exports.verifytoken = (token, secret = process.env.AUTH_SECRET) =>{
 exports.createUUID = () => {
     return randToken.uid(15)
 }
+
+exports.initializePayment = async (ref, amount, email, meta) => {
+    // console.log("metaL:::::",meta)
+
+    try {
+        const url = "https://api.paystack.co/transaction/initialize"
+
+        const resp = await axios.post(
+            url,
+            {
+                reference: ref,
+                amount: `${amount * 100}`,
+                email: email,
+                channels: ["card", "bank", "apple_pay", "ussd", "qr", "mobile_money", "bank_transfer", "eft"],
+                // callback_url:"https://deestar.netlify.app/",
+                callback_url:process.env.WEB_BASE_URL,
+                metadata: meta,
+            },
+            {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${process.env.PAYSTACK_SECRET}`
+                }
+            }
+        );
+
+        // Check the response status
+        if (resp.status === 200) {
+            const jsn = resp.data;
+            return { url: jsn?.data?.authorization_url, success: true };
+        } else {
+            console.log("status::error::paystack request:::", resp.data)
+            return { url: "", success: false, "msg": "Unable to initialize transaction" };
+        }
+
+    } catch (error) {
+        console.log("error::::Catch:::", error)
+        return { success: false, msg: `Error while initializing transaction: ${error.message}` }
+    }
+
+}

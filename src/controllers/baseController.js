@@ -88,7 +88,7 @@ exports.login = catchAsync(async (req, res) => {
     }
     // put email verification here to check if userIsn't verified
 
-    const token = generateToken({ id: user.uid , userType:"user"}, 14 * 60 * 60)
+    const token = generateToken({ id: user.uid , userType:"user"}, 14 * 60 * 60000)
 
     // do a set session here instead of returning authorization token.
 

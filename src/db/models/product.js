@@ -29,7 +29,10 @@ const product = conn.define(MODEL_NAMES.product, {
         type: DataTypes.DOUBLE,
         defaultValue: 0.0
     },
-
+    discountExpiry:{
+        type:DataTypes.DATE,
+        allowNull:true
+    },
     price: {
         type: DataTypes.DOUBLE
     },
@@ -59,6 +62,10 @@ const product = conn.define(MODEL_NAMES.product, {
     specifications: {
         type: DataTypes.JSON,
         allowNull: true
+    },
+    isDeleted:{
+        type:DataTypes.BOOLEAN,
+        defaultValue:false
     }
 
 

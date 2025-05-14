@@ -1,6 +1,6 @@
 const { Sequelize, Op } = require("sequelize");
 const { checkCategoryExists, createCategoryQuery, fetchCategoryQuery } = require("../db/querys/category");
-const { uploadProduct, getProductsByCategory, getspecificProduct, searchProduct } = require("../db/querys/products");
+const { uploadProduct, getProductsByCategory, getspecificProduct, searchProduct, deleteProductQuery } = require("../db/querys/products");
 const { catchAsync } = require("../errorHandler/allCatch");
 const { generalError, success, notFound } = require("../errorHandler/statusCodes");
 const { createUUID } = require("../util/base");
@@ -98,6 +98,21 @@ exports.getSpecificProduct = catchAsync(async (req, res) => {
 
     return success(res, data, "Fetched")
 
+})
+
+exports.deleteProducts = catchAsync(async (req, res) => {
+    const product_id = req.query.product_id
+
+    if (!product_id) {
+        return generalError(res, "Kindly select product to delete")
+    }
+
+    const q = await deleteProductQuery(product_id)
+
+    console.log(q)
+
+    return success(res, {}, "deleted")
+    
 })
 
 // for search

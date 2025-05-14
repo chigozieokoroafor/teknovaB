@@ -9,7 +9,8 @@ exports.getProductsByCategory = async (categoryId, limit, offset) => {
     return await product.findAll(
         {
             where: {
-                categoryId
+                categoryId,
+                [PARAMS.isDeleted]:false
             },
             attributes: [
                 PARAMS.uid,
@@ -29,15 +30,19 @@ exports.getspecificProduct = async (productId) => {
     return await product.findOne(
         {
             where: {
-                id: productId
+                [PARAMS.uid]: productId,
+                [PARAMS.isDeleted]:false
             },
-            attributes:[PARAMS.categoryId, PARAMS.colors, PARAMS.description, PARAMS.discount, PARAMS.img_url, PARAMS.name, PARAMS.price, PARAMS.id, PARAMS.units],
+            attributes:[PARAMS.categoryId, PARAMS.colors, PARAMS.description, PARAMS.discount, PARAMS.img_url, PARAMS.name, PARAMS.price, PARAMS.uid, PARAMS.units, PARAMS.specifications],
 
         }
     )
 }
 
 exports.searchProduct = async (query, offset, limit) => {
+
+    query[PARAMS.isDeleted] = false
+
     return await product.findAll(
         {
             where: query,
@@ -47,4 +52,8 @@ exports.searchProduct = async (query, offset, limit) => {
         }
 
     )
+}
+
+exports.deleteProductQuery = async(productId) =>{
+    return await product.update({[PARAMS.isDeleted]:true}, {where:{[PARAMS.uid]:productId}})
 }

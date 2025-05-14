@@ -15,6 +15,12 @@ exports.addToCartSchema = Joi.object(
                 "number.empty": "Units to be purchased cannot be less than 1."
             }
         ),
+        [PARAMS.unit_price]:Joi.number().required().messages(
+            {
+                "any.required": "kindly provide the unit price of products being purchased.",
+                // "number.empty": "Unit price  of product to be purchased cannot be less than 1."
+            }
+        ),
         [PARAMS.specifications]: Joi.object(
             // {
             //     "color",
@@ -28,5 +34,15 @@ exports.addToCartSchema = Joi.object(
     {
         "any.required": "Cart details required",
         "object.empty": "product to upload cannot be empty"
+    }
+)
+
+
+exports.checkoutSchema = Joi.object(
+
+).required().messages(
+    {
+        "any.required": "Checkout details required",
+        "object.empty": "Cart to checkout cannot be empty"
     }
 )
