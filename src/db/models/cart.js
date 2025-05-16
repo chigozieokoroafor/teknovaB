@@ -29,6 +29,10 @@ const cart = conn.define(MODEL_NAMES.cart, {
     },
     [PARAMS.total_amount]:{
         type:DataTypes.DOUBLE
+    },
+    [PARAMS.ordered]:{
+        type:DataTypes.BOOLEAN,
+        defaultValue:false
     }
 }, {
     tableName:MODEL_NAMES.cart,

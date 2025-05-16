@@ -10,7 +10,9 @@ exports.fetchCartItems = async(uid, offset, limit) =>{
     return await cart.findAll(
         {
             where:{
-                uid
+                uid,
+                [PARAMS.ordered]:false
+
             },
             include:[
                 {
@@ -20,6 +22,25 @@ exports.fetchCartItems = async(uid, offset, limit) =>{
             ],
             offset,
             limit
+        }
+    )
+}
+
+exports.fetchCartItemsToOrder = async(uid) =>{
+    return await cart.findAll(
+        {
+            where:{
+                uid,
+                [PARAMS.ordered]:false
+
+            },
+            attributes:[PARAMS.id, PARAMS.total_amount]
+            // include:[
+            //     {
+            //         model:product,
+            //         attributes:[PARAMS.uid, PARAMS.img_url, PARAMS.specifications, PARAMS.name]
+            //     }
+            // ]
         }
     )
 }

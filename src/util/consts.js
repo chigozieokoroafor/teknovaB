@@ -34,7 +34,10 @@ exports.PARAMS = {
     productId:"productId",
     unit_price:"unit_price",
     total_amount:"total_amount",
-    isDeleted:"isDeleted"
+    isDeleted:"isDeleted",
+    ordered:"ordered",
+    cartId:"cart_Id",
+    orderId:"orderId",
 }
 
 exports.FETCH_LIMIT = 20

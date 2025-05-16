@@ -11,18 +11,22 @@ const order = conn.define(MODEL_NAMES.order, {
     }, 
     orderId:{
         type:DataTypes.STRING(255),
-        unique:true
+        // unique:false
     },
-    cart_items:{
-        type: DataTypes.JSON,
+    cart_Id:{
+        type: DataTypes.STRING(255),
         allowNull:false
     },
-    status:{
+    status:{ // delivered or not
         type: DataTypes.STRING(255),
         allowNull:false,
         defaultValue:STATUSES.pending
     },
-    
+    paymentStatus:{ //status of payment
+        type: DataTypes.STRING(255),
+        allowNull:false,
+        defaultValue:STATUSES.pending
+    }
 }, {
     tableName:MODEL_NAMES.order,
     modelName:MODEL_NAMES.order

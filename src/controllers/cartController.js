@@ -1,7 +1,8 @@
-const { addToCartQuery, fetchCartItems } = require("../db/querys/cart");
+const { addToCartQuery, fetchCartItems, fetchCartItemsToOrder } = require("../db/querys/cart");
 const { getspecificProduct } = require("../db/querys/products");
 const { catchAsync } = require("../errorHandler/allCatch");
 const { generalError, notFound, internalServerError, success } = require("../errorHandler/statusCodes");
+const { createUUID, initializePayment } = require("../util/base");
 const { PARAMS, FETCH_LIMIT } = require("../util/consts");
 const { addToCartSchema } = require("../util/validators/cartValidator");
 
@@ -52,6 +53,32 @@ exports.getCart = catchAsync(async (req, res) => {
 
 exports.checkout = catchAsync(async (req, res) => {
     const user_id = req.user?.uid
+    const cart = await fetchCartItemsToOrder(user_id)
+    
+    const orderId = createUUID()
+    const total_amount = cart.reduce((total, current) => total + current[PARAMS.total_amount], 0 )
+    const cart_ids = []
+
+    const order_data = cart.map((item)=> {
+
+        cart_ids.push(item.id)
+        return {
+            [PARAMS.orderId] : orderId,
+            [PARAMS.cartId]:item.id,
+        }
+    })
+
+    const response = await initializePayment(createUUID(), total_amount, req.user?.email)
+    if (!response.success){
+        return generalError(res, response.msg, )
+    }
+
+    console.log
+
+
+
+
+
     
 
 })
