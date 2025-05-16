@@ -27,10 +27,10 @@ app.use("/", (req, res) => {
 
 app.use(errorHandler)
 
-const port = process.env.PORT ?? 3000
+const port = process.env.PORT ?? 9500
 
 
-
+console.log("proposed port::",port)
 createDatabaseIfNotExists().then(() => {
     sync().then(() => {
         app.listen(port, () => {
