@@ -6,6 +6,8 @@ const { sync } = require("./src/db/sync")
 const { createDatabaseIfNotExists } = require("./src/db/base")
 const { baseRouter } = require("./src/routes/baseRouter")
 const { adminRouter } = require("./src/routes/adminRouter")
+// const compression = require("compression")
+
 
 const app = express()
 

@@ -31,10 +31,11 @@ exports.addProducts = catchAsync(async (req, res) => {
     data["specifications"] = req.body?.specifications
 
 
-    console.log("data:::;", data)
+    // console.log("data:::;", data)
     try {
         await uploadProduct(data)
     } catch (error) {
+        console.log("product::: error::::",error)
         return generalError(res, "Unable to add product at current time.", {})
     }
 

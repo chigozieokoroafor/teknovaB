@@ -25,7 +25,7 @@ exports.sync = async () => {
                 // product.sync({alter:true}),
                 // review.sync({alter:true}),
                 // shipping.sync({alter:true}),
-                transaction.sync({alter:true})
+                // transaction.sync({alter:true})
 
             ]
         )
