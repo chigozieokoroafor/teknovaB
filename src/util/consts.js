@@ -38,6 +38,8 @@ exports.PARAMS = {
     ordered:"ordered",
     cartId:"cart_Id",
     orderId:"orderId",
+    reference:"reference",
+    amount:"amount"
 }
 
 exports.FETCH_LIMIT = 20

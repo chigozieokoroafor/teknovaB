@@ -2,6 +2,7 @@ const { Router } = require("express")
 const baseController = require("../controllers/baseController")
 const productController = require("../controllers/productController")
 const cartController = require("../controllers/cartController")
+const paymentController = require("../controllers/paymentController")
 const { baseAuth } = require("../middleware/auth")
 
 const base = Router()
@@ -19,6 +20,7 @@ base.post("/cart", baseAuth, cartController.addItemToCart)
 base.get("/cart", baseAuth, cartController.getCart)
 base.post("/checkout", baseAuth, cartController.checkout)
 
+base.post("/payment/webhook",paymentController.paymentWebhook )
 
 
 module.exports = {

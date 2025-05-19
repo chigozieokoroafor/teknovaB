@@ -44,3 +44,8 @@ exports.fetchCartItemsToOrder = async(uid) =>{
         }
     )
 }
+
+
+exports.updateCartItemsforOrder = async(update, where) =>{
+    await cart.update(update, {where:where})
+}

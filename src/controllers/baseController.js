@@ -41,7 +41,7 @@ exports.createAccount = catchAsync(async (req, res) => {
 
     console.log("ur:::, base:::", baseUrl)
 
-    success(res, {}, "working")
+    success(res, {}, "Verification mail sent to Mail")
 
     sendAccountVerificationMail(email, baseUrl, username)
 })

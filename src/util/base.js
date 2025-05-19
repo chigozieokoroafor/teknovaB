@@ -4,6 +4,7 @@ const nodemailer = require("nodemailer")
 const jwt = require("jsonwebtoken")
 const bcrypt = require("bcryptjs");
 const randToken = require("rand-token")
+const axios  = require("axios")
 
 
 exports.sendEmail = (subject, to, html, attachments, envelope) => { //attachments should be an array; envelope is a json containing a 'to' and 'cc'
@@ -223,7 +224,7 @@ exports.createUUID = () => {
 }
 
 exports.initializePayment = async (ref, amount, email, meta) => {
-    // console.log("metaL:::::",meta)
+    console.log("metaL:::::",meta)
 
     try {
         const url = "https://api.paystack.co/transaction/initialize"
