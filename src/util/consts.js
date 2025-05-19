@@ -39,7 +39,8 @@ exports.PARAMS = {
     cartId:"cart_Id",
     orderId:"orderId",
     reference:"reference",
-    amount:"amount"
+    amount:"amount",
+    cart_ids:"cart_ids"
 }
 
 exports.FETCH_LIMIT = 20

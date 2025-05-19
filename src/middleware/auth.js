@@ -33,7 +33,7 @@ class Auth {
 
         try {
             const payload = jwt.verify(token, this.secret);
-            console.log("payload::",payload)
+            // console.log("payload::",payload)
             const user_data = await fetchUserForMiddleware(payload.id ?? payload.uid)
             req.user = user_data?.toJSON();
 
@@ -66,7 +66,7 @@ class Auth {
 
 const baseAuth = (req, res, next) => { // auth for students
     new Auth().auth(req, res, () => {
-        console.log("user:::", req.user )
+        // console.log("user:::", req.user )
         if (req?.err?.err) {
             return newError(res, req.err.err, req.err.status);
         } else if (!req?.user?.uid) {

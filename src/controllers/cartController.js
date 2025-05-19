@@ -72,26 +72,21 @@ exports.checkout = catchAsync(async (req, res) => {
     }
 
 
-    const promises = await Promise.allSettled([updateCartItemsforOrder({ orderId: orderId }, { id: { [Op.in]: cart_ids } }), uploadTransaction(
+    await uploadTransaction(
         {
+            [PARAMS.uid]:user_id,
             [PARAMS.orderId]:orderId,
             [PARAMS.reference]:ref,
             [PARAMS.amount]:total_amount,
 
 
         }
-    )])
+    )
 
 
 
 
 
-    success(res, { url: response.url }, "Click to get to payment.")
-
-
-
-
-
-
+    return success(res, { url: response.url }, "Click to get to payment.")
 
 })

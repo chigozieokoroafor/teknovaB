@@ -1,6 +1,7 @@
 
 require("dotenv").config()
 
+const { updateCartItemsforOrder } = require("../db/querys/cart");
 const { updateTransaction } = require("../db/querys/transactions");
 const { catchAsync } = require("../errorHandler/allCatch");
 const { PARAMS } = require("../util/consts");
@@ -20,22 +21,17 @@ exports.paymentWebhook = catchAsync(async (req, res)=>{
     try{
         const data = req.body;
         if (data.event == "charge.success"){      
-            
-            const update = await updateTransaction({status:"Success"}, data.data.metadata[PARAMS.orderId])
-            
+            const cart_ids = data.data.metadata[PARAMS.cart_ids]
+            const orderId = data.data.metadata[PARAMS.orderId]
+            const promises = await Promise.allSettled([updateTransaction({status:"Success"}, orderId ), updateCartItemsforOrder({ orderId: orderId }, { id: { [Op.in]: cart_ids } })])
+
+            promises.forEach((promise, index) =>{
+                console.log("promise:::::", index, ":::::", promise.status)
+                console.log("promise:::::", promise.reason)
+            })
             console.log("Transaction update::::",update, "::::trx::::ref", data.data.reference)
-
-            // const booking = await getSpecificBooking(event.data?.metadata?.bookingId)
-            // // console.log("buffer::::",booking.resume_buffer)
-            // // console.log("fileName:::", `${event.data?.metadata?.name}.${booking.resume_mimetype}`)
-
-            // notifier.emit(notification_events.sendMailInterviewer, booking.resume_buffer, event.data?.metadata?.time, event.data?.metadata?.date, event.data?.metadata?.name, event.data?.customer?.email, `${event.data?.metadata?.name}.${booking.resume_mimetype}`, booking.notes)
-
-            // notifier.emit(notification_events.sendMailSeeker, event.data?.customer?.email, event.data?.metadata?.name.split(" ")[0], event.data?.metadata?.date, event.data?.metadata?.time)
             
         }
-
-
 
     }
     catch(error){
