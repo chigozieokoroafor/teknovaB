@@ -66,7 +66,7 @@ exports.checkout = catchAsync(async (req, res) => {
     })
 
     const ref = createUUID()
-    const response = await initializePayment(ref, total_amount, req.user?.email, { [PARAMS.orderId]: orderId })
+    const response = await initializePayment(ref, total_amount, req.user?.email, { [PARAMS.orderId]: orderId, [PARAMS.cart_ids]:cart_ids })
     if (!response.success) {
         return generalError(res, response.msg,)
     }
