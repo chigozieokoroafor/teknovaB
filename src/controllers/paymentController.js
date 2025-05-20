@@ -33,7 +33,7 @@ exports.paymentWebhook = catchAsync(async (req, res)=>{
                 console.log("promise:::::", index, ":::::", promise.status)
                 console.log("promise:::::", promise.reason)
             })
-            console.log("Transaction update::::",update, "::::trx::::ref", data.data.reference)
+            
             
         }
 
