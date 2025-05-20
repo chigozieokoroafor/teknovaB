@@ -3,7 +3,7 @@ const { checkCategoryExists, createCategoryQuery, fetchCategoryQuery } = require
 const { uploadProduct, getProductsByCategory, getspecificProduct, searchProduct, deleteProductQuery } = require("../db/querys/products");
 const { catchAsync } = require("../errorHandler/allCatch");
 const { generalError, success, notFound } = require("../errorHandler/statusCodes");
-const { createUUID } = require("../util/base");
+const { createUUID, sendEmail } = require("../util/base");
 const { FETCH_LIMIT, PARAMS } = require("../util/consts");
 const { categoryCreationSchema } = require("../util/validators/categoryValidator");
 const { productUploadSchema } = require("../util/validators/productsValidator");
@@ -35,7 +35,8 @@ exports.addProducts = catchAsync(async (req, res) => {
     try {
         await uploadProduct(data)
     } catch (error) {
-        console.log("product::: error::::",error)
+        // console.log("product::: error::::",error)
+        sendEmail("Error on product upload", "okoroaforc14@gmail.com", error)
         return generalError(res, "Unable to add product at current time.", {})
     }
 
