@@ -15,10 +15,11 @@ exports.paymentWebhook = catchAsync(async (req, res)=>{
     if (hash != req.headers['x-paystack-signature']) {
         return generalError(res, "Lmao, transaction unverified.")
     }
-    // console.log("recieved:::webhook", req.body )
+    console.log("recieved:::webhook", req.body )
     success(res, {}, "Recieved")
     
     try{
+        console.log("here::: success")
         const data = req.body;
         if (data.event == "charge.success"){      
             const cart_ids = data.data.metadata[PARAMS.cart_ids]
