@@ -57,6 +57,10 @@ exports.checkout = catchAsync(async (req, res) => {
     const user_id = req.user?.uid
     const cart = await fetchCartItemsToOrder(user_id)
 
+    if(cart.length < 1){
+        return generalError(res, "No items in cart to purchase")
+    }
+
     const orderId = createUUID()
     const total_amount = cart.reduce((total, current) => total + current[PARAMS.total_amount], 0)
     const cart_ids = cart.map((item) => {
