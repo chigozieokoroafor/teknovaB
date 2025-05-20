@@ -1,6 +1,7 @@
 
 require("dotenv").config()
 
+const { Op } = require("sequelize");
 const { updateCartItemsforOrder } = require("../db/querys/cart");
 const { updateTransaction } = require("../db/querys/transactions");
 const { catchAsync } = require("../errorHandler/allCatch");
