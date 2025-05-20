@@ -18,7 +18,7 @@ base.get("/products/popular", productController.getPopularProducts)
 base.get("/products/new", productController.getNewArrivals)
 base.post("/cart", baseAuth, cartController.addItemToCart)
 base.get("/cart", baseAuth, cartController.getCart)
-base.post("/checkout", baseAuth, cartController.checkout)
+base.get("/checkout", baseAuth, cartController.checkout)
 
 base.post("/payment/webhook",paymentController.paymentWebhook )
 
