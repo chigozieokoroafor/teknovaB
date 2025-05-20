@@ -22,7 +22,7 @@ exports.sync = async () => {
                 // category.sync({ alter: true }),
                 // images.sync({alter:true}),
                 // order.sync({alter:true}),
-                // product.sync({alter:true}),
+                product.sync({alter:true}),
                 // review.sync({alter:true}),
                 // shipping.sync({alter:true}),
                 // transaction.sync({alter:true})
