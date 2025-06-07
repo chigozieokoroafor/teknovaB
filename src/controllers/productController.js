@@ -18,6 +18,8 @@ exports.addProducts = catchAsync(async (req, res) => {
 
     // let data = req.body
 
+    // new flow -> insert data into db, create a background worker to upload files to bunny, once done, create an emmitter to add files appropriately🤔🤔🤔
+
     const data = new Object()
 
     data["name"] = req.body?.name

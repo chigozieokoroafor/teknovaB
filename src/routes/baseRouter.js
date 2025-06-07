@@ -10,6 +10,9 @@ const base = Router()
 base.post("/register", baseController.createAccount)
 base.post("/login", baseController.login)
 base.get("/verify", baseController.verify)
+
+base.get("/profile",baseAuth, baseController.fetchProfile)
+
 base.get("/category", productController.fetchCategories)
 base.get("/category/:category_id", productController.fetchProductsUnderCategory)
 base.get("/product/:product_id", productController.getSpecificProduct)

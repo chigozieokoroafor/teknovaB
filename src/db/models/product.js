@@ -1,3 +1,6 @@
+require("dotenv").config()
+
+
 const { DataTypes } = require("sequelize");
 const { MODEL_NAMES, PARAMS } = require("../../util/consts");
 const { conn } = require("../base");
@@ -35,10 +38,6 @@ const product = conn.define(MODEL_NAMES.product, {
     },
     price: {
         type: DataTypes.DOUBLE
-    },
-    img_blob: {
-        type: DataTypes.BLOB("long"),
-        allowNull: false
     },
     img_url: {
         type: DataTypes.TEXT("medium"),
@@ -82,7 +81,7 @@ const product = conn.define(MODEL_NAMES.product, {
     hooks: {
         beforeCreate: (product, options) => {
             if (!product.img_url && product.uid) {
-                product.img_url = `https://yourdomain.com/images/${product.uid}`;
+                product.img_url = `${process.env.API_BASE_URL}/api/images/${product.uid}`;
             }
         }
     }

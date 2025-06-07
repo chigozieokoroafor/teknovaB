@@ -1,29 +1,26 @@
 const { DataTypes } = require("sequelize");
-const { MODEL_NAMES } = require("../../util/consts");
+const { MODEL_NAMES, PARAMS } = require("../../util/consts");
 const { conn } = require("../base");
 
 const images = conn.define(MODEL_NAMES.images, {
-    id:{
+    [PARAMS.id]:{
         type:DataTypes.INTEGER,
         unique:true,
         autoIncrement:true,
         primaryKey:true
     }, 
-    categoryId:{
-        type:DataTypes.STRING(40),
-        allowNull:true
-    },
-    productId:{
-        type: DataTypes.INTEGER,
-        allowNull:true
-    },
-    blob:{
-        type: DataTypes.BLOB("long"),
+    [PARAMS.uid]:{
+        type:DataTypes.STRING(255),
         allowNull:false
     },
-    type:{
+    // [PARAMS.img_blob]:{
+    //     type:DataTypes.BLOB("long"),
+    //     allowNull:false
+    // },
+
+    [PARAMS.fileType]:{
         type:DataTypes.STRING(255),
-        allowNull:true
+        allowNull:false
     }
     
 }, {

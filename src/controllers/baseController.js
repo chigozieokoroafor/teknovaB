@@ -95,3 +95,7 @@ exports.login = catchAsync(async (req, res) => {
     return success(res, {token}, "Login successful")
 
 })
+
+exports.fetchProfile = catchAsync(async (req, res) =>{
+  return success(res, req.user, "Profile fetched")
+})
