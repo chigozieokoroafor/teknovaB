@@ -34,7 +34,15 @@ const user = conn.define(MODEL_NAMES.user, {
     isVerified:{
         type:DataTypes.BOOLEAN,
         defaultValue:false
-    }
+    },
+    billing_address:{
+        type: DataTypes.TEXT("long"),
+        allowNull:true
+    },
+    shpping_address:{
+        type: DataTypes.TEXT("long"),
+        allowNull:true 
+    }  
 }, {
     tableName:MODEL_NAMES.user,
     modelName:MODEL_NAMES.user

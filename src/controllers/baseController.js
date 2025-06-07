@@ -37,7 +37,7 @@ exports.createAccount = catchAsync(async (req, res) => {
 
 
     const token = generateToken({ id: uid })
-    const baseUrl = process.env.API_BASE_URL + `?token=${token}`
+    const baseUrl = process.env.WEB_BASE_URL + `?token=${token}`
 
     console.log("ur:::, base:::", baseUrl)
 
