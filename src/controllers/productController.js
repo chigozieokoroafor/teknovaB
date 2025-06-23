@@ -20,13 +20,13 @@ exports.addProducts = catchAsync(async (req, res) => {
 
     // new flow -> insert data into db, create a background worker to upload files to bunny, once done, create an emmitter to add files appropriately🤔🤔🤔
 
-    const data = new Object()
+    let data = {}
 
     data["name"] = req.body?.name
     data["categoryId"] = req.body?.categoryId
     data["discount"] = req.body?.discount ?? 0.0
     data["price"] = req.body?.price
-    data["img_blob"] = req.body?.file
+    data["img_url"] = req.body?.img_url
     data["colors"] = req.body?.colors
     data["description"] = req.body?.description
     data["units"] = req.body?.units
@@ -82,7 +82,7 @@ exports.fetchProductsUnderCategory = catchAsync(async (req, res) => {
 
     const page = req.query?.page
 
-    if (page <= 0) {
+    if (page <= 0 || Number.isNaN(Number(page))) {
         return generalError(res, "Page cannot be less than 1")
     }
     const offset = (Number(page) - 1) * FETCH_LIMIT

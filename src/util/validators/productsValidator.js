@@ -58,13 +58,18 @@ exports.productUploadSchema = Joi.object(
             "array.base": "Specifications must be an array",
             "array.includesRequiredUnknowns": "Specifications items must contain ram, rom and cost."
         }),
-        file:Joi.string().regex(/^data:image\/png;base64,/).required().messages(
+        img_url:Joi.array().required().messages(
             {
-                "any.required":"file required",
-                "string.regex.base":"file required as a base64 string",
-                "string.empty":"file cannot be empty"
+                
             }
         )
+        // file:Joi.string().regex(/^data:image\/png;base64,/).required().messages(
+        //     {
+        //         "any.required":"file required",
+        //         "string.regex.base":"file required as a base64 string",
+        //         "string.empty":"file cannot be empty"
+        //     }
+        // )
     }
 ).required().messages(
     {

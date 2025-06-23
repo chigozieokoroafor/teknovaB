@@ -7,7 +7,7 @@ const { ALL_MIME_TYPES } = require("../util/consts")
 const storage = multer.memoryStorage()
 const fileFilter = (req, file, cb) =>{
     const allowedFileTypes = [
-        ALL_MIME_TYPES.jpeg, ALL_MIME_TYPES.jpg, ALL_MIME_TYPES.png
+        ALL_MIME_TYPES.jpeg, ALL_MIME_TYPES.jpg, ALL_MIME_TYPES.png, ALL_MIME_TYPES.xpng
     ]
     console.log("file mimetype", file.mimetype)
     
@@ -44,6 +44,35 @@ const uploadMiddleWare = (req, res, next) =>{
     })
 }
 
+const multiupload =  multer({storage:storage, fileFilter:fileFilter, limits: {
+    fileSize: 5 * 1024 * 1024, // 5MB limit
+    files: 10                    // Maximum 5 files per upload
+  }})
+
+const multipleuploadMiddleWare = (req, res, next) =>{
+    // console.log("tests:::1")
+    // const uploadF = upload.array("file")
+    // console.log("tests:::3", req.file)
+
+    const uploadF = multiupload.array("images")
+    // console.log("tests:::3", req.files)
+
+    uploadF(req, res, (err)=>{
+        if (err){
+            console.log(err)
+            return generalError(res, err.message)
+        }
+
+        if (!req.files) {
+            return generalError(res, 'images required for product.');
+          }
+
+        // console.log("file::::", req?.file)
+        next()
+    })
+}
+
 module.exports = {
-    uploadMiddleWare
+    uploadMiddleWare,
+    multipleuploadMiddleWare
 }

@@ -9,19 +9,20 @@ const images = conn.define(MODEL_NAMES.images, {
         autoIncrement:true,
         primaryKey:true
     }, 
-    [PARAMS.uid]:{
-        type:DataTypes.STRING(255),
-        allowNull:false
-    },
-    // [PARAMS.img_blob]:{
-    //     type:DataTypes.BLOB("long"),
-    //     allowNull:false
-    // },
+    // [PARAMS.uid]:{
+    //     type:DataTypes.STRING(255),
+    //     defaultValue:
+    //     allowNull:false,
 
+    // },
+    [PARAMS.img_url]:{
+        type:DataTypes.TEXT("long")
+    },
     [PARAMS.fileType]:{
         type:DataTypes.STRING(255),
-        allowNull:false
-    }
+        allowNull:true
+    },
+
     
 }, {
     tableName:MODEL_NAMES.images,

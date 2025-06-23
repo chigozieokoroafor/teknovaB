@@ -40,7 +40,7 @@ const product = conn.define(MODEL_NAMES.product, {
         type: DataTypes.DOUBLE
     },
     img_url: {
-        type: DataTypes.TEXT("medium"),
+        type: DataTypes.JSON,
         allowNull: true
     },
 
@@ -77,14 +77,7 @@ const product = conn.define(MODEL_NAMES.product, {
             name: "product_text_idx",
             fields: [PARAMS.name]
         },
-    ],
-    hooks: {
-        beforeCreate: (product, options) => {
-            if (!product.img_url && product.uid) {
-                product.img_url = `${process.env.API_BASE_URL}/api/images/${product.uid}`;
-            }
-        }
-    }
+    ]
 })
 
 product.hasMany(cart, {foreignKey:PARAMS.productId, sourceKey:PARAMS.uid})

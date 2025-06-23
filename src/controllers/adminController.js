@@ -1,10 +1,11 @@
 require("dotenv").config()
 
 const { checkAdmin } = require("../db/querys/admin");
+const { uploadBulkImages, fetchImages } = require("../db/querys/images");
 const { getUserByEmail } = require("../db/querys/users");
 const { catchAsync } = require("../errorHandler/allCatch");
 const { generalError, success, notFound } = require("../errorHandler/statusCodes");
-const { generateToken, checkPassword } = require("../util/base");
+const { generateToken, checkPassword, processAllImages } = require("../util/base");
 const { loginValidator } = require("../util/validators/accountValidator");
 const { productUploadSchema } = require("../util/validators/productsValidator");
 
@@ -41,4 +42,27 @@ exports.login = catchAsync(async (req, res) => {
 
     return success(res, { token }, "Login successful")
 
+})
+
+exports.uploadImages = catchAsync(async (req, res) =>{
+    success(res, {}, "Processing")
+    
+    const urls = await processAllImages(req.files)
+
+    // console.log("urls%%%%%%%%%%%%%%", urls)
+    
+    await uploadBulkImages(urls)
+
+
+})
+
+
+exports.getImages = catchAsync(async (req, res) =>{
+    // const urls = processAllImages(req.files)
+    const limit = 10
+    const offset = 0
+    const data = await fetchImages(limit, offset)
+
+    success(res, data, "Fetching")
+    
 })

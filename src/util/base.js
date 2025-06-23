@@ -4,7 +4,9 @@ const nodemailer = require("nodemailer")
 const jwt = require("jsonwebtoken")
 const bcrypt = require("bcryptjs");
 const randToken = require("rand-token")
-const axios  = require("axios")
+const axios = require("axios");
+const { Readable } = require("stream");
+const { BUNNY } = require("./consts");
 
 
 exports.sendEmail = (subject, to, html, attachments, envelope) => { //attachments should be an array; envelope is a json containing a 'to' and 'cc'
@@ -197,15 +199,15 @@ exports.generateToken = (payload, expiryTme = 1 * 10 * 60) => {
     return jwt.sign(payload, process.env.AUTH_SECRET, { expiresIn: expiryTme })
 }
 
-exports.verifytoken = (token, secret = process.env.AUTH_SECRET) =>{
+exports.verifytoken = (token, secret = process.env.AUTH_SECRET) => {
 
     let err, err_status
     let success = false;
-    try{
+    try {
         const payload = jwt.verify(token, secret)
         success = true
-        return {d: payload, success}
-    }catch(error){
+        return { d: payload, success }
+    } catch (error) {
         if (error.name === "TokenExpiredError") {
             err = "Session Expired.";
             err_status = 403;
@@ -215,7 +217,7 @@ exports.verifytoken = (token, secret = process.env.AUTH_SECRET) =>{
             err_status = 498;
         }
 
-        return {err, success, err_status}
+        return { err, success, err_status }
     }
 }
 
@@ -224,7 +226,7 @@ exports.createUUID = () => {
 }
 
 exports.initializePayment = async (ref, amount, email, meta) => {
-    console.log("metaL:::::",meta)
+    console.log("metaL:::::", meta)
 
     try {
         const url = "https://api.paystack.co/transaction/initialize"
@@ -237,7 +239,7 @@ exports.initializePayment = async (ref, amount, email, meta) => {
                 email: email,
                 channels: ["card", "bank", "apple_pay", "ussd", "qr", "mobile_money", "bank_transfer", "eft"],
                 // callback_url:"https://deestar.netlify.app/",
-                callback_url:process.env.WEB_BASE_URL,
+                callback_url: process.env.WEB_BASE_URL,
                 metadata: meta,
             },
             {
@@ -263,5 +265,93 @@ exports.initializePayment = async (ref, amount, email, meta) => {
     }
 
 }
+
+exports.processFile = async (buffer, fileName) => {
+    const stream = Readable.from(buffer)
+    const url = await uploadToBunny(stream, fileName)
+
+    if (!url) {
+        return null
+    }
+
+    return url
+
+}
+
+const uploadToBunny = async (stream, fileName) => {
+
+    // const REGION = 'YOUR_REGION'; // If German region, set this to an empty string: ''
+    // const HOSTNAME = REGION ? `${REGION}.${BASE_HOSTNAME}` : BASE_HOSTNAME;
+
+    // console.log("credentials::::",BUNNY)
+
+    const url = `${BUNNY.BUNNY_BASE_HOSTNAME}/${BUNNY.BUNNY_STORAGE_ZONE_NAME}/${fileName}`
+
+    const response = await fetch(url, {
+        method: "PUT",
+        body: stream,
+        duplex: "half",
+        headers: {
+            AccessKey: BUNNY.BUNNY_ACCESS_KEY,
+            'Content-Type': 'application/octet-stream',
+        }
+    })
+
+    if (!response.ok) {
+        const txt = await response.text()
+        console.log("error on file upload:::", txt)
+        // return {success: false, url:null, msg: txt }
+        null
+    }
+
+    console.log("body::::here:::", await response.json())
+
+
+    return `${BUNNY.BUNNY_CUSTOM_FILE_UPLOAD_HOSTNAME}/${fileName}`
+}
+
+// exports.processAllImages = async (files) => {
+//     const img_list = []
+//     const promises = []
+//     files.forEach((item) => {
+//         const splitted = item.originalname.split(".")
+//         const ext = splitted[splitted.length - 1]
+//         const file_name = `${this.createUUID()}.${ext}`
+//         this.processFile(item.buffer, file_name).then((url)=>{
+//             // console.log("=========", url, "=============")
+
+//             img_list.push({url})
+//         })
+
+//     })
+
+//     console.log("****************",img_list,"**************")
+//     // const fulfiled = await Promise.allSettled(promises)
+//     // fulfiled.forEach(promise => {
+//     //     if (promise.status == "fulfilled") {
+//     //         // console.log("fulfiled:::::",promise.value)
+//     //         img_list.push({"img_url":promise.value})
+//     //     } else {
+//     //         console.log("rejected:::::", promise.reason)
+//     //     }
+//     // })
+
+//     return img_list
+// }
+
+exports.processAllImages = async (files) => {
+    const promises = files.map((item) => {
+      const splitted = item.originalname.split(".");
+      const ext = splitted[splitted.length - 1];
+      const file_name = `${this.createUUID()}.${ext}`;
+      
+      return this.processFile(item.buffer, file_name).then((url) => {
+        return { "img_url":url };
+      });
+    });
+  
+    const img_list = await Promise.all(promises);
+    return img_list;
+  };
 
 // exports.uploadToBunny = async(blob, )

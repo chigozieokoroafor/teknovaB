@@ -42,7 +42,15 @@ exports.PARAMS = {
     amount:"amount",
     cart_ids:"cart_ids",
     billing_address:"billing_address",
-    shpping_address:"shpping_address"
+    shpping_address:"shpping_address",
+    fileType:"fileType"
+}
+
+exports.BUNNY = {
+    BUNNY_ACCESS_KEY : process.env.BUNNY_ACCESS_KEY,
+    BUNNY_STORAGE_ZONE_NAME : process.env.BUNNY_STORAGE_ZONE_NAME,
+    BUNNY_CUSTOM_FILE_UPLOAD_HOSTNAME : process.env.BUNNY_CUSTOM_FILE_UPLOAD_HOSTNAME,
+    BUNNY_BASE_HOSTNAME : 'https://storage.bunnycdn.com', 
 }
 
 exports.FETCH_LIMIT = 20
@@ -468,7 +476,8 @@ exports.ALL_MIME_TYPES = {
     "plf": "application/vnd.pocketlearn",
     "pls": "application/pls+xml",
     "pml": "application/vnd.ctc-posml",
-    "png": "image/x-png",
+    "xpng": "image/x-png",
+    "png": "image/png",
     "pnm": "image/x-portable-anymap",
     "portpkg": "application/vnd.macports.portpkg",
     "potm": "application/vnd.ms-powerpoint.template.macroenabled.12",
