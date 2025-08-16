@@ -20,9 +20,9 @@ exports.sync = async () => {
                 // admin.sync({ alter: true }),
                 // cart.sync({ alter: true }), 
                 // category.sync({ alter: true }),
-                images.sync({alter:true}),
-                // // order.sync({alter:true}),
-                product.sync({alter:true}),
+                // images.sync({alter:true}),
+                // // // order.sync({alter:true}),
+                // product.sync({alter:true}),
                 // review.sync({alter:true}),
                 // shipping.sync({alter:true}),
                 // transaction.sync({alter:true})

@@ -10,6 +10,9 @@ const admin = Router()
 
 
 admin.post("/login", adminController.login)
+admin.get("/metric", adminAuth, adminController.metrics)
+admin.get("/transactions", adminAuth, adminController.getRecentTransactions)
+admin.get("/top/products", adminAuth, adminController.getTopProducts)
 
 admin.post("/category", adminAuth, productController.createCategory)
 admin.get("/category",productController.fetchCategories)

@@ -226,8 +226,6 @@ exports.createUUID = () => {
 }
 
 exports.initializePayment = async (ref, amount, email, meta) => {
-    console.log("metaL:::::", meta)
-
     try {
         const url = "https://api.paystack.co/transaction/initialize"
 
@@ -310,48 +308,19 @@ const uploadToBunny = async (stream, fileName) => {
     return `${BUNNY.BUNNY_CUSTOM_FILE_UPLOAD_HOSTNAME}/${fileName}`
 }
 
-// exports.processAllImages = async (files) => {
-//     const img_list = []
-//     const promises = []
-//     files.forEach((item) => {
-//         const splitted = item.originalname.split(".")
-//         const ext = splitted[splitted.length - 1]
-//         const file_name = `${this.createUUID()}.${ext}`
-//         this.processFile(item.buffer, file_name).then((url)=>{
-//             // console.log("=========", url, "=============")
-
-//             img_list.push({url})
-//         })
-
-//     })
-
-//     console.log("****************",img_list,"**************")
-//     // const fulfiled = await Promise.allSettled(promises)
-//     // fulfiled.forEach(promise => {
-//     //     if (promise.status == "fulfilled") {
-//     //         // console.log("fulfiled:::::",promise.value)
-//     //         img_list.push({"img_url":promise.value})
-//     //     } else {
-//     //         console.log("rejected:::::", promise.reason)
-//     //     }
-//     // })
-
-//     return img_list
-// }
-
 exports.processAllImages = async (files) => {
     const promises = files.map((item) => {
-      const splitted = item.originalname.split(".");
-      const ext = splitted[splitted.length - 1];
-      const file_name = `${this.createUUID()}.${ext}`;
-      
-      return this.processFile(item.buffer, file_name).then((url) => {
-        return { "img_url":url };
-      });
+        const splitted = item.originalname.split(".");
+        const ext = splitted[splitted.length - 1];
+        const file_name = `${this.createUUID()}.${ext}`;
+
+        return this.processFile(item.buffer, file_name).then((url) => {
+            return { "img_url": url };
+        });
     });
-  
+
     const img_list = await Promise.all(promises);
     return img_list;
-  };
+};
 
 // exports.uploadToBunny = async(blob, )

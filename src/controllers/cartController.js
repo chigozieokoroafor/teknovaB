@@ -94,3 +94,5 @@ exports.checkout = catchAsync(async (req, res) => {
     return success(res, { url: response.url }, "Click to get to payment.")
 
 })
+
+// exports.getOrders = catchAsync(async())

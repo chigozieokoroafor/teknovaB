@@ -43,7 +43,9 @@ exports.PARAMS = {
     cart_ids:"cart_ids",
     billing_address:"billing_address",
     shpping_address:"shpping_address",
-    fileType:"fileType"
+    fileType:"fileType",
+    status:"status",
+    createdAt:"createdAt"
 }
 
 exports.BUNNY = {
@@ -51,6 +53,12 @@ exports.BUNNY = {
     BUNNY_STORAGE_ZONE_NAME : process.env.BUNNY_STORAGE_ZONE_NAME,
     BUNNY_CUSTOM_FILE_UPLOAD_HOSTNAME : process.env.BUNNY_CUSTOM_FILE_UPLOAD_HOSTNAME,
     BUNNY_BASE_HOSTNAME : 'https://storage.bunnycdn.com', 
+}
+
+exports.RELATIONSHIP_NAMES = {
+    customer: "customer",
+    transaction:"transactions",
+    orders: "orders"
 }
 
 exports.FETCH_LIMIT = 20
