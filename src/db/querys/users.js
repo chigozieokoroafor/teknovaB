@@ -25,3 +25,13 @@ exports.fetchUserForMiddleware = async (uid) => {
         }
     )
 }
+
+exports.countUsers = async() =>{
+    return await user.count(
+        {
+            where: {
+                [PARAMS.isVerified]: true
+            }
+        }
+    )
+}

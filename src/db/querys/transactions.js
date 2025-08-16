@@ -1,4 +1,5 @@
-const { PARAMS, RELATIONSHIP_NAMES } = require("../../util/consts");
+const { Sequelize } = require("sequelize");
+const { PARAMS, RELATIONSHIP_NAMES, MODEL_NAMES } = require("../../util/consts");
 const { transaction, user } = require("../models/relationships");
 
 exports.uploadTransaction = async (data )=>{
@@ -28,4 +29,21 @@ exports.updateTransaction = async(update, orderId) =>{
             [PARAMS.orderId]:orderId
         }
     })
+}
+
+exports.getRevenue = async () => {
+    return await transaction.findAll(
+        {
+            where: {
+                // agencyId: agencyId,
+                status: "Success",
+                // serviceType:"serviceType"
+            },
+            attributes: [
+                
+                [Sequelize.fn('SUM', Sequelize.col(`${MODEL_NAMES.transaction}.amount`)), 'revenue_sum'],
+            ],
+            raw:true
+        }
+    )
 }

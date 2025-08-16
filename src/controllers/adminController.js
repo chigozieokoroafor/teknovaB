@@ -1,9 +1,10 @@
 require("dotenv").config()
 
 const { checkAdmin } = require("../db/querys/admin");
+const { countOrders } = require("../db/querys/cart");
 const { uploadBulkImages, fetchImages, fetchSingleImage, deleteImage } = require("../db/querys/images");
-const { fetchTransactions } = require("../db/querys/transactions");
-const { getUserByEmail } = require("../db/querys/users");
+const { fetchTransactions, getRevenue } = require("../db/querys/transactions");
+const { getUserByEmail, countUsers } = require("../db/querys/users");
 const { catchAsync } = require("../errorHandler/allCatch");
 const { generalError, success, notFound } = require("../errorHandler/statusCodes");
 const { generateToken, checkPassword, processAllImages } = require("../util/base");
@@ -80,25 +81,25 @@ exports.deleteImages = catchAsync(async (req, res) => {
 // for dashboard
 
 exports.metrics = catchAsync(async (req, res) => {
-    revenue = {
-        total: 0,
-        inc: 0
-    }
-    orders = {
-        total: 0,
-        inc: 0
-    }
 
-    users = {
-        total: 0,
-        inc: 0
-    }
+    const rev = await getRevenue()
+    const orders = await countOrders()
+    const users = await countUsers()
 
+    const revenue = rev[0].revenue_sum
+    
     return success(res, { revenue, orders, users }, "Fetched")
 })
 
 exports.getRecentTransactions = catchAsync(async (req, res) => {
-    const transactions = await fetchTransactions(20, 0)
+    const page = req.query?.page
+
+    if (!page || Number.isNaN(page) || Number(page) < 1) return generalError(res, "Kindly provide page as a number greater than one.")
+
+    const limit = 10
+    const offset = (Number(page) - 1) * limit
+
+    const transactions = await fetchTransactions(limit, offset)
 
     return success(res, transactions, "Fetched")
 })

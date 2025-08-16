@@ -45,7 +45,8 @@ exports.PARAMS = {
     shpping_address:"shpping_address",
     fileType:"fileType",
     status:"status",
-    createdAt:"createdAt"
+    createdAt:"createdAt",
+    isVerified:"isVerified"
 }
 
 exports.BUNNY = {
