@@ -1,19 +1,19 @@
 
 const { Op } = require("sequelize");
-const { PARAMS } = require("../../util/consts");
-const { category } = require("../models/category");
+const { PARAMS, RELATIONSHIP_NAMES } = require("../../util/consts");
+const { category, images, category_specifications } = require("../models/relationships");
 
-exports.createCategoryQuery = async(data) =>{
+exports.createCategoryQuery = async (data) => {
     return await category.create(
         data
         // {name, img_blob}
     )
 }
 
-exports.checkCategoryExists = async(searchKeyword) =>{
+exports.checkCategoryExists = async (searchKeyword) => {
     return await category.findOne(
         {
-            where:{ 
+            where: {
                 [PARAMS.name]: {
                     [Op.like]: `%${searchKeyword}%`
                 }
@@ -22,10 +22,42 @@ exports.checkCategoryExists = async(searchKeyword) =>{
     )
 }
 
-exports.fetchCategoryQuery = async() =>{
+exports.fetchCategoryQuery = async () => {
     return await category.findAll(
         {
-            attributes:[PARAMS.uid, PARAMS.img_url, PARAMS.name]
+            attributes: [PARAMS.uid, PARAMS.name],
+            include: [
+                {
+                    model: images,
+                    as: RELATIONSHIP_NAMES.image,
+                    attributes: [PARAMS.id, PARAMS.img_url]
+                },
+                {
+                    model: category_specifications,
+                    attributes:[PARAMS.id, PARAMS.name, PARAMS.values],
+                    as: RELATIONSHIP_NAMES.category_specifications
+                }
+            ]
         }
     )
+}
+
+exports.fetchCategoryById = async(uid) =>{
+   return await category.findOne({
+        where: {uid}
+    })
+}
+
+exports.createCategorySpecification = async (data) => {
+    return await category_specifications.bulkCreate(data)
+}
+
+exports.deleteCategory = async (categoryId) => {
+    category.destroy({ where: { uid: categoryId } }).then(() => {
+        category_specifications.destroy(
+            {
+                where: { categoryId }
+            }
+        )
+    })
 }

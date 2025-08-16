@@ -1,5 +1,5 @@
 const { Sequelize, Op } = require("sequelize");
-const { checkCategoryExists, createCategoryQuery, fetchCategoryQuery } = require("../db/querys/category");
+const { checkCategoryExists, createCategoryQuery, fetchCategoryQuery, deleteCategory, fetchCategoryById, createCategorySpecification } = require("../db/querys/category");
 const { uploadProduct, getProductsByCategory, getspecificProduct, searchProduct, deleteProductQuery } = require("../db/querys/products");
 const { catchAsync } = require("../errorHandler/allCatch");
 const { generalError, success, notFound } = require("../errorHandler/statusCodes");
@@ -9,6 +9,57 @@ const { categoryCreationSchema } = require("../util/validators/categoryValidator
 const { productUploadSchema } = require("../util/validators/productsValidator");
 
 
+
+
+
+exports.createCategory = catchAsync(async (req, res) => {
+    const valid_ = categoryCreationSchema.validate(req.body)
+    if (valid_.error) {
+        return generalError(res, valid_.error.message)
+    }
+
+    const data = req.body
+
+    const specifications = data.specifications
+
+    const cat_exists = await checkCategoryExists(req.body?.name)
+    if (cat_exists) {
+        return generalError(res, `Category "${req.body?.name}" exists`)
+    }
+
+    const category = await createCategoryQuery(data)
+
+    const cat_id = category.uid
+    specifications.map((item, index) => {
+        item[PARAMS.categoryId] = cat_id
+        item[PARAMS.values] = item[PARAMS.values].split(",")
+        specifications[index] = item
+    })
+
+    await createCategorySpecification(specifications)
+
+    return success(res, {}, "Category Created")
+
+})
+
+exports.fetchCategories = catchAsync(async (req, res) => {
+    const data = await fetchCategoryQuery()
+    return success(res, data, "Fetched")
+})
+
+exports.deleteCategory = catchAsync(async (req, res) => {
+
+    const categoryId = req.params.category_id
+
+    const exists = fetchCategoryById(categoryId)
+    if(!exists){
+        return notFound(res, "Category not found")
+    }
+
+    await deleteCategory(categoryId)
+
+    return success(res, {}, "Category deleted")
+})
 
 exports.addProducts = catchAsync(async (req, res) => {
     const valid_ = productUploadSchema.validate(req.body)
@@ -43,34 +94,6 @@ exports.addProducts = catchAsync(async (req, res) => {
     }
 
     return success(res, {}, "Product uploaded successfully")
-})
-
-exports.createCategory = catchAsync(async (req, res) => {
-    const valid_ = categoryCreationSchema.validate(req.body)
-    if (valid_.error) {
-        return generalError(res, valid_.error.message)
-    }
-
-    const data = new Object()
-
-    data["name"] = req.body?.name
-    data["img_blob"] = req.body?.file
-
-    const cat_exists = await checkCategoryExists(req.body?.name)
-    if (cat_exists) {
-        return generalError(res, `Category "${req.body?.name}" exists`)
-    }
-
-    await createCategoryQuery(data)
-
-    return success(res, {}, "Category Created")
-
-
-})
-
-exports.fetchCategories = catchAsync(async (req, res) => {
-    const data = await fetchCategoryQuery()
-    return success(res, data, "Fetched")
 })
 
 exports.fetchProductsUnderCategory = catchAsync(async (req, res) => {
@@ -116,7 +139,7 @@ exports.deleteProducts = catchAsync(async (req, res) => {
     console.log(q)
 
     return success(res, {}, "deleted")
-    
+
 })
 
 // for search

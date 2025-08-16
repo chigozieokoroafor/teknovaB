@@ -8,7 +8,8 @@ exports.MODEL_NAMES = {
     transaction:"Transactions",
     review:"Reviews",
     images:"Images",
-    order:"Orders"
+    order:"Orders",
+    category_specifications:"Category_Specifications"
 }
 
 exports.STATUSES = {
@@ -46,7 +47,11 @@ exports.PARAMS = {
     fileType:"fileType",
     status:"status",
     createdAt:"createdAt",
-    isVerified:"isVerified"
+    isVerified:"isVerified",
+    image:"image",
+    imageId:"imageId",
+    category_specifications:"category_specifications",
+    values:"values"
 }
 
 exports.BUNNY = {
@@ -59,7 +64,9 @@ exports.BUNNY = {
 exports.RELATIONSHIP_NAMES = {
     customer: "customer",
     transaction:"transactions",
-    orders: "orders"
+    orders: "orders",
+    image: "image",
+    category_specifications:"category_specifications"
 }
 
 exports.FETCH_LIMIT = 20

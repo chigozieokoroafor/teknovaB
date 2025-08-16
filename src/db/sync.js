@@ -2,7 +2,7 @@ const { conn } = require("./base")
 const { user } = require("./models/user")
 const { admin } = require("./models/admin")
 const { cart } = require("./models/cart")
-const { category } = require("./models/category")
+const { category, category_specifications } = require("./models/category")
 const { images } = require("./models/images")
 const { order } = require("./models/order")
 const { product } = require("./models/product")
@@ -26,6 +26,7 @@ exports.sync = async () => {
                 // review.sync({alter:true}),
                 // shipping.sync({alter:true}),
                 // transaction.sync({alter:true})
+                // category_specifications.sync({alter: true})
                 
 
             ]
