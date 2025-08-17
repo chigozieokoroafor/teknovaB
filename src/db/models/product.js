@@ -5,7 +5,7 @@ const { DataTypes } = require("sequelize");
 const { MODEL_NAMES, PARAMS } = require("../../util/consts");
 const { conn } = require("../base");
 const { createUUID } = require("../../util/base");
-const { cart } = require("./cart");
+
 
 const product = conn.define(MODEL_NAMES.product, {
     id: {
@@ -18,7 +18,7 @@ const product = conn.define(MODEL_NAMES.product, {
         type: DataTypes.STRING(255),
         allowNull: false,
         unique: true,
-        defaultValue: createUUID
+        defaultValue: () => "PRD-" + createUUID()
     },
     categoryId: {
         type: DataTypes.STRING(255),
@@ -28,14 +28,14 @@ const product = conn.define(MODEL_NAMES.product, {
         allowNull: true
     },
 
-    discount: {
-        type: DataTypes.DOUBLE,
-        defaultValue: 0.0
-    },
-    discountExpiry:{
-        type:DataTypes.DATE,
-        allowNull:true
-    },
+    // discount: {
+    //     type: DataTypes.DOUBLE,
+    //     defaultValue: 0.0
+    // },
+    // discountExpiry:{
+    //     type:DataTypes.DATE,
+    //     allowNull:true
+    // },
     price: {
         type: DataTypes.DOUBLE
     },
@@ -43,24 +43,13 @@ const product = conn.define(MODEL_NAMES.product, {
         type: DataTypes.JSON,
         allowNull: true
     },
-
-    colors: {
-        type: DataTypes.JSON,
-    },
-
     description: {
         type: DataTypes.TEXT("long"),
         allowNull: true
     },
-
     units: {
         type: DataTypes.INTEGER,
         defaultValue: 0
-    },
-
-    specifications: {
-        type: DataTypes.JSON,
-        allowNull: true
     },
     isDeleted:{
         type:DataTypes.BOOLEAN,
@@ -80,9 +69,32 @@ const product = conn.define(MODEL_NAMES.product, {
     ]
 })
 
-product.hasMany(cart, {foreignKey:PARAMS.productId, sourceKey:PARAMS.uid})
-cart.belongsTo(product, {foreignKey:PARAMS.productId, targetKey:PARAMS.uid})
+const product_specifications = conn.define(MODEL_NAMES.product_specifications, {
+    [PARAMS.id]:{
+        type: DataTypes.INTEGER,
+        unique: true,
+        autoIncrement: true,
+        primaryKey: true
+    },
+    [PARAMS.productId]:{
+        type:DataTypes.STRING(255),
+        allowNull:false
+    },
+    [PARAMS.name]:{
+        type:DataTypes.STRING(255),
+        allowNull:false
+    },
+    [PARAMS.values]:{
+        type:DataTypes.JSON,
+        allowNull:false,
+        // defaultValue:0
+    }
+}, {
+    tableName: MODEL_NAMES.product_specifications,
+    modelName: MODEL_NAMES.product_specifications,
+})
 
 module.exports = {
-    product
+    product,
+    product_specifications
 }

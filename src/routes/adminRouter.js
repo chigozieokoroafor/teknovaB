@@ -19,6 +19,7 @@ admin.get("/category",productController.fetchCategories)
 admin.get("/category/:category_id", productController.fetchProductsUnderCategory)
 admin.delete("/category/:category_id", productController.deleteCategory)
 
+admin.get("/product", productController.getAllProducts)
 admin.get("/product/:product_id", productController.getSpecificProduct)
 admin.post("/product", adminAuth, productController.addProducts)
 admin.delete("/product", adminAuth, productController.deleteProducts)

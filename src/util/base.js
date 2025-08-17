@@ -322,5 +322,3 @@ exports.processAllImages = async (files) => {
     const img_list = await Promise.all(promises);
     return img_list;
 };
-
-// exports.uploadToBunny = async(blob, )

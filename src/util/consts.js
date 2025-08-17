@@ -9,7 +9,9 @@ exports.MODEL_NAMES = {
     review:"Reviews",
     images:"Images",
     order:"Orders",
-    category_specifications:"Category_Specifications"
+    category_specifications:"Category_Specifications",
+    product_specifications: "Product_Specifications",
+    product_images: "Product_Images"
 }
 
 exports.STATUSES = {

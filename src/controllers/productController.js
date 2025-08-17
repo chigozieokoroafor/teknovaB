@@ -1,16 +1,12 @@
 const { Sequelize, Op } = require("sequelize");
 const { checkCategoryExists, createCategoryQuery, fetchCategoryQuery, deleteCategory, fetchCategoryById, createCategorySpecification } = require("../db/querys/category");
-const { uploadProduct, getProductsByCategory, getspecificProduct, searchProduct, deleteProductQuery } = require("../db/querys/products");
+const { uploadProduct, getProductsByCategory, getspecificProduct, searchProduct, deleteProductQuery, uploadProductImages, uploadProductSpecification } = require("../db/querys/products");
 const { catchAsync } = require("../errorHandler/allCatch");
 const { generalError, success, notFound } = require("../errorHandler/statusCodes");
 const { createUUID, sendEmail } = require("../util/base");
 const { FETCH_LIMIT, PARAMS } = require("../util/consts");
 const { categoryCreationSchema } = require("../util/validators/categoryValidator");
 const { productUploadSchema } = require("../util/validators/productsValidator");
-
-
-
-
 
 exports.createCategory = catchAsync(async (req, res) => {
     const valid_ = categoryCreationSchema.validate(req.body)
@@ -52,7 +48,7 @@ exports.deleteCategory = catchAsync(async (req, res) => {
     const categoryId = req.params.category_id
 
     const exists = fetchCategoryById(categoryId)
-    if(!exists){
+    if (!exists) {
         return notFound(res, "Category not found")
     }
 
@@ -67,28 +63,41 @@ exports.addProducts = catchAsync(async (req, res) => {
         return generalError(res, valid_.error.message)
     }
 
-    // let data = req.body
-
-    // new flow -> insert data into db, create a background worker to upload files to bunny, once done, create an emmitter to add files appropriately🤔🤔🤔
-
     let data = {}
 
     data["name"] = req.body?.name
     data["categoryId"] = req.body?.categoryId
     data["discount"] = req.body?.discount ?? 0.0
     data["price"] = req.body?.price
-    data["img_url"] = req.body?.img_url
-    data["colors"] = req.body?.colors
+    // data["img_url"] = req.body?.img_url
+    // data["colors"] = req.body?.colors
     data["description"] = req.body?.description
     data["units"] = req.body?.units
-    data["specifications"] = req.body?.specifications
+    // data["specifications"] = req.body?.specifications
 
+    // console.log("item ==> ", req.body)
 
-    // console.log("data:::;", data)
     try {
-        await uploadProduct(data)
+        const productId = (await uploadProduct(data)).uid
+        const images = req.body["images"]
+        const specifications = req.body["specifications"]
+
+        images.map((img, index) => {
+            images[index] = {
+                [PARAMS.productId]: productId,
+                [PARAMS.imageId]: img
+            }
+        })
+
+        specifications.map((spec, index) => {
+            spec.productId = productId
+            specifications[index] = spec
+        })
+
+        await uploadProductImages(images)
+        await uploadProductSpecification(specifications)
+
     } catch (error) {
-        // console.log("product::: error::::",error)
         sendEmail("Error on product upload", "okoroaforc14@gmail.com", error)
         return generalError(res, "Unable to add product at current time.", {})
     }
@@ -127,6 +136,18 @@ exports.getSpecificProduct = catchAsync(async (req, res) => {
 
 })
 
+exports.getAllProducts = catchAsync(async (req, res) => {
+    const page = req.query?.page
+
+    if (page <= 0 || Number.isNaN(Number(page))) {
+        return generalError(res, "Page cannot be less than 1")
+    }
+    const offset = (Number(page) - 1) * FETCH_LIMIT
+
+    const products = await searchProduct({}, offset, FETCH_LIMIT)
+    return success(res, products, "Fetched")
+})
+
 exports.deleteProducts = catchAsync(async (req, res) => {
     const product_id = req.query.product_id
 
@@ -152,11 +173,11 @@ exports.getAllProductsWithFilter = catchAsync(async (req, res) => {
 
     const offset = (Number(page) - 1) * FETCH_LIMIT
     let actual_query = {}
-    const query_list = []
+    // const query_list = []
     let sub = {}
 
     if (search) {
-        query_list.push(Sequelize.literal(`MATCH (${PARAMS.name}) AGAINST("${search}" IN BOOLEAN MODE)`),)
+        // query_list.push(Sequelize.literal(`MATCH (${PARAMS.name}) AGAINST("${search}" IN BOOLEAN MODE)`),)
         actual_query[PARAMS.name] = {
             [Op.like]: `%${search}%`
         }

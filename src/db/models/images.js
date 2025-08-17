@@ -9,12 +9,6 @@ const images = conn.define(MODEL_NAMES.images, {
         autoIncrement:true,
         primaryKey:true
     }, 
-    // [PARAMS.uid]:{
-    //     type:DataTypes.STRING(255),
-    //     defaultValue:
-    //     allowNull:false,
-
-    // },
     [PARAMS.img_url]:{
         type:DataTypes.TEXT("long")
     },
@@ -29,6 +23,25 @@ const images = conn.define(MODEL_NAMES.images, {
     modelName:MODEL_NAMES.images
 })
 
+const product_images = conn.define(MODEL_NAMES.product_images, {
+    [PARAMS.id]:{
+        type:DataTypes.INTEGER,
+        unique:true,
+        autoIncrement:true,
+        primaryKey:true
+    },
+    [PARAMS.productId]: {
+        type: DataTypes.STRING(255),
+        allowNull: false,
+    },
+    [PARAMS.imageId]: {
+        type: DataTypes.INTEGER,
+        allowNull: false
+    }
+})
+
+
 module.exports = {
-    images
+    images,
+    product_images
 }

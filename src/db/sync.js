@@ -3,12 +3,13 @@ const { user } = require("./models/user")
 const { admin } = require("./models/admin")
 const { cart } = require("./models/cart")
 const { category, category_specifications } = require("./models/category")
-const { images } = require("./models/images")
+const { images, product_images} = require("./models/images")
 const { order } = require("./models/order")
-const { product } = require("./models/product")
+const { product, product_specifications } = require("./models/product")
 const { review } = require("./models/review")
 const { shipping } = require("./models/shhipping")
 const { transaction } = require("./models/transaction")
+
 // const {} = require("./models/wishlist")
 
 exports.sync = async () => {
@@ -27,6 +28,9 @@ exports.sync = async () => {
                 // shipping.sync({alter:true}),
                 // transaction.sync({alter:true})
                 // category_specifications.sync({alter: true})
+                // product_specifications.sync({alter: true})
+                // product_specifications.sync({alter: true})
+                // product_images.sync({alter: true})
                 
 
             ]

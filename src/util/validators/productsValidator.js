@@ -1,14 +1,37 @@
 const Joi = require("joi");
 
+const specificationsSchema = Joi.object(
+    {
+        name: Joi.string().required().messages(
+            {
+                "any.required": "specification name required",
+                "string.base": "name of specification required.",
+                "string.empty": "provide name of specification, "
+            }
+        ),
+        values: Joi.string().required().messages(
+            {
+                "any.required": "values for specification required.",
+                "string.base": "values required as comma seperated strings.",
+                "string.empty": "values for specification are required."
+            }
+        )
+    }
+).required().messages(
+    {
+        "any.required": "specification object requred."
+    }
+)
+
 exports.productUploadSchema = Joi.object(
-    {   
+    {
         name: Joi.string().required().messages(
             {
                 "any.required": "Name of product required",
                 "string.empty": "Kindly provide a name of the product"
             }
         ),
-        categoryId:Joi.string().required().messages(
+        categoryId: Joi.string().required().messages(
             {
                 "any.required": "Kindly select a category the product falls under",
                 "string.empty": "Kindly provide a category"
@@ -21,55 +44,36 @@ exports.productUploadSchema = Joi.object(
             }
         ),
         price: Joi.number().required().messages(
-            {   
+            {
                 "any.required": "Price of product required.",
                 "number.base": "Kindly provide the price of the product.",
                 "number.empty": "Number cannot be empty."
-            }   
-        ),
-        colors: Joi.array().required().messages(
-            {
-                "any.required": "Kindly add the colors of the product.",
-                "array.empty": "Colors can not be empty."
             }
         ),
-        description: Joi.string().messages({"string.base":"Kindly provide a valid description."}),
+
+        description: Joi.string().messages({ "string.base": "Kindly provide a valid description." }),
+
         units: Joi.number().required().messages(
             {
                 "any.required": "Units of product is required.",
                 "number.base": "Kindly provide the product units as a number"
             }
         ),
+
         specifications: Joi.array().items(
-            Joi.object({
-                ram: Joi.string().messages({
-                    "any.required": "RAM is required",
-                    "string.empty": "RAM  cannot be empty"
-                }),
-                rom: Joi.string().messages({
-                    "any.required": "ROM is required",
-                    "string.empty": "ROM cannot be empty"
-                }),
-                cost: Joi.number().default(0).messages({
-                    "number.base": "Cost for specification must be a number"
-                })
-            })
+            specificationsSchema
         ).messages({
             "array.base": "Specifications must be an array",
             "array.includesRequiredUnknowns": "Specifications items must contain ram, rom and cost."
         }),
-        img_url:Joi.array().required().messages(
+
+        images: Joi.array().required().messages(
             {
-                
+                "any.required": "Provide image ids",
+                "array.base": "provide at least one image id"
             }
         )
-        // file:Joi.string().regex(/^data:image\/png;base64,/).required().messages(
-        //     {
-        //         "any.required":"file required",
-        //         "string.regex.base":"file required as a base64 string",
-        //         "string.empty":"file cannot be empty"
-        //     }
-        // )
+
     }
 ).required().messages(
     {
