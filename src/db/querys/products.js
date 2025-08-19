@@ -1,5 +1,5 @@
 const { PARAMS, RELATIONSHIP_NAMES } = require("../../util/consts");
-const { product, product_specifications, product_images, images} = require("../models/relationships");
+const { product, product_specifications, product_images, images, category} = require("../models/relationships");
 
 exports.uploadProduct = async (data) => {
     return await product.create(data)
@@ -10,7 +10,8 @@ exports.getProductsByCategory = async (categoryId, limit, offset) => {
         {
             where: {
                 categoryId,
-                [PARAMS.isDeleted]:false
+                [PARAMS.isDeleted]:false,
+                [PARAMS.isActive]: true
             },
             attributes: [
                 PARAMS.uid,
@@ -19,6 +20,11 @@ exports.getProductsByCategory = async (categoryId, limit, offset) => {
                 PARAMS.units
             ],
             include:[
+                 {
+                    model: category,
+                    as: RELATIONSHIP_NAMES.category,
+                    attributes: [PARAMS.uid, PARAMS.name]
+                },
                 {
                     model: product_images,
                     attributes: [PARAMS.id,PARAMS.imageId],
@@ -46,7 +52,33 @@ exports.getspecificProduct = async (productId) => {
                 [PARAMS.uid]: productId,
                 [PARAMS.isDeleted]:false
             },
-            attributes:[PARAMS.categoryId, PARAMS.colors, PARAMS.description, PARAMS.discount, PARAMS.img_url, PARAMS.name, PARAMS.price, PARAMS.uid, PARAMS.units, PARAMS.specifications],
+            attributes: [
+                PARAMS.categoryId,
+                PARAMS.uid,
+                PARAMS.name,
+                PARAMS.price,
+                PARAMS.units
+            ],
+            include:[
+                {
+                    model: category,
+                    as: RELATIONSHIP_NAMES.category,
+                    attributes: [PARAMS.uid, PARAMS.name]
+                },
+                {
+                    model: product_images,
+                    attributes: [PARAMS.id,PARAMS.imageId],
+                    include: {
+                        model: images,
+                        attributes: [PARAMS.img_url],
+                        as: RELATIONSHIP_NAMES.image
+                    }
+                },
+                {
+                    model: product_specifications,
+                    attributes: [PARAMS.name, PARAMS.values]
+                }
+            ],
 
         }
     )
@@ -55,17 +87,24 @@ exports.getspecificProduct = async (productId) => {
 exports.searchProduct = async (query, offset, limit) => {
 
     query[PARAMS.isDeleted] = false
+    query[PARAMS.isActive] = true
 
     return await product.findAll(
         {
             where: query,
             attributes: [
+                PARAMS.categoryId,
                 PARAMS.uid,
                 PARAMS.name,
                 PARAMS.price,
                 PARAMS.units
             ],
             include:[
+                {
+                    model: category,
+                    as: RELATIONSHIP_NAMES.category,
+                    attributes: [PARAMS.uid, PARAMS.name]
+                },
                 {
                     model: product_images,
                     attributes: [PARAMS.id,PARAMS.imageId],

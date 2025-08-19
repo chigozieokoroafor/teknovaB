@@ -39,10 +39,6 @@ const product = conn.define(MODEL_NAMES.product, {
     price: {
         type: DataTypes.DOUBLE
     },
-    img_url: {
-        type: DataTypes.JSON,
-        allowNull: true
-    },
     description: {
         type: DataTypes.TEXT("long"),
         allowNull: true
@@ -50,6 +46,10 @@ const product = conn.define(MODEL_NAMES.product, {
     units: {
         type: DataTypes.INTEGER,
         defaultValue: 0
+    },
+    isActive: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: true
     },
     isDeleted:{
         type:DataTypes.BOOLEAN,

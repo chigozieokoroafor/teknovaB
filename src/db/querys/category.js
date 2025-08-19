@@ -59,5 +59,7 @@ exports.deleteCategory = async (categoryId) => {
                 where: { categoryId }
             }
         )
+
+        
     })
 }

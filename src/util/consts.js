@@ -53,7 +53,8 @@ exports.PARAMS = {
     image:"image",
     imageId:"imageId",
     category_specifications:"category_specifications",
-    values:"values"
+    values:"values",
+    isActive:"isActive"
 }
 
 exports.BUNNY = {
@@ -68,7 +69,10 @@ exports.RELATIONSHIP_NAMES = {
     transaction:"transactions",
     orders: "orders",
     image: "image",
-    category_specifications:"category_specifications"
+    category_specifications:"category_specifications",
+    category:"category",
+    product:"product"
+
 }
 
 exports.FETCH_LIMIT = 20

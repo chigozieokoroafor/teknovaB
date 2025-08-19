@@ -14,6 +14,15 @@ category.belongsTo(images, { foreignKey: PARAMS.imageId, targetKey: PARAMS.id, a
 
 product_images.belongsTo(images, { foreignKey: PARAMS.imageId, targetKey: PARAMS.id, as: RELATIONSHIP_NAMES.image })
 
+product.belongsTo(category, {
+    foreignKey: PARAMS.categoryId, targetKey: PARAMS.uid
+    , as: RELATIONSHIP_NAMES.category
+})
+category.hasMany(product, {
+    foreignKey: PARAMS.categoryId, sourceKey: PARAMS.uid
+    , as: RELATIONSHIP_NAMES.product
+})
+
 
 category.hasMany(category_specifications, { foreignKey: PARAMS.categoryId, sourceKey: PARAMS.uid, as: RELATIONSHIP_NAMES.category_specifications })
 

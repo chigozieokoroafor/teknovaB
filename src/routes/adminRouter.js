@@ -17,10 +17,10 @@ admin.get("/top/products", adminAuth, adminController.getTopProducts)
 admin.post("/category", adminAuth, productController.createCategory)
 admin.get("/category",productController.fetchCategories)
 admin.get("/category/:category_id", productController.fetchProductsUnderCategory)
-admin.delete("/category/:category_id", productController.deleteCategory)
+admin.delete("/category/:category_id", adminAuth, productController.deleteCategory)
 
-admin.get("/product", productController.getAllProducts)
-admin.get("/product/:product_id", productController.getSpecificProduct)
+admin.get("/product", adminAuth, productController.getAllProducts)
+admin.get("/product/:product_id", adminAuth, productController.getSpecificProduct)
 admin.post("/product", adminAuth, productController.addProducts)
 admin.delete("/product", adminAuth, productController.deleteProducts)
 
