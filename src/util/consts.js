@@ -62,6 +62,7 @@ exports.BUNNY = {
     BUNNY_STORAGE_ZONE_NAME : process.env.BUNNY_STORAGE_ZONE_NAME,
     BUNNY_CUSTOM_FILE_UPLOAD_HOSTNAME : process.env.BUNNY_CUSTOM_FILE_UPLOAD_HOSTNAME,
     BUNNY_BASE_HOSTNAME : 'https://storage.bunnycdn.com', 
+    BUNNY_UPlOAD_PATH : process.env.BUNNY_UPlOAD_PATH ?? "/"
 }
 
 exports.RELATIONSHIP_NAMES = {

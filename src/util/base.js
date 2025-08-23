@@ -322,3 +322,27 @@ exports.processAllImages = async (files) => {
     const img_list = await Promise.all(promises);
     return img_list;
 };
+
+exports.deleteImageFromBunny = async (file) => {
+    const url = `${BUNNY.BUNNY_BASE_HOSTNAME}/${BUNNY.BUNNY_STORAGE_ZONE_NAME}/${BUNNY.BUNNY_UPlOAD_PATH}/${file}`
+
+    // const response = await axios.delete(url, {
+    //     headers: JSON.stringify({
+    //         "AccessKey": BUNNY.BUNNY_ACCESS_KEY,
+    //     })
+    // })
+
+    // console.log("url ===>", url)
+
+    const response = await fetch(url, {
+        method: "DELETE",
+        headers : {
+            AccessKey: BUNNY.BUNNY_ACCESS_KEY
+            // 'Content-Type': 'application/octet-stream',
+        }})
+    // console.log ("headers ==>", response.)
+
+    console.log("Image delete response Data ===>", await response.json())
+
+    return response.ok ? true : false
+}

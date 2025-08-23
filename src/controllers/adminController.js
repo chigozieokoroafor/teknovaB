@@ -7,7 +7,7 @@ const { fetchTransactions, getRevenue } = require("../db/querys/transactions");
 const { getUserByEmail, countUsers } = require("../db/querys/users");
 const { catchAsync } = require("../errorHandler/allCatch");
 const { generalError, success, notFound } = require("../errorHandler/statusCodes");
-const { generateToken, checkPassword, processAllImages } = require("../util/base");
+const { generateToken, checkPassword, processAllImages, deleteImageFromBunny } = require("../util/base");
 const { loginValidator } = require("../util/validators/accountValidator");
 const { productUploadSchema } = require("../util/validators/productsValidator");
 
@@ -64,7 +64,7 @@ exports.getImages = catchAsync(async (req, res) => {
 
     const limit = 10
     const offset = (Number(page) - 1) * limit
-    
+
     const data = await fetchImages(limit, offset)
 
     success(res, data, "Fetching")
@@ -74,13 +74,25 @@ exports.getImages = catchAsync(async (req, res) => {
 exports.deleteImages = catchAsync(async (req, res) => {
     const id = req.params.id
 
-    const img = fetchSingleImage(id)
+    const img = await fetchSingleImage(id)
     if (!img) {
         return notFound(res, "Selected image not found.")
     }
+
+    const img_url = img.img_url
+    const splits = img_url.split("/")
+    const file = splits[splits.length-1]
+    const deleteRequest = await deleteImageFromBunny(file)
+
+    if(!deleteRequest){
+        return generalError(res, "Unnale to delete", {})
+    }
     await deleteImage(id)
 
-    return success(res, {}, "Image deleted.")
+    success(res, {}, "Image deleted.")
+
+    
+    return
 })
 
 // for dashboard

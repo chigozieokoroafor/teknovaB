@@ -1,6 +1,6 @@
 const { Router } = require("express")
-const  adminController = require("../controllers/adminController")
-const  productController = require("../controllers/productController")
+const adminController = require("../controllers/adminController")
+const productController = require("../controllers/productController")
 // const  adminController = require("../controllers/adminController")
 const { uploadMiddleWare, multipleuploadMiddleWare } = require("../middleware/upload")
 const { adminAuth } = require("../middleware/auth")
@@ -15,7 +15,7 @@ admin.get("/transactions", adminAuth, adminController.getRecentTransactions)
 admin.get("/top/products", adminAuth, adminController.getTopProducts)
 
 admin.post("/category", adminAuth, productController.createCategory)
-admin.get("/category",productController.fetchCategories)
+admin.get("/category", productController.fetchCategories)
 admin.get("/category/:category_id", productController.fetchProductsUnderCategory)
 admin.delete("/category/:category_id", adminAuth, productController.deleteCategory)
 
@@ -27,11 +27,15 @@ admin.delete("/product", adminAuth, productController.deleteProducts)
 // images
 admin.get("/images",
     //  adminAuth, 
-     adminController.getImages)
-admin.post("/images", 
-    // adminAuth, 
+    adminController.getImages)
+
+admin.post("/images",
+    adminAuth, 
     multipleuploadMiddleWare,
-    adminController.uploadImages)
+    adminController.uploadImages
+)
+
+admin.delete('/images/:id', adminAuth, adminController.deleteImages)
 
 
 module.exports = {
