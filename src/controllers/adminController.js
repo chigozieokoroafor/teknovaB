@@ -58,8 +58,13 @@ exports.uploadImages = catchAsync(async (req, res) => {
 
 exports.getImages = catchAsync(async (req, res) => {
     // const urls = processAllImages(req.files)
+    const page = req.query?.page
+
+    if (!page || Number.isNaN(page) || Number(page) < 1) return generalError(res, "Kindly provide page as a number greater than one.")
+
     const limit = 10
-    const offset = 0
+    const offset = (Number(page) - 1) * limit
+    
     const data = await fetchImages(limit, offset)
 
     success(res, data, "Fetching")

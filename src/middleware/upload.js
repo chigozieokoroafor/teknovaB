@@ -46,7 +46,7 @@ const uploadMiddleWare = (req, res, next) =>{
 
 const multiupload =  multer({storage:storage, fileFilter:fileFilter, limits: {
     fileSize: 5 * 1024 * 1024, // 5MB limit
-    files: 10                    // Maximum 5 files per upload
+    files: 20                    // Maximum 5 files per upload
   }})
 
 const multipleuploadMiddleWare = (req, res, next) =>{
