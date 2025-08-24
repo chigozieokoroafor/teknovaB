@@ -3,7 +3,7 @@ const { PARAMS, RELATIONSHIP_NAMES, STATUSES } = require("../../util/consts");
 const { cart } = require("../models/cart");
 const { product_images, images } = require("../models/images");
 const { product } = require("../models/product");
-const { order } = require("../models/relationships")
+const { order, user, transaction } = require("../models/relationships")
 
 exports.addToCartQuery = async (data) => {
     return await cart.create(data)
@@ -82,6 +82,25 @@ exports.fetchOrdersForClient = async(uid, limit, offset) =>{
             include:{
                 model: cart
             },
+            limit,
+            offset
+        }
+    )
+}
+
+exports.fetchAllOrders = async(limit, offset) =>{
+    return await order.findAll(
+        {
+            include:[
+                {
+                    model: user,
+                    attributes: [PARAMS.name, PARAMS.email]
+                },
+                {
+                    model: transaction,
+                    attributes: [PARAMS.amount]
+                }
+            ],
             limit,
             offset
         }

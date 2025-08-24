@@ -17,7 +17,8 @@ exports.MODEL_NAMES = {
 exports.STATUSES = {
     pending: "Pending",
     to_be_delivered: "Processing",
-    failed: "Failed"
+    failed: "Failed",
+    paid:"Paid"
 }
 
 exports.PARAMS = {

@@ -130,4 +130,3 @@ exports.getOrders = catchAsync(async(req, res) =>{
     return success(res, data, "Fetched")
 })
 
-// exports.getOrders = catchAsync(async())

@@ -38,6 +38,11 @@ admin.post("/images",
 admin.delete('/images/:id', adminAuth, adminController.deleteImages)
 
 
+
+// orders
+admin.get("/orders", adminAuth, adminController.getOrders)
+
+
 module.exports = {
     adminRouter: admin
 }

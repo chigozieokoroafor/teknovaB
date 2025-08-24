@@ -37,7 +37,13 @@ product.hasMany(product_images, { foreignKey: PARAMS.productId, sourceKey: PARAM
 product_images.belongsTo(product, { foreignKey: PARAMS.productId, targetKey: PARAMS.uid })
 
 order.hasMany(cart, {foreignKey: PARAMS.orderId, sourceKey: PARAMS.orderId})
-cart.belongsTo(order, {foreignKey: PARAMS.orderId, sourceKey: PARAMS.orderId})
+cart.belongsTo(order, {foreignKey: PARAMS.orderId, targetKey: PARAMS.orderId})
+
+order.hasOne(transaction, {foreignKey: PARAMS.orderId, sourceKey: PARAMS.orderId})
+transaction.belongsTo(transaction, {foreignKey: PARAMS.orderId, targetKey: PARAMS.orderId})
+
+order.belongsTo(user, {foreignKey: PARAMS.uid, targetKey: PARAMS.uid})
+user.hasMany(order, {foreignKey: PARAMS.uid, sourceKey: PARAMS.uid})
 
 
 module.exports = {
