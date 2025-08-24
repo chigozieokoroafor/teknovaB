@@ -3,15 +3,17 @@ require("dotenv").config()
 const { checkUserExists, createUserAccount, verifyUser, getUserByEmail } = require("../db/querys/users");
 const { catchAsync } = require("../errorHandler/allCatch");
 const { generalError, success, newError, notFound } = require("../errorHandler/statusCodes");
-const { sendAccountVerificationMail, hashPassword, generateToken, createUUID, verifytoken, checkPassword } = require("../util/base");
+const { sendAccountVerificationMail, hashPassword, generateToken, createUUID, verifytoken, checkPassword, baseValidator } = require("../util/base");
 const { createAccountSchema, loginValidator } = require("../util/validators/accountValidator");
 
 
 exports.createAccount = catchAsync(async (req, res) => {
-    const valid_ = createAccountSchema.validate(req.body)
-    if (valid_.error) {
-        return generalError(res, valid_.error.message, {})
+    
+    const error = baseValidator(createAccountSchema, req.body, res)
+    if (error){
+        return error
     }
+    
 
     // use express sesion for this. and not normal bearer jwts
 
@@ -70,10 +72,9 @@ exports.verify = catchAsync(async (req, res) => {
 
 exports.login = catchAsync(async (req, res) => {
 
-    const valid_ = loginValidator.validate(req.body)
-
-    if (valid_.error) {
-        return generalError(res, valid_.error.message)
+    const error = baseValidator(loginValidator, req.body, res)
+    if (error){
+        return error
     }
 
     const user = await getUserByEmail(req.body?.email)

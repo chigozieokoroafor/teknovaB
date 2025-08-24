@@ -7,17 +7,20 @@ const { fetchTransactions, getRevenue } = require("../db/querys/transactions");
 const { getUserByEmail, countUsers } = require("../db/querys/users");
 const { catchAsync } = require("../errorHandler/allCatch");
 const { generalError, success, notFound } = require("../errorHandler/statusCodes");
-const { generateToken, checkPassword, processAllImages, deleteImageFromBunny } = require("../util/base");
+const { generateToken, checkPassword, processAllImages, deleteImageFromBunny, baseValidator } = require("../util/base");
 const { loginValidator } = require("../util/validators/accountValidator");
-const { productUploadSchema } = require("../util/validators/productsValidator");
-
 
 exports.login = catchAsync(async (req, res) => {
 
-    const valid_ = loginValidator.validate(req.body)
+    // const valid_ = loginValidator.validate(req.body)
 
-    if (valid_.error) {
-        return generalError(res, valid_.error.message)
+    // if (valid_.error) {
+    //     return generalError(res, valid_.error.message)
+    // }
+
+    const error = baseValidator(loginValidator, req.body, res)
+    if (error){
+        return error
     }
 
     const user = await getUserByEmail(req.body?.email)
@@ -125,3 +128,5 @@ exports.getTopProducts = catchAsync(async (req, res) => {
     const products = {}
     return success(res, products, "Fetched")
 })
+
+// exports.getOrders

@@ -1,34 +1,42 @@
 const { Op } = require("sequelize");
-const { addToCartQuery, fetchCartItems, fetchCartItemsToOrder, updateCartItemsforOrder } = require("../db/querys/cart");
-const { getspecificProduct } = require("../db/querys/products");
+const { addToCartQuery, fetchCartItems, fetchCartItemsToOrder, updateCartItemsforOrder, createOrderOnOrderTable, fetchOrdersForClient } = require("../db/querys/cart");
+const { getspecificProduct, getspecificProductRaw } = require("../db/querys/products");
 const { catchAsync } = require("../errorHandler/allCatch");
 const { generalError, notFound, internalServerError, success } = require("../errorHandler/statusCodes");
-const { createUUID, initializePayment } = require("../util/base");
+const { createUUID, initializePayment, baseValidator } = require("../util/base");
 const { PARAMS, FETCH_LIMIT } = require("../util/consts");
-const { addToCartSchema } = require("../util/validators/cartValidator");
+const { addToCartSchema, checkoutSchema } = require("../util/validators/cartValidator");
 const { uploadTransaction } = require("../db/querys/transactions");
 
 exports.addItemToCart = catchAsync(async (req, res) => {
     const user_id = req.user.uid
-    const valid_ = addToCartSchema.validate(req.body)
 
-    if (valid_.error) {
-        return generalError(res, valid_.error.message)
+    const error = baseValidator(addToCartSchema, req.body, res)
+    if (error) {
+        return error
     }
 
     let data = req.body
 
-    const product = await getspecificProduct(req.body[PARAMS.productId])
+    const product = await getspecificProductRaw(req.body[PARAMS.productId])
     if (!product) {
         return notFound(res, "Product selected not found 🤔.")
     }
 
-
+    // return success(res, product)
 
     // data["unit_price"] = product[PARAMS.price]
+    let price = product[PARAMS.price]
+
+    const isUnitAvailable = product[PARAMS.units] > data[PARAMS.units]
+
+    if (!isUnitAvailable) {
+        return generalError(res, "Proposed units to purchase exist the available units.")
+    }
 
     data[PARAMS.uid] = user_id
-    data[PARAMS.total_amount] = data["unit_price"] * data[PARAMS.units]
+
+    data[PARAMS.total_amount] = price * data[PARAMS.units]
 
     try {
         const q = await addToCartQuery(data)
@@ -37,6 +45,7 @@ exports.addItemToCart = catchAsync(async (req, res) => {
         }
         return success(res, {}, "Item added to cart")
     } catch (error) {
+        console.log(error)
         return internalServerError(res, "unable to add to cart")
     }
 
@@ -55,13 +64,22 @@ exports.getCart = catchAsync(async (req, res) => {
 
 exports.checkout = catchAsync(async (req, res) => {
     const user_id = req.user?.uid
+
+    "add contact info and billing info"
     const cart = await fetchCartItemsToOrder(user_id)
 
-    if(cart.length < 1){
+    if (cart.length < 1) {
         return generalError(res, "No items in cart to purchase")
     }
 
-    const orderId = createUUID()
+
+    const error = baseValidator(checkoutSchema, req.body, res)
+    if (error) {
+        return error
+    }
+
+
+    const orderId = `#ORD${createUUID(6)}`
     const total_amount = cart.reduce((total, current) => total + current[PARAMS.total_amount], 0)
     const cart_ids = cart.map((item) => {
 
@@ -69,30 +87,47 @@ exports.checkout = catchAsync(async (req, res) => {
 
     })
 
-    const ref = createUUID()
-    const response = await initializePayment(ref, total_amount, req.user?.email, { [PARAMS.orderId]: orderId, [PARAMS.cart_ids]:cart_ids })
+    const ref = `TRX_${createUUID(7)}`
+    const response = await initializePayment(ref, total_amount, req.user?.email, { [PARAMS.orderId]: orderId, [PARAMS.cart_ids]: cart_ids })
     if (!response.success) {
         return generalError(res, response.msg,)
     }
 
+    success(res, { url: response.url }, "Click to get to payment.")
 
     await uploadTransaction(
         {
-            [PARAMS.uid]:user_id,
-            [PARAMS.orderId]:orderId,
-            [PARAMS.reference]:ref,
-            [PARAMS.amount]:total_amount,
+            [PARAMS.uid]: user_id,
+            [PARAMS.orderId]: orderId,
+            [PARAMS.reference]: ref,
+            [PARAMS.amount]: total_amount,
 
 
         }
     )
 
+    await createOrderOnOrderTable(
+        {
+            [PARAMS.uid]: user_id,
+            [PARAMS.orderId]: orderId,
+        }
+    )
+})
 
 
+exports.getOrders = catchAsync(async(req, res) =>{
+    const user_id = req.user?.uid
 
+    const page = req.query?.page
 
-    return success(res, { url: response.url }, "Click to get to payment.")
+    if (!page || Number.isNaN(page) || Number(page) < 1) return generalError(res, "Kindly provide page as a number greater than one.")
 
+    const limit = 10
+    const offset = (Number(page) - 1) * limit
+
+    const data = await fetchOrdersForClient(user_id, limit, offset)
+
+    return success(res, data, "Fetched")
 })
 
 // exports.getOrders = catchAsync(async())

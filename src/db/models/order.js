@@ -9,13 +9,12 @@ const order = conn.define(MODEL_NAMES.order, {
         autoIncrement:true,
         primaryKey:true
     }, 
+    uid:{
+        type:DataTypes.STRING(40),
+    },
     orderId:{
         type:DataTypes.STRING(255),
-        // unique:false
-    },
-    cart_Id:{
-        type: DataTypes.STRING(255),
-        allowNull:false
+        unique: true
     },
     status:{ // delivered or not
         type: DataTypes.STRING(255),
@@ -29,7 +28,8 @@ const order = conn.define(MODEL_NAMES.order, {
     }
 }, {
     tableName:MODEL_NAMES.order,
-    modelName:MODEL_NAMES.order
+    modelName:MODEL_NAMES.order,
+    timestamps: true
 })
 
 module.exports = {

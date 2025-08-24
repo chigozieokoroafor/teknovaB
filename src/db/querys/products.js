@@ -137,3 +137,43 @@ exports.uploadProductSpecification = async(data) =>{
 exports.uploadProductImages = async(data) =>{
     return await product_images.bulkCreate(data)
 }
+
+
+exports.getspecificProductRaw = async (productId) => {
+    return await product.findOne(
+        {
+            where: {
+                [PARAMS.uid]: productId,
+                [PARAMS.isDeleted]:false
+            },
+            // attributes: [
+            //     PARAMS.categoryId,
+            //     PARAMS.uid,
+            //     PARAMS.name,
+            //     PARAMS.price,
+            //     PARAMS.units
+            // ],
+            include:[
+                {
+                    model: category,
+                    as: RELATIONSHIP_NAMES.category,
+                    attributes: [PARAMS.uid, PARAMS.name]
+                },
+                {
+                    model: product_images,
+                    attributes: [PARAMS.id,PARAMS.imageId],
+                    include: {
+                        model: images,
+                        attributes: [PARAMS.img_url],
+                        as: RELATIONSHIP_NAMES.image
+                    }
+                },
+                {
+                    model: product_specifications,
+                    attributes: [PARAMS.name, PARAMS.values]
+                }
+            ],
+
+        }
+    )
+}

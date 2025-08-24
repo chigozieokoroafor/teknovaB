@@ -3,15 +3,17 @@ const { checkCategoryExists, createCategoryQuery, fetchCategoryQuery, deleteCate
 const { uploadProduct, getProductsByCategory, getspecificProduct, searchProduct, deleteProductQuery, uploadProductImages, uploadProductSpecification } = require("../db/querys/products");
 const { catchAsync } = require("../errorHandler/allCatch");
 const { generalError, success, notFound } = require("../errorHandler/statusCodes");
-const { createUUID, sendEmail } = require("../util/base");
+const { createUUID, sendEmail, baseValidator } = require("../util/base");
 const { FETCH_LIMIT, PARAMS } = require("../util/consts");
 const { categoryCreationSchema } = require("../util/validators/categoryValidator");
 const { productUploadSchema } = require("../util/validators/productsValidator");
 
+// admin category 
 exports.createCategory = catchAsync(async (req, res) => {
-    const valid_ = categoryCreationSchema.validate(req.body)
-    if (valid_.error) {
-        return generalError(res, valid_.error.message)
+
+    const error = baseValidator(categoryCreationSchema, req.body, res)
+    if (error) {
+        return error
     }
 
     const data = req.body
@@ -57,14 +59,39 @@ exports.deleteCategory = catchAsync(async (req, res) => {
     return success(res, {}, "Category deleted")
 })
 
+exports.updateCategory = catchAsync(async (req, res) => {
+    const categoryId = req.params.category_id
+
+    const error = baseValidator(loginValidator, req.body, res)
+    if (error) {
+        return error
+    }
+
+
+    const exists = fetchCategoryById(categoryId)
+    if (!exists) {
+        return notFound(res, "Category not found")
+    }
+
+
+})
+
+// admin products
 exports.addProducts = catchAsync(async (req, res) => {
-    const valid_ = productUploadSchema.validate(req.body)
-    if (valid_.error) {
-        return generalError(res, valid_.error.message)
+    // const valid_ = productUploadSchema.validate(req.body)
+    // if (valid_.error) {
+    //     return generalError(res, valid_.error.message)
+    // }
+
+
+
+    const error = baseValidator(productUploadSchema, req.body, res)
+    if (error) {
+        return error
     }
 
     const category_exists = await fetchCategoryById(req.body?.categoryId)
-    if(!category_exists){
+    if (!category_exists) {
         return notFound(res, "Category selected not found")
     }
 
@@ -76,7 +103,7 @@ exports.addProducts = catchAsync(async (req, res) => {
     data["price"] = req.body?.price
     data["description"] = req.body?.description
     data["units"] = req.body?.units
-    
+
     try {
         const productId = (await uploadProduct(data)).uid
         const images = req.body["images"]
@@ -118,7 +145,7 @@ exports.fetchProductsUnderCategory = catchAsync(async (req, res) => {
     }
 
     const category_exists = await fetchCategoryById(category_id)
-    if(!category_exists){
+    if (!category_exists) {
         return notFound(res, "Category selected not found")
     }
 
@@ -136,6 +163,10 @@ exports.getSpecificProduct = catchAsync(async (req, res) => {
     const product_id = req.params?.product_id
 
     const data = await getspecificProduct(product_id)
+
+    if (!data) {
+        return notFound(res, "Product not found.")
+    }
 
     return success(res, data, "Fetched")
 

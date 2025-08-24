@@ -31,13 +31,7 @@ exports.categoryCreationSchema = Joi.object(
                 "string.empty": "Kindly provide a category name"
             }
         ),
-        // file: Joi.string().regex(/^data:image\/png;base64,/).required().messages(
-        //     {
-        //         "any.required": "file required",
-        //         "string.regex.base": "file required as a base64 string",
-        //         "string.empty": "file cannot be empty"
-        //     }
-        // )
+        
         [PARAMS.imageId]: Joi.number().required().messages(
             {
                 "any.required": "Image for categoy required",
@@ -47,7 +41,34 @@ exports.categoryCreationSchema = Joi.object(
         specifications:Joi.array().min(1).items(specificationsSchema).required().messages(
             {
                 "any.required":"Kindly select specifications for category",
-                "array.min.base":""
+                "array.min.base":"At least one specification must be provided."
+            }
+        )
+    }
+).required().messages(
+    {
+        "any.required": "Kindly upload a category to continue."
+    }
+)
+
+exports.categoryUpdateSchema = Joi.object(
+    {
+        name: Joi.string().messages(
+            {
+                "any.required": "Kindly provide a category name",
+                "string.empty": "Kindly provide a category name"
+            }
+        ),
+        [PARAMS.imageId]: Joi.number().messages(
+            {
+                "any.required": "Image for categoy required",
+                
+            }
+        ),
+        specifications:Joi.array().min(1).items(specificationsSchema).messages(
+            {
+                "any.required":"Kindly select specifications for category",
+                "array.min.base":"At least one specification must be provided."
             }
         )
     }

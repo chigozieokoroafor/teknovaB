@@ -11,7 +11,6 @@ const cart = conn.define(MODEL_NAMES.cart, {
     }, 
     [PARAMS.productId]:{
         type:DataTypes.STRING(40),
-        unique:true
     },
     [PARAMS.uid]:{
         type:DataTypes.STRING(255),

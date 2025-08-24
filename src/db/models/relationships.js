@@ -5,6 +5,7 @@ const { images, product_images } = require("./images");
 const { category, category_specifications } = require("./category");
 const { product, product_specifications } = require("./product");
 const { cart } = require("./cart");
+const { order } = require("./order")
 // const { product } = require("./product")
 
 user.hasMany(transaction, { foreignKey: PARAMS.uid, sourceKey: PARAMS.uid, as: RELATIONSHIP_NAMES.transaction })
@@ -35,6 +36,9 @@ cart.belongsTo(product, { foreignKey: PARAMS.productId, targetKey: PARAMS.uid })
 product.hasMany(product_images, { foreignKey: PARAMS.productId, sourceKey: PARAMS.uid })
 product_images.belongsTo(product, { foreignKey: PARAMS.productId, targetKey: PARAMS.uid })
 
+order.hasMany(cart, {foreignKey: PARAMS.orderId, sourceKey: PARAMS.orderId})
+cart.belongsTo(order, {foreignKey: PARAMS.orderId, sourceKey: PARAMS.orderId})
+
 
 module.exports = {
     transaction,
@@ -45,5 +49,6 @@ module.exports = {
     product,
     cart,
     product_specifications,
-    product_images
+    product_images,
+    order
 }

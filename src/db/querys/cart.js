@@ -1,6 +1,9 @@
-const { PARAMS } = require("../../util/consts");
+const { Op } = require("sequelize");
+const { PARAMS, RELATIONSHIP_NAMES, STATUSES } = require("../../util/consts");
 const { cart } = require("../models/cart");
+const { product_images, images } = require("../models/images");
 const { product } = require("../models/product");
+const { order } = require("../models/relationships")
 
 exports.addToCartQuery = async (data) => {
     return await cart.create(data)
@@ -17,7 +20,16 @@ exports.fetchCartItems = async (uid, offset, limit) => {
             include: [
                 {
                     model: product,
-                    attributes: [PARAMS.uid, PARAMS.img_url, PARAMS.specifications, PARAMS.name]
+                    attributes: [PARAMS.uid, PARAMS.name],
+                    include: {
+                        model: product_images,
+                        attributes: [PARAMS.id, PARAMS.imageId],
+                        include: {
+                            model: images,
+                            attributes: [PARAMS.img_url],
+                            as: RELATIONSHIP_NAMES.image
+                        }
+                    },
                 }
             ],
             offset,
@@ -35,16 +47,9 @@ exports.fetchCartItemsToOrder = async (uid) => {
 
             },
             attributes: [PARAMS.id, PARAMS.total_amount]
-            // include:[
-            //     {
-            //         model:product,
-            //         attributes:[PARAMS.uid, PARAMS.img_url, PARAMS.specifications, PARAMS.name]
-            //     }
-            // ]
         }
     )
 }
-
 
 exports.updateCartItemsforOrder = async (update, where) => {
     await cart.update(update, { where: where })
@@ -53,10 +58,32 @@ exports.updateCartItemsforOrder = async (update, where) => {
 exports.countOrders = async () => {
     return await cart.count(
         {
-            where:{
+            where: {
                 [PARAMS.ordered]: true
             }
-            
+
+        }
+    )
+}
+
+exports.createOrderOnOrderTable = async (data) => {
+    await order.create(data)
+}
+
+exports.fetchOrdersForClient = async(uid, limit, offset) =>{
+    return await order.findAll(
+        {
+            where: {
+                uid,
+                [PARAMS.paymentStatus]: {
+                    [Op.not]: STATUSES.pending
+                }
+            },
+            include:{
+                model: cart
+            },
+            limit,
+            offset
         }
     )
 }

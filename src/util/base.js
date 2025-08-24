@@ -7,6 +7,7 @@ const randToken = require("rand-token")
 const axios = require("axios");
 const { Readable } = require("stream");
 const { BUNNY } = require("./consts");
+const { generalError } = require("../errorHandler/statusCodes");
 
 
 exports.sendEmail = (subject, to, html, attachments, envelope) => { //attachments should be an array; envelope is a json containing a 'to' and 'cc'
@@ -221,8 +222,8 @@ exports.verifytoken = (token, secret = process.env.AUTH_SECRET) => {
     }
 }
 
-exports.createUUID = () => {
-    return randToken.uid(15)
+exports.createUUID = (len) => {
+    return randToken.uid(len??15)
 }
 
 exports.initializePayment = async (ref, amount, email, meta) => {
@@ -345,4 +346,13 @@ exports.deleteImageFromBunny = async (file) => {
     console.log("Image delete response Data ===>", await response.json())
 
     return response.ok ? true : false
+}
+
+exports.baseValidator = (fn, body, res) =>{
+    const valid_ = fn.validate(body)
+
+    if(valid_.error){
+        return generalError(res, valid_.error.message, valid_.error.details[0].context)
+    }
+    return
 }
