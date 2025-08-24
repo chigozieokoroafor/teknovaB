@@ -18,6 +18,9 @@ exports.verifyUser = async (uid) => {
 }
 
 exports.fetchUserForMiddleware = async (uid) => {
+
+    // console.log(" userId ===> ", uid)
+
     return await user.findOne(
         {
             where:{uid},

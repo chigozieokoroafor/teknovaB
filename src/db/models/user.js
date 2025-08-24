@@ -39,7 +39,7 @@ const user = conn.define(MODEL_NAMES.user, {
         type: DataTypes.TEXT("long"),
         allowNull:true
     },
-    shpping_address:{
+    shipping_address:{
         type: DataTypes.TEXT("long"),
         allowNull:true 
     }  

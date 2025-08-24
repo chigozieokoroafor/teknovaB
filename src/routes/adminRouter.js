@@ -2,7 +2,7 @@ const { Router } = require("express")
 const adminController = require("../controllers/adminController")
 const productController = require("../controllers/productController")
 // const  adminController = require("../controllers/adminController")
-const { uploadMiddleWare, multipleuploadMiddleWare } = require("../middleware/upload")
+const { multipleuploadMiddleWare } = require("../middleware/upload")
 const { adminAuth } = require("../middleware/auth")
 
 
@@ -38,9 +38,12 @@ admin.post("/images",
 admin.delete('/images/:id', adminAuth, adminController.deleteImages)
 
 
-
 // orders
 admin.get("/orders", adminAuth, adminController.getOrders)
+
+admin.put("/orders", adminAuth, adminController.updateStatusOfOrders)
+
+
 
 
 module.exports = {

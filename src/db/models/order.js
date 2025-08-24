@@ -1,5 +1,5 @@
 const { DataTypes } = require("sequelize");
-const { MODEL_NAMES, STATUSES } = require("../../util/consts");
+const { MODEL_NAMES, STATUSES, PARAMS } = require("../../util/consts");
 const { conn } = require("../base");
 
 const order = conn.define(MODEL_NAMES.order, {
@@ -25,6 +25,12 @@ const order = conn.define(MODEL_NAMES.order, {
         type: DataTypes.STRING(255),
         allowNull:false,
         defaultValue:STATUSES.pending
+    },
+    [PARAMS.contact_Info]: {
+        type: DataTypes.JSON
+    },
+    [PARAMS.billing_address]: {
+        type: DataTypes.JSON
     }
 }, {
     tableName:MODEL_NAMES.order,

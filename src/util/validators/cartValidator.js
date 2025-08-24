@@ -115,3 +115,28 @@ exports.checkoutSchema = Joi.object(
         "object.empty": "Cart to checkout cannot be empty"
     }
 )
+
+
+exports.orderStatusUpdateSchema = Joi.object(
+    {
+        [PARAMS.orderId]: Joi.string()
+            .regex(/^#ORD.*$/)
+            .required()
+            .messages(
+                {
+                    "any.required": "Select an order to update it's status",
+                    "string.pattern.base": "Select a valid order"
+                }
+            ),
+        [PARAMS.status]: Joi.string().required().messages(
+            {
+                "any.required": "Kindly provide the status of the order"
+            }
+        )
+    }
+).required().messages(
+    {
+        "any.required": "Order details required",
+        "object.empty": "Cannot be empty"
+    }
+)

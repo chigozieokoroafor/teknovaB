@@ -47,7 +47,7 @@ exports.PARAMS = {
     amount: "amount",
     cart_ids: "cart_ids",
     billing_address: "billing_address",
-    shpping_address: "shpping_address",
+    shpping_address: "shipping_address",
     fileType: "fileType",
     status: "status",
     createdAt: "createdAt",

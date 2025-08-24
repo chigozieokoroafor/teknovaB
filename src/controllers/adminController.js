@@ -1,14 +1,16 @@
 require("dotenv").config()
 
 const { checkAdmin } = require("../db/querys/admin");
-const { countOrders, fetchAllOrders } = require("../db/querys/cart");
+const { countOrders, fetchAllOrders, updateOrderStatus, getSpecificOrder } = require("../db/querys/cart");
 const { uploadBulkImages, fetchImages, fetchSingleImage, deleteImage } = require("../db/querys/images");
 const { fetchTransactions, getRevenue } = require("../db/querys/transactions");
 const { getUserByEmail, countUsers } = require("../db/querys/users");
 const { catchAsync } = require("../errorHandler/allCatch");
 const { generalError, success, notFound } = require("../errorHandler/statusCodes");
-const { generateToken, checkPassword, processAllImages, deleteImageFromBunny, baseValidator } = require("../util/base");
+const { generateToken, checkPassword, processAllImages, deleteImageFromBunny, baseValidator, sendOrderUpdateNotifcationMail } = require("../util/base");
+const { PARAMS } = require("../util/consts");
 const { loginValidator } = require("../util/validators/accountValidator");
+const { orderStatusUpdateSchema } = require("../util/validators/cartValidator");
 
 exports.login = catchAsync(async (req, res) => {
 
@@ -140,4 +142,32 @@ exports.getOrders = catchAsync(async (req, res) => {
     const data = await fetchAllOrders(limit, offset)
 
     return success(res, data)
+})
+
+exports.updateStatusOfOrders = catchAsync(async (req, res) => {
+    const error = baseValidator(orderStatusUpdateSchema, req.body, res)
+    if (error) {
+        return error
+    }
+
+    const orderId = req.body[PARAMS.orderId]
+    const status = req.body[PARAMS.status]
+    const order = await getSpecificOrder(orderId)
+    if (!order) {
+        return notFound(res, `Order ${orderId} not found.`)
+    }
+
+    // console.log(order)
+
+    const update = await updateOrderStatus(orderId, status)
+
+    success(res, {}, "Status updated.")
+
+    const email = order?.User?.email
+
+    if (email) {
+        sendOrderUpdateNotifcationMail(email, orderId, status, order.createdAt, new Date().getUTCFullYear())
+    }
+    // add a notification here.
+
 })

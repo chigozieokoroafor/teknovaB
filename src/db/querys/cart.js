@@ -106,3 +106,19 @@ exports.fetchAllOrders = async(limit, offset) =>{
         }
     )
 }
+
+exports.updateOrderStatus = async (orderId, status) =>{
+    return await order.update({status}, {where: {orderId}})
+}
+
+exports.getSpecificOrder = async(orderId) =>{
+    return await order.findOne(
+        {
+            where: {orderId},
+            include:{
+                model: user,
+                attributes: [PARAMS.name, PARAMS.email]
+            }
+        }
+    )
+}

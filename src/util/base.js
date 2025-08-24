@@ -187,6 +187,65 @@ exports.sendAccountVerificationMail = (email, verificationLink, username) => {
     this.sendEmail(subject, email, html)
 }
 
+exports.sendOrderUpdateNotifcationMail = (email, orderId, status, dateOrdered, year) => {
+    const html = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Order Status Update</title>
+</head>
+<body style="font-family: Arial, sans-serif; background-color: #f6f6f6; padding: 20px; margin: 0;">
+  <table width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width: 600px; margin: auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 6px rgba(0,0,0,0.1);">
+    <tr>
+      <td style="background-color: #4CAF50; color: #ffffff; padding: 16px; text-align: center; font-size: 20px; font-weight: bold;">
+        Order Status Update
+      </td>
+    </tr>
+    <tr>
+      <td style="padding: 20px; color: #333333;">
+        <p style="font-size: 16px;">Hello,</p>
+        <p style="font-size: 16px;">
+          We wanted to let you know that the status of your order has been updated.
+        </p>
+        <table cellpadding="8" cellspacing="0" border="0" width="100%" style="border-collapse: collapse; margin-top: 15px; background-color: #fafafa; border: 1px solid #e0e0e0;">
+          <tr>
+            <td style="font-weight: bold; width: 150px;">Order ID:</td>
+            <td>${orderId}</td>
+          </tr>
+          <tr>
+            <td style="font-weight: bold;">Status:</td>
+            <td>${status}</td>
+          </tr>
+          <tr>
+            <td style="font-weight: bold;">Date Ordered:</td>
+            <td>${dateOrdered}</td>
+          </tr>
+        </table>
+        <p style="margin-top: 20px; font-size: 14px;">
+          You can log into your account at any time to track the progress of your order.
+        </p>
+        <p style="font-size: 14px;">Thank you for shopping with us!</p>
+      </td>
+    </tr>
+    <tr>
+      <td style="background-color: #f1f1f1; color: #777777; text-align: center; font-size: 12px; padding: 12px;">
+        &copy; ${year} Teknova. All rights reserved.
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+`
+
+
+    const subject = `Order Update - ${orderId}`
+
+    this.sendEmail(subject, email, html)
+}
+
+
 exports.hashPassword = (pwd) => {
     const salt = bcrypt.genSaltSync()
     return bcrypt.hashSync(pwd, salt)
@@ -223,7 +282,7 @@ exports.verifytoken = (token, secret = process.env.AUTH_SECRET) => {
 }
 
 exports.createUUID = (len) => {
-    return randToken.uid(len??15)
+    return randToken.uid(len ?? 15)
 }
 
 exports.initializePayment = async (ref, amount, email, meta) => {
@@ -337,10 +396,11 @@ exports.deleteImageFromBunny = async (file) => {
 
     const response = await fetch(url, {
         method: "DELETE",
-        headers : {
+        headers: {
             AccessKey: BUNNY.BUNNY_ACCESS_KEY
             // 'Content-Type': 'application/octet-stream',
-        }})
+        }
+    })
     // console.log ("headers ==>", response.)
 
     console.log("Image delete response Data ===>", await response.json())
@@ -348,11 +408,13 @@ exports.deleteImageFromBunny = async (file) => {
     return response.ok ? true : false
 }
 
-exports.baseValidator = (fn, body, res) =>{
+exports.baseValidator = (fn, body, res) => {
     const valid_ = fn.validate(body)
 
-    if(valid_.error){
+    if (valid_.error) {
+        // console.log(valid_.error)
         return generalError(res, valid_.error.message, valid_.error.details[0].context)
     }
     return
 }
+

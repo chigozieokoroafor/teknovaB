@@ -65,7 +65,7 @@ exports.getCart = catchAsync(async (req, res) => {
 exports.checkout = catchAsync(async (req, res) => {
     const user_id = req.user?.uid
 
-    "add contact info and billing info"
+    // "add contact info and billing info"
     const cart = await fetchCartItemsToOrder(user_id)
 
     if (cart.length < 1) {
@@ -110,6 +110,8 @@ exports.checkout = catchAsync(async (req, res) => {
         {
             [PARAMS.uid]: user_id,
             [PARAMS.orderId]: orderId,
+            [PARAMS.billing_address]: req.body[PARAMS.billing_address],
+            [PARAMS.contact_Info]: req.body[PARAMS.contact_Info]
         }
     )
 })

@@ -33,8 +33,9 @@ class Auth {
 
         try {
             const payload = jwt.verify(token, this.secret);
-            // console.log("payload::",payload)
+            // console.log("payload ===> ",payload)
             const user_data = await fetchUserForMiddleware(payload.id ?? payload.uid)
+            // console.log("user data ===>",user_data)
             req.user = user_data?.toJSON();
 
             if (payload?.userType) {
@@ -53,7 +54,7 @@ class Auth {
                 err = "Invalid Token";
                 err_status = 498;
             }
-            // console.log("error:::middleware::::", error)
+            console.log("error:::middleware::::", error)
         }
         req.err = {
             err: err,
@@ -78,6 +79,8 @@ const baseAuth = (req, res, next) => { // auth for students
 
 const adminAuth = (req, res, next) => { // auth for students
     new Auth(process.env.ADMIN_AUTH).auth(req, res, () => {
+
+        // console.log("user ===> ", req.user)
 
         if (req?.err?.err) {
             return newError(res, req.err.err, req.err.status);
