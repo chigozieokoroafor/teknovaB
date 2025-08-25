@@ -1,9 +1,9 @@
-const { Op } = require("sequelize");
+const { Op, fn, col, literal } = require("sequelize");
 const { PARAMS, RELATIONSHIP_NAMES, STATUSES } = require("../../util/consts");
-const { cart } = require("../models/cart");
-const { product_images, images } = require("../models/images");
-const { product } = require("../models/product");
-const { order, user, transaction } = require("../models/relationships")
+// const { cart } = require("../models/cart");
+// const { product_images, images } = require("../models/images");
+// const { product } = require("../models/product");
+const { order, user, transaction, product, images, product_images, cart } = require("../models/relationships")
 
 exports.addToCartQuery = async (data) => {
     return await cart.create(data)
@@ -70,7 +70,7 @@ exports.createOrderOnOrderTable = async (data) => {
     await order.create(data)
 }
 
-exports.fetchOrdersForClient = async(uid, limit, offset) =>{
+exports.fetchOrdersForClient = async (uid, limit, offset) => {
     return await order.findAll(
         {
             where: {
@@ -79,7 +79,7 @@ exports.fetchOrdersForClient = async(uid, limit, offset) =>{
                     [Op.not]: STATUSES.pending
                 }
             },
-            include:{
+            include: {
                 model: cart
             },
             limit,
@@ -88,10 +88,10 @@ exports.fetchOrdersForClient = async(uid, limit, offset) =>{
     )
 }
 
-exports.fetchAllOrders = async(limit, offset) =>{
+exports.fetchAllOrders = async (limit, offset) => {
     return await order.findAll(
         {
-            include:[
+            include: [
                 {
                     model: user,
                     attributes: [PARAMS.name, PARAMS.email]
@@ -107,18 +107,91 @@ exports.fetchAllOrders = async(limit, offset) =>{
     )
 }
 
-exports.updateOrderStatus = async (orderId, status) =>{
-    return await order.update({status}, {where: {orderId}})
+exports.updateOrderStatus = async (orderId, status) => {
+    return await order.update({ status }, { where: { orderId } })
 }
 
-exports.getSpecificOrder = async(orderId) =>{
+exports.getSpecificOrder = async (orderId) => {
     return await order.findOne(
         {
-            where: {orderId},
-            include:{
+            where: { orderId },
+            include: {
                 model: user,
                 attributes: [PARAMS.name, PARAMS.email]
             }
         }
     )
 }
+
+// exports.getTopProductCounts = async () => {
+//     return await cart.findAll({
+//         where: {
+//             [PARAMS.ordered]: true
+//         },
+
+//         attributes: [
+//             // PARAMS.units,
+//             PARAMS.productId,
+//             [fn('COUNT', col(PARAMS.ordered)), 'count'],
+//             [fn('SUM', col(PARAMS.units)), 'totalUnitSold'],
+//         ],
+//         include: [
+//             {
+//                 model: product,
+//                 attributes: [PARAMS.name, PARAMS.price],
+//                 include: {
+//                     model: product_images,
+//                     as: RELATIONSHIP_NAMES.defaultImage,
+//                     include: {
+//                         model: images,
+//                         as: RELATIONSHIP_NAMES.image
+//                     },
+//                     // limit: 1
+//                 }
+//             }
+//         ],
+//         group: [PARAMS.productId],
+//         // raw: true,
+//         limit: 5,
+//         order: [[literal("totalUnitSold"), "DESC"]]
+//     });
+// };
+
+
+exports.getTopProductCounts = async () => {
+  return await cart.findAll({
+    where: {
+      [PARAMS.ordered]: true
+    },
+    attributes: [
+      PARAMS.productId,
+      [fn('COUNT', col(PARAMS.productId)), 'count'],   // count actual product rows
+      [fn('SUM', col(PARAMS.units)), 'totalUnitSold'],
+    ],
+    include: [
+      {
+        model: product,
+        attributes: [PARAMS.name, PARAMS.price],
+        include: [
+          {
+            model: product_images,
+            // as: RELATIONSHIP_NAMES.defaultImage,
+            attributes: [PARAMS.imageId],
+            include: [
+              {
+                model: images,
+                attributes: [PARAMS.img_url],
+                as: RELATIONSHIP_NAMES.image
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    group: [
+      PARAMS.productId,
+    ],
+    limit: 5,
+    order: [[literal("totalUnitSold"), "DESC"]]
+  });
+};

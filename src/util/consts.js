@@ -87,7 +87,8 @@ exports.RELATIONSHIP_NAMES = {
     image: "image",
     category_specifications: "category_specifications",
     category: "category",
-    product: "product"
+    product: "product",
+    defaultImage:"defaultImage"
 
 }
 

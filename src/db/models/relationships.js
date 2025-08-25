@@ -34,6 +34,13 @@ product.hasMany(cart, { foreignKey: PARAMS.productId, sourceKey: PARAMS.uid })
 cart.belongsTo(product, { foreignKey: PARAMS.productId, targetKey: PARAMS.uid })
 
 product.hasMany(product_images, { foreignKey: PARAMS.productId, sourceKey: PARAMS.uid })
+
+// product.hasOne(product_images, {
+//     as: RELATIONSHIP_NAMES.defaultImage,
+//     foreignKey: PARAMS.productId,
+//     sourceKey: PARAMS.uid,
+// });
+
 product_images.belongsTo(product, { foreignKey: PARAMS.productId, targetKey: PARAMS.uid })
 
 order.hasMany(cart, {foreignKey: PARAMS.orderId, sourceKey: PARAMS.orderId})

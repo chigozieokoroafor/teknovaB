@@ -1,8 +1,9 @@
 require("dotenv").config()
 
 const { checkAdmin } = require("../db/querys/admin");
-const { countOrders, fetchAllOrders, updateOrderStatus, getSpecificOrder } = require("../db/querys/cart");
+const { countOrders, fetchAllOrders, updateOrderStatus, getSpecificOrder, getTopProductCounts } = require("../db/querys/cart");
 const { uploadBulkImages, fetchImages, fetchSingleImage, deleteImage } = require("../db/querys/images");
+
 const { fetchTransactions, getRevenue } = require("../db/querys/transactions");
 const { getUserByEmail, countUsers } = require("../db/querys/users");
 const { catchAsync } = require("../errorHandler/allCatch");
@@ -127,7 +128,9 @@ exports.getRecentTransactions = catchAsync(async (req, res) => {
 })
 
 exports.getTopProducts = catchAsync(async (req, res) => {
-    const products = {}
+    // const products = {}
+
+    const products = await getTopProductCounts()
     return success(res, products, "Fetched")
 })
 

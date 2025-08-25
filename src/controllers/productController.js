@@ -199,6 +199,101 @@ exports.deleteProducts = catchAsync(async (req, res) => {
 
 })
 
+// exports.updateProducts = catchAsync(async (req, res) => {
+//     const productId = req.params.productId
+
+//     const valid_ = productUpdateSchema.validate(req.body)
+//     if (valid_.error) {
+
+//         generalError(res, valid_.error.message, {})
+//         return
+//     }
+
+//     const product = await getspecificProduct(productId)
+
+//     if (!product) {
+//         notFound(res, "Product not found")
+//         return
+//     }
+
+//     let update = Object(req.body)
+
+//     let spec = null
+
+//     if (update[PARAMS.spec]) {
+//         try {
+//             spec = JSON.parse(update[PARAMS.spec])
+//         } catch (error) {
+//             spec = update[PARAMS.spec]
+//         }
+
+
+//         const sepc_valid_ = productSpecificationUpdateSchema.validate(spec)
+
+//         if (sepc_valid_.error) {
+
+//             generalError(res, sepc_valid_.error.message, {})
+//             return
+//         }
+
+//     }
+
+//     await updateProductDetails(productId, update)
+
+//     success(res, {}, "product updated.")
+
+//     if (req.files?.length > 0) {
+//         const images = await processAllImages(req.files, productId)
+//         // images.push(...product.images)
+//         await uploadProductImage(images)
+//     }
+
+//     try {
+//         // process specifications
+//         const existing_specifications = []
+//         const new_spec = []
+//         const existing_specifications_id = []
+
+//         const queries = []
+
+//         if (spec) {
+
+//             spec.forEach((item) => {
+//                 if (item?.id) {
+//                     existing_specifications.push(item)
+//                     existing_specifications_id.push(item.id)
+//                 } else {
+//                     item.productId = productId
+//                     new_spec.push(item)
+//                 }
+//             })
+
+
+//             if (existing_specifications_id.length > 0) {
+//                 await deleteBulkSpecification(productId, existing_specifications_id)
+//             }
+
+//             if (existing_specifications.length > 0) {
+//                 existing_specifications.forEach((item) => {
+//                     queries.push(
+//                         updateProductSpecification({ units: item.units }, item.id)
+//                     )
+//                 })
+//             }
+
+//             if (new_spec.length > 0) {
+//                 queries.push(
+//                     insertProductspecification(new_spec)
+//                 )
+//             }
+
+//         }
+//     } catch (error) {
+//         console.log("error:::: productUpdate :::", error)
+//     }
+// })
+
+
 // for search
 exports.getAllProductsWithFilter = catchAsync(async (req, res) => {
     const { category, search, max_price, min_price, page } = req.query
