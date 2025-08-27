@@ -15,6 +15,11 @@ exports.fetchImages = async (limit, offset) => {
     )
 }
 
+exports.countAllImages = async () => {
+    return await images.count()
+}
+
+
 exports.fetchSingleImage = async (id) => {
     return await images.findOne({ where: { id } })
 }

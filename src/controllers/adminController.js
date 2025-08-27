@@ -2,7 +2,7 @@ require("dotenv").config()
 
 const { checkAdmin } = require("../db/querys/admin");
 const { countOrders, fetchAllOrders, updateOrderStatus, getSpecificOrder, getTopProductCounts } = require("../db/querys/cart");
-const { uploadBulkImages, fetchImages, fetchSingleImage, deleteImage } = require("../db/querys/images");
+const { uploadBulkImages, fetchImages, fetchSingleImage, deleteImage, countAllImages } = require("../db/querys/images");
 
 const { fetchTransactions, getRevenue } = require("../db/querys/transactions");
 const { getUserByEmail, countUsers } = require("../db/querys/users");
@@ -71,9 +71,13 @@ exports.getImages = catchAsync(async (req, res) => {
     const limit = 10
     const offset = (Number(page) - 1) * limit
 
-    const data = await fetchImages(limit, offset)
+    const [data, totalCount] = await Promise.allSettled([fetchImages(limit, offset), countAllImages()])
 
-    success(res, data, "Fetching")
+    const pages = Math.ceil(totalCount.value / limit)
+
+    
+
+    success(res, {images: data.value, pages: pages}, "Fetching")
 
 })
 
