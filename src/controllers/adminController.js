@@ -8,7 +8,7 @@ const { fetchTransactions, getRevenue } = require("../db/querys/transactions");
 const { getUserByEmail, countUsers } = require("../db/querys/users");
 const { catchAsync } = require("../errorHandler/allCatch");
 const { generalError, success, notFound } = require("../errorHandler/statusCodes");
-const { generateToken, checkPassword, processAllImages, deleteImageFromBunny, baseValidator, sendOrderUpdateNotifcationMail } = require("../util/base");
+const { generateToken, checkPassword, processAllImages, deleteImageFromBunny, baseValidator, sendOrderUpdateNotifcationMail, createUUID } = require("../util/base");
 const { PARAMS } = require("../util/consts");
 const { loginValidator } = require("../util/validators/accountValidator");
 const { orderStatusUpdateSchema } = require("../util/validators/cartValidator");
@@ -55,8 +55,9 @@ exports.login = catchAsync(async (req, res) => {
 // for images
 exports.uploadImages = catchAsync(async (req, res) => {
     success(res, {}, "Processing")
-
-    const urls = await processAllImages(req.files)
+    
+    const name = req.body.name
+    const urls = await processAllImages(req.files, name?? `IMG_${createUUID(5)}`)
 
     await uploadBulkImages(urls)
 

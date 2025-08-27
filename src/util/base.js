@@ -368,14 +368,14 @@ const uploadToBunny = async (stream, fileName) => {
     return `${BUNNY.BUNNY_CUSTOM_FILE_UPLOAD_HOSTNAME}/${fileName}`
 }
 
-exports.processAllImages = async (files) => {
-    const promises = files.map((item) => {
+exports.processAllImages = async (files, name) => {
+    const promises = files.map((item, index) => {
         const splitted = item.originalname.split(".");
         const ext = splitted[splitted.length - 1];
         const file_name = `${this.createUUID()}.${ext}`;
 
         return this.processFile(item.buffer, file_name).then((url) => {
-            return { "img_url": url };
+            return { "img_url": url, name: `${name}_${index}`};
         });
     });
 

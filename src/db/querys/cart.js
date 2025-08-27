@@ -123,40 +123,6 @@ exports.getSpecificOrder = async (orderId) => {
     )
 }
 
-// exports.getTopProductCounts = async () => {
-//     return await cart.findAll({
-//         where: {
-//             [PARAMS.ordered]: true
-//         },
-
-//         attributes: [
-//             // PARAMS.units,
-//             PARAMS.productId,
-//             [fn('COUNT', col(PARAMS.ordered)), 'count'],
-//             [fn('SUM', col(PARAMS.units)), 'totalUnitSold'],
-//         ],
-//         include: [
-//             {
-//                 model: product,
-//                 attributes: [PARAMS.name, PARAMS.price],
-//                 include: {
-//                     model: product_images,
-//                     as: RELATIONSHIP_NAMES.defaultImage,
-//                     include: {
-//                         model: images,
-//                         as: RELATIONSHIP_NAMES.image
-//                     },
-//                     // limit: 1
-//                 }
-//             }
-//         ],
-//         group: [PARAMS.productId],
-//         // raw: true,
-//         limit: 5,
-//         order: [[literal("totalUnitSold"), "DESC"]]
-//     });
-// };
-
 
 exports.getTopProductCounts = async () => {
   return await cart.findAll({
