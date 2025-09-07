@@ -14,10 +14,12 @@ exports.getProductsByCategory = async (categoryId, limit, offset) => {
                 [PARAMS.isActive]: true
             },
             attributes: [
+                PARAMS.categoryId,
                 PARAMS.uid,
                 PARAMS.name,
                 PARAMS.price,
-                PARAMS.units
+                PARAMS.units,
+                PARAMS.description
             ],
             include:[
                  {
@@ -57,7 +59,8 @@ exports.getspecificProduct = async (productId) => {
                 PARAMS.uid,
                 PARAMS.name,
                 PARAMS.price,
-                PARAMS.units
+                PARAMS.units,
+                PARAMS.description
             ],
             include:[
                 {
@@ -97,7 +100,8 @@ exports.searchProduct = async (query, offset, limit) => {
                 PARAMS.uid,
                 PARAMS.name,
                 PARAMS.price,
-                PARAMS.units
+                PARAMS.units,
+                PARAMS.description
             ],
             include:[
                 {
