@@ -1,26 +1,25 @@
 const Joi = require("joi");
 const { PARAMS } = require("../consts");
 
-const specificationsSchema = Joi.object(
-    {
-        name: Joi.string().required().messages(
-            {
-                "any.required": "specification name required",
-                "string.base":"name of specification required."
-            }
-        ),
-        values: Joi.string().required().messages(
-            {
-                "any.required": "values for specification required.",
-                "string.base":"values required as comma seperated strings."
-            }
-        )
-    }
-).required().messages(
-    {
-        "any.required":"specification object requred."
-    }
-)
+const specificationsSchema = Joi.object({
+    name: Joi.string().required().messages({
+        "any.required": "specification name required",
+        "string.base": "name of specification required."
+    }),
+    values: Joi.alternatives().try(
+        Joi.string().messages({
+            "string.base": "values required as comma separated strings."
+        }),
+        Joi.array().items(Joi.string()).messages({
+            "array.base": "values must be an array of strings.",
+            "array.includes": "all values must be strings."
+        })
+    ).required().messages({
+        "any.required": "values for specification required."
+    })
+}).required().messages({
+    "any.required": "specification object required."
+});
 
 
 exports.categoryCreationSchema = Joi.object(

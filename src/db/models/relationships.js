@@ -2,7 +2,9 @@ const { PARAMS, RELATIONSHIP_NAMES } = require("../../util/consts");
 const { transaction } = require("./transaction");
 const { user } = require("./user");
 const { images, product_images } = require("./images");
-const { category, category_specifications } = require("./category");
+const { category,
+    // category_specifications 
+} = require("./category");
 const { product, product_specifications } = require("./product");
 const { cart } = require("./cart");
 const { order } = require("./order")
@@ -25,7 +27,7 @@ category.hasMany(product, {
 })
 
 
-category.hasMany(category_specifications, { foreignKey: PARAMS.categoryId, sourceKey: PARAMS.uid, as: RELATIONSHIP_NAMES.category_specifications })
+// category.hasMany(category_specifications, { foreignKey: PARAMS.categoryId, sourceKey: PARAMS.uid, as: RELATIONSHIP_NAMES.category_specifications })
 
 product_specifications.belongsTo(product, { foreignKey: PARAMS.productId, targetKey: PARAMS.uid })
 product.hasMany(product_specifications, { foreignKey: PARAMS.productId, sourceKey: PARAMS.uid })
@@ -43,14 +45,14 @@ product.hasMany(product_images, { foreignKey: PARAMS.productId, sourceKey: PARAM
 
 product_images.belongsTo(product, { foreignKey: PARAMS.productId, targetKey: PARAMS.uid })
 
-order.hasMany(cart, {foreignKey: PARAMS.orderId, sourceKey: PARAMS.orderId})
-cart.belongsTo(order, {foreignKey: PARAMS.orderId, targetKey: PARAMS.orderId})
+order.hasMany(cart, { foreignKey: PARAMS.orderId, sourceKey: PARAMS.orderId })
+cart.belongsTo(order, { foreignKey: PARAMS.orderId, targetKey: PARAMS.orderId })
 
-order.hasOne(transaction, {foreignKey: PARAMS.orderId, sourceKey: PARAMS.orderId})
-transaction.belongsTo(transaction, {foreignKey: PARAMS.orderId, targetKey: PARAMS.orderId})
+order.hasOne(transaction, { foreignKey: PARAMS.orderId, sourceKey: PARAMS.orderId })
+transaction.belongsTo(transaction, { foreignKey: PARAMS.orderId, targetKey: PARAMS.orderId })
 
-order.belongsTo(user, {foreignKey: PARAMS.uid, targetKey: PARAMS.uid})
-user.hasMany(order, {foreignKey: PARAMS.uid, sourceKey: PARAMS.uid})
+order.belongsTo(user, { foreignKey: PARAMS.uid, targetKey: PARAMS.uid })
+user.hasMany(order, { foreignKey: PARAMS.uid, sourceKey: PARAMS.uid })
 
 
 module.exports = {
@@ -58,7 +60,7 @@ module.exports = {
     user,
     images,
     category,
-    category_specifications,
+    // category_specifications,
     product,
     cart,
     product_specifications,

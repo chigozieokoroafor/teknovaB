@@ -1,11 +1,19 @@
 const { Sequelize, Op } = require("sequelize");
-const { checkCategoryExists, createCategoryQuery, fetchCategoryQuery, deleteCategory, fetchCategoryById, createCategorySpecification } = require("../db/querys/category");
+const {
+    checkCategoryExists,
+    createCategoryQuery,
+    fetchCategoryQuery,
+    deleteCategory,
+    fetchCategoryById,
+    updateSpecificCategory,
+    // createCategorySpecification 
+} = require("../db/querys/category");
 const { uploadProduct, getProductsByCategory, getspecificProduct, searchProduct, deleteProductQuery, uploadProductImages, uploadProductSpecification } = require("../db/querys/products");
 const { catchAsync } = require("../errorHandler/allCatch");
 const { generalError, success, notFound } = require("../errorHandler/statusCodes");
 const { createUUID, sendEmail, baseValidator } = require("../util/base");
 const { FETCH_LIMIT, PARAMS } = require("../util/consts");
-const { categoryCreationSchema } = require("../util/validators/categoryValidator");
+const { categoryCreationSchema, categoryUpdateSchema } = require("../util/validators/categoryValidator");
 const { productUploadSchema } = require("../util/validators/productsValidator");
 
 // admin category 
@@ -16,7 +24,7 @@ exports.createCategory = catchAsync(async (req, res) => {
         return error
     }
 
-    const data = req.body
+    let data = req.body
 
     const specifications = data.specifications
 
@@ -25,16 +33,18 @@ exports.createCategory = catchAsync(async (req, res) => {
         return generalError(res, `Category "${req.body?.name}" exists`)
     }
 
-    const category = await createCategoryQuery(data)
-
-    const cat_id = category.uid
+    // const cat_id = category.uid
     specifications.map((item, index) => {
-        item[PARAMS.categoryId] = cat_id
+        // item[PARAMS.categoryId] = cat_id
         item[PARAMS.values] = item[PARAMS.values].split(",")
         specifications[index] = item
     })
 
-    await createCategorySpecification(specifications)
+    data[PARAMS.category_specifications] = specifications
+
+    const category = await createCategoryQuery(data)
+
+    // await createCategorySpecification(specifications)
 
     return success(res, {}, "Category Created")
 
@@ -62,16 +72,34 @@ exports.deleteCategory = catchAsync(async (req, res) => {
 exports.updateCategory = catchAsync(async (req, res) => {
     const categoryId = req.params.category_id
 
-    const error = baseValidator(loginValidator, req.body, res)
+    const error = baseValidator(categoryUpdateSchema, req.body, res)
     if (error) {
         return error
     }
-
 
     const exists = fetchCategoryById(categoryId)
     if (!exists) {
         return notFound(res, "Category not found")
     }
+
+    if (req.body?.specifications) {
+        const specifications = req.body.specifications
+        specifications.map((item, index) => {
+            // item[PARAMS.categoryId] = cat_id
+            item[PARAMS.values] = typeof item[PARAMS.values] == "string" ? item[PARAMS.values].split(",").map((val, index) =>{return val.trim(" ")}) : item[PARAMS.values]
+            specifications[index] = item
+        })
+        
+        req.body[PARAMS.category_specifications] = specifications
+    }
+
+    await updateSpecificCategory(categoryId, req.body)
+
+    return success(res, {}, "Updated.")
+
+
+
+
 
 
 })
@@ -82,7 +110,6 @@ exports.addProducts = catchAsync(async (req, res) => {
     // if (valid_.error) {
     //     return generalError(res, valid_.error.message)
     // }
-
 
 
     const error = baseValidator(productUploadSchema, req.body, res)

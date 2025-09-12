@@ -23,7 +23,7 @@
   "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon app.js",
+    "dev": "bun --watch app.js",
     "start": "node app.js"
   },
   "repository": {
