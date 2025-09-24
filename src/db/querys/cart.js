@@ -20,7 +20,7 @@ exports.fetchCartItems = async (uid, offset, limit) => {
             include: [
                 {
                     model: product,
-                    attributes: [PARAMS.uid, PARAMS.name],
+                    attributes: [PARAMS.uid, PARAMS.name, PARAMS.price],
                     include: {
                         model: product_images,
                         attributes: [PARAMS.id, PARAMS.imageId],
