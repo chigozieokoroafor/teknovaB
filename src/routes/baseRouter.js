@@ -27,6 +27,8 @@ base.get("/orders", baseAuth, cartController.getOrders)
 
 base.post("/payment/webhook",paymentController.paymentWebhook )
 
+base.post("/contactUs", baseController.contactUs)
+
 
 module.exports = {
     baseRouter: base

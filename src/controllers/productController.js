@@ -86,10 +86,10 @@ exports.updateCategory = catchAsync(async (req, res) => {
         const specifications = req.body.specifications
         specifications.map((item, index) => {
             // item[PARAMS.categoryId] = cat_id
-            item[PARAMS.values] = typeof item[PARAMS.values] == "string" ? item[PARAMS.values].split(",").map((val, index) =>{return val.trim(" ")}) : item[PARAMS.values]
+            item[PARAMS.values] = typeof item[PARAMS.values] == "string" ? item[PARAMS.values].split(",").map((val, index) => { return val.trim(" ") }) : item[PARAMS.values]
             specifications[index] = item
         })
-        
+
         req.body[PARAMS.category_specifications] = specifications
     }
 
@@ -106,11 +106,6 @@ exports.updateCategory = catchAsync(async (req, res) => {
 
 // admin products
 exports.addProducts = catchAsync(async (req, res) => {
-    // const valid_ = productUploadSchema.validate(req.body)
-    // if (valid_.error) {
-    //     return generalError(res, valid_.error.message)
-    // }
-
 
     const error = baseValidator(productUploadSchema, req.body, res)
     if (error) {
@@ -159,6 +154,12 @@ exports.addProducts = catchAsync(async (req, res) => {
     return success(res, {}, "Product uploaded successfully")
 })
 
+
+// exports.updateProduct = catchAsync(async (req, res) => {
+// 
+// })e
+
+
 exports.fetchProductsUnderCategory = catchAsync(async (req, res) => {
     const category_id = req.params?.category_id
 
@@ -181,8 +182,6 @@ exports.fetchProductsUnderCategory = catchAsync(async (req, res) => {
     const data = await getProductsByCategory(category_id, FETCH_LIMIT, offset)
 
     return success(res, data, "Fetched")
-
-
 
 })
 
