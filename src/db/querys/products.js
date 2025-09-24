@@ -1,18 +1,17 @@
 const { PARAMS, RELATIONSHIP_NAMES } = require("../../util/consts");
-const { product, product_specifications, product_images, images, category} = require("../models/relationships");
+const { product, product_specifications, product_images, images, category } = require("../models/relationships");
 
 exports.uploadProduct = async (data) => {
     return await product.create(data)
 }
 
-exports.getProductsByCategory = async (categoryId, limit, offset) => {
+exports.getProductsByCategory = async (query, limit, offset) => {
+
+    query[PARAMS.isDeleted] = false
+    query[PARAMS.isActive] = true
     return await product.findAll(
         {
-            where: {
-                categoryId,
-                [PARAMS.isDeleted]:false,
-                [PARAMS.isActive]: true
-            },
+            where: query,
             attributes: [
                 PARAMS.categoryId,
                 PARAMS.uid,
@@ -21,15 +20,15 @@ exports.getProductsByCategory = async (categoryId, limit, offset) => {
                 PARAMS.units,
                 PARAMS.description
             ],
-            include:[
-                 {
+            include: [
+                {
                     model: category,
                     as: RELATIONSHIP_NAMES.category,
                     attributes: [PARAMS.uid, PARAMS.name]
                 },
                 {
                     model: product_images,
-                    attributes: [PARAMS.id,PARAMS.imageId],
+                    attributes: [PARAMS.id, PARAMS.imageId],
                     include: {
                         model: images,
                         attributes: [PARAMS.img_url],
@@ -52,7 +51,7 @@ exports.getspecificProduct = async (productId) => {
         {
             where: {
                 [PARAMS.uid]: productId,
-                [PARAMS.isDeleted]:false
+                [PARAMS.isDeleted]: false
             },
             attributes: [
                 PARAMS.categoryId,
@@ -62,7 +61,7 @@ exports.getspecificProduct = async (productId) => {
                 PARAMS.units,
                 PARAMS.description
             ],
-            include:[
+            include: [
                 {
                     model: category,
                     as: RELATIONSHIP_NAMES.category,
@@ -70,7 +69,7 @@ exports.getspecificProduct = async (productId) => {
                 },
                 {
                     model: product_images,
-                    attributes: [PARAMS.id,PARAMS.imageId],
+                    attributes: [PARAMS.id, PARAMS.imageId],
                     include: {
                         model: images,
                         attributes: [PARAMS.img_url],
@@ -103,7 +102,7 @@ exports.searchProduct = async (query, offset, limit) => {
                 PARAMS.units,
                 PARAMS.description
             ],
-            include:[
+            include: [
                 {
                     model: category,
                     as: RELATIONSHIP_NAMES.category,
@@ -111,7 +110,7 @@ exports.searchProduct = async (query, offset, limit) => {
                 },
                 {
                     model: product_images,
-                    attributes: [PARAMS.id,PARAMS.imageId],
+                    attributes: [PARAMS.id, PARAMS.imageId],
                     include: {
                         model: images,
                         attributes: [PARAMS.img_url],
@@ -130,15 +129,15 @@ exports.searchProduct = async (query, offset, limit) => {
     )
 }
 
-exports.deleteProductQuery = async(productId) =>{
-    return await product.update({[PARAMS.isDeleted]:true}, {where:{[PARAMS.uid]:productId}})
+exports.deleteProductQuery = async (productId) => {
+    return await product.update({ [PARAMS.isDeleted]: true }, { where: { [PARAMS.uid]: productId } })
 }
 
-exports.uploadProductSpecification = async(data) =>{
+exports.uploadProductSpecification = async (data) => {
     return await product_specifications.bulkCreate(data)
 }
 
-exports.uploadProductImages = async(data) =>{
+exports.uploadProductImages = async (data) => {
     return await product_images.bulkCreate(data)
 }
 
@@ -148,7 +147,7 @@ exports.getspecificProductRaw = async (productId) => {
         {
             where: {
                 [PARAMS.uid]: productId,
-                [PARAMS.isDeleted]:false
+                [PARAMS.isDeleted]: false
             },
             // attributes: [
             //     PARAMS.categoryId,
@@ -157,7 +156,7 @@ exports.getspecificProductRaw = async (productId) => {
             //     PARAMS.price,
             //     PARAMS.units
             // ],
-            include:[
+            include: [
                 {
                     model: category,
                     as: RELATIONSHIP_NAMES.category,
@@ -165,7 +164,7 @@ exports.getspecificProductRaw = async (productId) => {
                 },
                 {
                     model: product_images,
-                    attributes: [PARAMS.id,PARAMS.imageId],
+                    attributes: [PARAMS.id, PARAMS.imageId],
                     include: {
                         model: images,
                         attributes: [PARAMS.img_url],

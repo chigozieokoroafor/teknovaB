@@ -172,6 +172,40 @@ exports.fetchProductsUnderCategory = catchAsync(async (req, res) => {
         return generalError(res, "Page cannot be less than 1")
     }
 
+    const { t, h, l } = req.query
+
+    const s_q = {
+        categoryId: category_id
+    }
+
+    if (t) {
+        s_q[Op.or] = [
+            {
+                [PARAMS.name]: {
+                    [Op.like]: `%${t}%`
+                }
+            },
+
+            {
+                [PARAMS.description]: {
+                    [Op.like]: `%${t}%`
+                }
+            }
+        ]
+    }
+
+    if(l&&!h){
+        s_q[PARAMS.price] = {
+            [Op.gte]: l
+        }
+    }
+
+    if (l&&h){
+        s_q[PARAMS.price] = {
+            [Op.between]: [l, h]
+        }
+    }
+
     const category_exists = await fetchCategoryById(category_id)
     if (!category_exists) {
         return notFound(res, "Category selected not found")
@@ -179,7 +213,8 @@ exports.fetchProductsUnderCategory = catchAsync(async (req, res) => {
 
     const offset = (Number(page) - 1) * FETCH_LIMIT
 
-    const data = await getProductsByCategory(category_id, FETCH_LIMIT, offset)
+
+    const data = await getProductsByCategory(s_q, FETCH_LIMIT, offset)
 
     return success(res, data, "Fetched")
 
@@ -206,7 +241,39 @@ exports.getAllProducts = catchAsync(async (req, res) => {
     }
     const offset = (Number(page) - 1) * FETCH_LIMIT
 
-    const products = await searchProduct({}, offset, FETCH_LIMIT)
+    const { t, h, l } = req.query
+
+    const s_q = {}
+
+    if (t) {
+        s_q[Op.or] = [
+            {
+                [PARAMS.name]: {
+                    [Op.like]: `%${t}%`
+                }
+            },
+
+            {
+                [PARAMS.description]: {
+                    [Op.like]: `%${t}%`
+                }
+            }
+        ]
+    }
+
+    if(l&&!h){
+        s_q[PARAMS.price] = {
+            [Op.gte]: l
+        }
+    }
+
+    if (l&&h){
+        s_q[PARAMS.price] = {
+            [Op.between]: [l, h]
+        }
+    }
+
+    const products = await searchProduct(s_q, offset, FETCH_LIMIT)
     return success(res, products, "Fetched")
 })
 
