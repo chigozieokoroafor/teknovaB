@@ -7,6 +7,7 @@ const { createUUID, initializePayment, baseValidator } = require("../util/base")
 const { PARAMS, FETCH_LIMIT } = require("../util/consts");
 const { addToCartSchema, checkoutSchema } = require("../util/validators/cartValidator");
 const { uploadTransaction } = require("../db/querys/transactions");
+const { fetchSingleCartItem, destroyCartItem } = require("../db/querys/category");
 
 exports.addItemToCart = catchAsync(async (req, res) => {
     const user_id = req.user.uid
@@ -60,6 +61,26 @@ exports.getCart = catchAsync(async (req, res) => {
     const total = data.reduce((total, item) => total + item[PARAMS.total_amount], 0)
 
     return success(res, { cart: data, total }, "Working")
+})
+
+exports.deleteCartItems = catchAsync(async (req, res) => {
+    const uid = req.user?.uid
+    const cartId = req.query?.cartId
+
+    if(!cartId){
+        return generalError(res, "Select a cart item to delete.")
+    }
+
+    const item = await fetchSingleCartItem(uid, cartId)
+
+    if(!item){
+        return notFound(res, "Item not found.")
+    }
+
+    await destroyCartItem(uid, cartId)
+
+    success(res, {}, "Item deleted.")
+    
 })
 
 exports.checkout = catchAsync(async (req, res) => {
@@ -117,7 +138,7 @@ exports.checkout = catchAsync(async (req, res) => {
 })
 
 
-exports.getOrders = catchAsync(async(req, res) =>{
+exports.getOrders = catchAsync(async (req, res) => {
     const user_id = req.user?.uid
 
     const page = req.query?.page
