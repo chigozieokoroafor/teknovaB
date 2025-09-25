@@ -31,6 +31,14 @@ const order = conn.define(MODEL_NAMES.order, {
     },
     [PARAMS.billing_address]: {
         type: DataTypes.JSON
+    },
+    [PARAMS.deliveryType]:{
+        type: DataTypes.STRING(50),
+        defaultValue: "Pick-up"
+    },
+    [PARAMS.deliveryCost]:{
+        type: DataTypes.DOUBLE,
+        defaultValue: 0
     }
 }, {
     tableName:MODEL_NAMES.order,

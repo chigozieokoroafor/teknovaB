@@ -31,6 +31,7 @@ base.get("/orders", baseAuth, cartController.getOrders)
 base.post("/payment/webhook", paymentController.paymentWebhook)
 
 base.post("/contactUs", baseController.contactUs)
+base.get("/deliveryPrice", cartController.getDeliveryPrices)
 
 
 module.exports = {

@@ -6,7 +6,7 @@ exports.MODEL_NAMES = {
     product: "Product",
     cart: "Cart",
     transaction: "Transactions",
-    review: "Reviews",
+    extra_payments: "ExtraPayments",
     images: "Images",
     order: "Orders",
     category_specifications: "Category_Specifications",
@@ -21,6 +21,10 @@ exports.STATUSES = {
     paid:"Paid"
 }
 
+// exports.EXTRA_PAYMENTS = {
+//     isTechnicianRequired: 3000,
+//     delivery
+// }
 exports.PARAMS = {
     id: "id",
     email: "email",
@@ -68,7 +72,11 @@ exports.PARAMS = {
     contact_Info:"contact_Info",
     isDelivery:"isDelivery",
     coupon:"coupon",
-    paymentStatus:"paymentStatus"
+    paymentStatus:"paymentStatus",
+    isTechnicianRequired:"isTechnicianRequired",
+    isTechnicianRequiredCost:"isTechnicianRequiredCost",
+    deliveryType: "deliveryType",
+    deliveryCost:"deliveryCost"
 
 }
 

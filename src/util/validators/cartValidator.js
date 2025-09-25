@@ -15,12 +15,12 @@ exports.addToCartSchema = Joi.object(
                 "number.empty": "Units to be purchased cannot be less than 1."
             }
         ),
-        // [PARAMS.unit_price]:Joi.number().required().messages(
-        //     {
-        //         "any.required": "kindly provide the unit price of products being purchased.",
-        //         // "number.empty": "Unit price  of product to be purchased cannot be less than 1."
-        //     }
-        // ),
+        [PARAMS.isTechnicianRequired]: Joi.boolean().messages(
+            {
+                "any.required": "kindly indicate if you would require a technician for tyour device",
+                // "number.empty": "Unit price  of product to be purchased cannot be less than 1."
+            }
+        ),
         [PARAMS.specifications]: Joi.array(
             // {
             //     "color",
@@ -84,29 +84,29 @@ exports.checkoutSchema = Joi.object(
                 "object.base": "Billing address must be of object type"
             }
         ),
-        [PARAMS.contact_Info]:
-            Joi.object({
-                [PARAMS.firstName]: Joi.string().required().messages(
-                    {
-                        "any.required": "Kindly provide a first name",
-
-                    })
-                ,
-                [PARAMS.lastName]: Joi.string().required().messages(
-                    {
-                        "any.required": "Kindly provide a last name",
-                    }
-                ),
-                [PARAMS.phone_no]: Joi.string().required().messages(
-                    {
-                        "any.required": "Kindly provide Reciepient's phone number.",
-                    }
-                )
-            }).required().messages(
+        [PARAMS.contact_Info]: Joi.object({
+            [PARAMS.firstName]: Joi.string().required().messages(
                 {
-                    "any.required": "Kindly provide the contact info of receipient."
+                    "any.required": "Kindly provide a first name",
+
+                })
+            ,
+            [PARAMS.lastName]: Joi.string().required().messages(
+                {
+                    "any.required": "Kindly provide a last name",
+                }
+            ),
+            [PARAMS.phone_no]: Joi.string().required().messages(
+                {
+                    "any.required": "Kindly provide Reciepient's phone number.",
                 }
             )
+        }).required().messages(
+            {
+                "any.required": "Kindly provide the contact info of receipient."
+            }
+        ),
+        [PARAMS.deliveryType] : Joi.string()
 
     }
 ).required().messages(

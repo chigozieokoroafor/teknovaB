@@ -3,7 +3,15 @@ const { PARAMS, RELATIONSHIP_NAMES, STATUSES } = require("../../util/consts");
 // const { cart } = require("../models/cart");
 // const { product_images, images } = require("../models/images");
 // const { product } = require("../models/product");
-const { order, user, transaction, product, images, product_images, cart } = require("../models/relationships")
+const { order, user, transaction, product, images, product_images, cart } = require("../models/relationships");
+const { extra_payments } = require("../models/review");
+
+
+exports.getExtraPayments = async(name) =>{
+    return await extra_payments.findOne({
+        where: {name}
+    })
+}
 
 exports.addToCartQuery = async (data) => {
     return await cart.create(data)
@@ -46,7 +54,7 @@ exports.fetchCartItemsToOrder = async (uid) => {
                 [PARAMS.ordered]: false
 
             },
-            attributes: [PARAMS.id, PARAMS.total_amount]
+            attributes: [PARAMS.id, PARAMS.total_amount, PARAMS.isTechnicianRequiredCost]
         }
     )
 }
@@ -129,6 +137,7 @@ exports.updateOrderStatus = async (orderId, status) => {
 exports.updateOrderPaymentStatus = async (orderId, status) => {
     return await order.update({ [PARAMS.paymentStatus]: status }, { where: { orderId } })
 }
+
 exports.getSpecificOrder = async (orderId) => {
     return await order.findOne(
         {
@@ -140,7 +149,6 @@ exports.getSpecificOrder = async (orderId) => {
         }
     )
 }
-
 
 exports.getTopProductCounts = async () => {
     return await cart.findAll({

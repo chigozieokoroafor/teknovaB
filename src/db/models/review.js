@@ -2,33 +2,28 @@ const { DataTypes } = require("sequelize");
 const { MODEL_NAMES } = require("../../util/consts");
 const { conn } = require("../base");
 
-const review = conn.define(MODEL_NAMES.review, {
+const extra_payments = conn.define(MODEL_NAMES.extra_payments, {
     id:{
         type:DataTypes.INTEGER,
         unique:true,
         autoIncrement:true,
         primaryKey:true
     }, 
-    uid:{
-        type:DataTypes.STRING(40),
-        allowNull:true
-    },
+    
     name:{
         type: DataTypes.STRING(255),
         allowNull:true
     },
-    email:{
-        type: DataTypes.STRING(255),
-        allowNull:true,
-        validate:{
-            isEmail:true
-        }
+    price: {
+        type: DataTypes.DOUBLE,
+        allowNull: true
     }
 }, {
-    tableName:MODEL_NAMES.review,
-    modelName:MODEL_NAMES.review
+    tableName:MODEL_NAMES.extra_payments,
+    modelName:MODEL_NAMES.extra_payments,
+    timestamps: false
 })
 
 module.exports = {
-    review
+    extra_payments
 }

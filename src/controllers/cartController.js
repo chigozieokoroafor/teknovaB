@@ -1,5 +1,5 @@
 const { Op } = require("sequelize");
-const { addToCartQuery, fetchCartItems, fetchCartItemsToOrder, updateCartItemsforOrder, createOrderOnOrderTable, fetchOrdersForClient } = require("../db/querys/cart");
+const { addToCartQuery, fetchCartItems, fetchCartItemsToOrder, updateCartItemsforOrder, createOrderOnOrderTable, fetchOrdersForClient, getExtraPayments } = require("../db/querys/cart");
 const { getspecificProduct, getspecificProductRaw } = require("../db/querys/products");
 const { catchAsync } = require("../errorHandler/allCatch");
 const { generalError, notFound, internalServerError, success } = require("../errorHandler/statusCodes");
@@ -38,6 +38,13 @@ exports.addItemToCart = catchAsync(async (req, res) => {
     data[PARAMS.uid] = user_id
 
     data[PARAMS.total_amount] = price * data[PARAMS.units]
+    data[PARAMS.unit_price] = price
+
+    if (data[PARAMS.isTechnicianRequired]) {
+        const cost = (await getExtraPayments(PARAMS.isTechnicianRequired))?.price ?? 0
+        data[PARAMS.isTechnicianRequiredCost] = cost
+    }
+
 
     try {
         const q = await addToCartQuery(data)
@@ -67,25 +74,26 @@ exports.deleteCartItems = catchAsync(async (req, res) => {
     const uid = req.user?.uid
     const cartId = req.query?.cartId
 
-    if(!cartId){
+    if (!cartId) {
         return generalError(res, "Select a cart item to delete.")
     }
 
     const item = await fetchSingleCartItem(uid, cartId)
 
-    if(!item){
+    if (!item) {
         return notFound(res, "Item not found.")
     }
 
     await destroyCartItem(uid, cartId)
 
     success(res, {}, "Item deleted.")
-    
+
 })
 
 exports.checkout = catchAsync(async (req, res) => {
     const user_id = req.user?.uid
-
+    let deliveryType = "Pick-up"
+    let deliveryCost = 0.0
     // "add contact info and billing info"
     const cart = await fetchCartItemsToOrder(user_id)
 
@@ -101,12 +109,28 @@ exports.checkout = catchAsync(async (req, res) => {
 
 
     const orderId = `#ORD${createUUID(6)}`
-    const total_amount = cart.reduce((total, current) => total + current[PARAMS.total_amount], 0)
+    const total_cart_amount = cart.reduce((total, current) => total + current[PARAMS.total_amount] + current[PARAMS.isTechnicianRequiredCost], 0)
     const cart_ids = cart.map((item) => {
 
         return item.id
 
     })
+
+    if (req.body[PARAMS.deliveryType]) {
+
+        if (!["pick-up", "free", "express"].includes(req.body[PARAMS.deliveryType].toLowerCase())){
+            return generalError(res, "Selected delivery method is not available.")
+        }
+
+
+        deliveryType = req.body[PARAMS.deliveryType]
+        deliveryCost = (await getExtraPayments(deliveryType.toLowerCase()))?.price ?? 0.0
+    }
+
+    
+    const total_amount = total_cart_amount + deliveryCost
+
+    
 
     const ref = `TRX_${createUUID(7)}`
     const response = await initializePayment(ref, total_amount, req.user?.email, { [PARAMS.orderId]: orderId, [PARAMS.cart_ids]: cart_ids })
@@ -132,11 +156,12 @@ exports.checkout = catchAsync(async (req, res) => {
             [PARAMS.uid]: user_id,
             [PARAMS.orderId]: orderId,
             [PARAMS.billing_address]: req.body[PARAMS.billing_address],
-            [PARAMS.contact_Info]: req.body[PARAMS.contact_Info]
+            [PARAMS.contact_Info]: req.body[PARAMS.contact_Info],
+            [PARAMS.deliveryType]: deliveryType,
+            [PARAMS.deliveryCost]: deliveryCost
         }
     )
 })
-
 
 exports.getOrders = catchAsync(async (req, res) => {
     const user_id = req.user?.uid
@@ -153,3 +178,8 @@ exports.getOrders = catchAsync(async (req, res) => {
     return success(res, data, "Fetched")
 })
 
+exports.getDeliveryPrices = catchAsync(async (req, res) => {
+    const extra = (await getExtraPayments("express"))?.price ?? 0.0
+
+    return success(res, {express: extra, free: 0.0, pickup: 0.0})
+})
