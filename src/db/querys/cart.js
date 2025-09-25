@@ -75,12 +75,27 @@ exports.fetchOrdersForClient = async (uid, limit, offset) => {
         {
             where: {
                 uid,
-                [PARAMS.paymentStatus]: {
-                    [Op.not]: STATUSES.pending
-                }
+                // [PARAMS.paymentStatus]: {
+                //     [Op.not]: STATUSES.pending
+                // }
             },
             include: {
-                model: cart
+                model: cart,
+                include: [
+                    {
+                        model: product,
+                        attributes: [PARAMS.uid, PARAMS.name, PARAMS.price],
+                        include: {
+                            model: product_images,
+                            attributes: [PARAMS.id, PARAMS.imageId],
+                            include: {
+                                model: images,
+                                attributes: [PARAMS.img_url],
+                                as: RELATIONSHIP_NAMES.image
+                            }
+                        },
+                    }
+                ]
             },
             limit,
             offset
@@ -111,6 +126,9 @@ exports.updateOrderStatus = async (orderId, status) => {
     return await order.update({ status }, { where: { orderId } })
 }
 
+exports.updateOrderPaymentStatus = async (orderId, status) => {
+    return await order.update({ [PARAMS.paymentStatus]: status }, { where: { orderId } })
+}
 exports.getSpecificOrder = async (orderId) => {
     return await order.findOne(
         {
@@ -125,39 +143,39 @@ exports.getSpecificOrder = async (orderId) => {
 
 
 exports.getTopProductCounts = async () => {
-  return await cart.findAll({
-    where: {
-      [PARAMS.ordered]: true
-    },
-    attributes: [
-      PARAMS.productId,
-      [fn('COUNT', col(PARAMS.productId)), 'count'],   // count actual product rows
-      [fn('SUM', col(PARAMS.units)), 'totalUnitSold'],
-    ],
-    include: [
-      {
-        model: product,
-        attributes: [PARAMS.name, PARAMS.price],
+    return await cart.findAll({
+        where: {
+            [PARAMS.ordered]: true
+        },
+        attributes: [
+            PARAMS.productId,
+            [fn('COUNT', col(PARAMS.productId)), 'count'],   // count actual product rows
+            [fn('SUM', col(PARAMS.units)), 'totalUnitSold'],
+        ],
         include: [
-          {
-            model: product_images,
-            // as: RELATIONSHIP_NAMES.defaultImage,
-            attributes: [PARAMS.imageId],
-            include: [
-              {
-                model: images,
-                attributes: [PARAMS.img_url],
-                as: RELATIONSHIP_NAMES.image
-              }
-            ]
-          }
-        ]
-      }
-    ],
-    group: [
-      PARAMS.productId,
-    ],
-    limit: 5,
-    order: [[literal("totalUnitSold"), "DESC"]]
-  });
+            {
+                model: product,
+                attributes: [PARAMS.name, PARAMS.price],
+                include: [
+                    {
+                        model: product_images,
+                        // as: RELATIONSHIP_NAMES.defaultImage,
+                        attributes: [PARAMS.imageId],
+                        include: [
+                            {
+                                model: images,
+                                attributes: [PARAMS.img_url],
+                                as: RELATIONSHIP_NAMES.image
+                            }
+                        ]
+                    }
+                ]
+            }
+        ],
+        group: [
+            PARAMS.productId,
+        ],
+        limit: 5,
+        order: [[literal("totalUnitSold"), "DESC"]]
+    });
 };
