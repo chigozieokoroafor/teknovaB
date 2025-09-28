@@ -22,10 +22,12 @@ admin.put("/category/:category_id", adminAuth, productController.updateCategory)
 
 admin.get("/product", adminAuth, productController.getAllProducts)
 admin.get("/product/:product_id", adminAuth, productController.getSpecificProduct)
-// admin.put("/product/:product_id", adminAuth, productController.updateCategory)
+admin.get("/product/update/:product_id", adminAuth, productController.getProductForUpdate)
+admin.put("/product/:product_id", adminAuth, productController.updateProducts)
 
 admin.post("/product", adminAuth, productController.addProducts)
 admin.delete("/product", adminAuth, productController.deleteProducts)
+
 
 // images
 admin.get("/images",

@@ -8,13 +8,13 @@ const {
     updateSpecificCategory,
     // createCategorySpecification 
 } = require("../db/querys/category");
-const { uploadProduct, getProductsByCategory, getspecificProduct, searchProduct, deleteProductQuery, uploadProductImages } = require("../db/querys/products");
+const { uploadProduct, getProductsByCategory, getspecificProduct, searchProduct, deleteProductQuery, uploadProductImages, deleteProductImages, updateProductDetails } = require("../db/querys/products");
 const { catchAsync } = require("../errorHandler/allCatch");
 const { generalError, success, notFound } = require("../errorHandler/statusCodes");
 const { createUUID, sendEmail, baseValidator } = require("../util/base");
 const { FETCH_LIMIT, PARAMS, MODEL_NAMES } = require("../util/consts");
 const { categoryCreationSchema, categoryUpdateSchema } = require("../util/validators/categoryValidator");
-const { productUploadSchema } = require("../util/validators/productsValidator");
+const { productUploadSchema, productUpdateSchema } = require("../util/validators/productsValidator");
 
 // admin category 
 exports.createCategory = catchAsync(async (req, res) => {
@@ -149,12 +149,6 @@ exports.addProducts = catchAsync(async (req, res) => {
     return success(res, {}, "Product uploaded successfully")
 })
 
-
-// exports.updateProduct = catchAsync(async (req, res) => {
-// 
-// })e
-
-
 exports.fetchProductsUnderCategory = catchAsync(async (req, res) => {
     const category_id = req.params?.category_id
 
@@ -288,7 +282,7 @@ exports.deleteProducts = catchAsync(async (req, res) => {
 })
 
 exports.updateProducts = catchAsync(async (req, res) => {
-    const productId = req.params.productId
+    const productId = req.params.product_id
 
     const valid_ = productUpdateSchema.validate(req.body)
     if (valid_.error) {
@@ -308,33 +302,30 @@ exports.updateProducts = catchAsync(async (req, res) => {
 
     let spec = null
 
-    if (update[PARAMS.spec]) {
-        try {
-            spec = JSON.parse(update[PARAMS.spec])
-        } catch (error) {
-            spec = update[PARAMS.spec]
-        }
+    if (update[PARAMS.specifications]) {
+        update[MODEL_NAMES.product_specifications] = update[PARAMS.specifications]
+    }
+
+    if (update[PARAMS.images]){
+        const images = update[PARAMS.images]
+        
+        images.map((img, index) => {
+            images[index] = {
+                [PARAMS.productId]: productId,
+                [PARAMS.imageId]: img
+            }
+        })
+
+        await deleteProductImages(productId)
 
 
-        const sepc_valid_ = productSpecificationUpdateSchema.validate(spec)
-
-        if (sepc_valid_.error) {
-
-            generalError(res, sepc_valid_.error.message, {})
-            return
-        }
+        await uploadProductImages(images)
 
     }
 
     await updateProductDetails(productId, update)
 
     success(res, {}, "product updated.")
-
-    if (req.files?.length > 0) {
-        const images = await processAllImages(req.files, productId)
-        // images.push(...product.images)
-        await uploadProductImage(images)
-    }
 
     try {
         // process specifications
@@ -381,6 +372,29 @@ exports.updateProducts = catchAsync(async (req, res) => {
     }
 })
 
+exports.getProductForUpdate = catchAsync(async (req, res) =>{
+    const productId = req.params.product_id
+
+    const product = (await getspecificProduct(productId))?.toJSON()
+    if(!product){
+        return notFound(res, "Product not found.")
+    }
+
+    const x = new Map (Object.entries(product))
+    // console.log("x ====> ",x)
+
+    const images = x.get("Product_Images").map(item => {return item.imageId})
+    const specifications = x.get("Product_Specifications")
+
+    x.set("images", images)
+    x.set("specifications", specifications)
+
+    x.delete("Product_Images")
+    x.delete("Product_Specifications")
+
+    const product_ = Object.fromEntries(x)
+    return success(res, product_, "")
+})
 
 // for search
 exports.getAllProductsWithFilter = catchAsync(async (req, res) => {

@@ -80,3 +80,62 @@ exports.productUploadSchema = Joi.object(
         "any.required": "Kindly upload a product to continue."
     }
 )
+
+
+exports.productUpdateSchema = Joi.object(
+    {
+        name: Joi.string().messages(
+            {
+                "any.required": "Name of product required",
+                "string.empty": "Kindly provide a name of the product"
+            }
+        ),
+        categoryId: Joi.string().messages(
+            {
+                "any.required": "Kindly select a category the product falls under",
+                "string.empty": "Kindly provide a category"
+            }
+        ),
+        discount: Joi.number().messages(
+            {
+                "number.base": "Discount required as a number.",
+                "number.empty": "Discount should be set as zero if none."
+            }
+        ),
+        price: Joi.number().messages(
+            {
+                "any.required": "Price of product required.",
+                "number.base": "Kindly provide the price of the product.",
+                "number.empty": "Number cannot be empty."
+            }
+        ),
+
+        description: Joi.string().messages({ "string.base": "Kindly provide a valid description." }),
+
+        units: Joi.number().messages(
+            {
+                "any.required": "Units of product is required.",
+                "number.base": "Kindly provide the product units as a number"
+            }
+        ),
+
+        specifications: Joi.array().items(
+            specificationsSchema
+        ).messages({
+            "array.base": "Specifications must be an array",
+            "array.includesRequiredUnknowns": "Specifications items must contain ram, rom and cost."
+        }),
+
+        images: Joi.array().messages(
+            {
+                "any.required": "Provide image ids",
+                "array.base": "provide at least one image id"
+            }
+        )
+
+    }
+).required().messages(
+    {
+        "any.required": "Kindly upload a product to continue."
+    }
+)

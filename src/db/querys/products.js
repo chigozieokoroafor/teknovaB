@@ -1,3 +1,4 @@
+const { Op } = require("sequelize");
 const { PARAMS, RELATIONSHIP_NAMES, MODEL_NAMES } = require("../../util/consts");
 const { product, product_images, images, category } = require("../models/relationships");
 
@@ -119,6 +120,22 @@ exports.uploadProductImages = async (data) => {
     return await product_images.bulkCreate(data)
 }
 
+exports.updateProductDetails = async(productId, update) =>{
+    return await product.update(update, {where: {uid: productId}})
+}
+
+exports.deleteProductImages = async (productId) =>{
+    return await product_images.destroy(
+        {
+            where: {
+                productId,
+                // imageIds: {
+                //     [Op.notIn]: imageIds
+                // }
+            }
+        }
+    )
+}
 
 exports.getspecificProductRaw = async (productId) => {
     return await product.findOne(

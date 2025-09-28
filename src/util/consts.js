@@ -76,7 +76,8 @@ exports.PARAMS = {
     isTechnicianRequired:"isTechnicianRequired",
     isTechnicianRequiredCost:"isTechnicianRequiredCost",
     deliveryType: "deliveryType",
-    deliveryCost:"deliveryCost"
+    deliveryCost:"deliveryCost",
+    images:"images"
 
 }
 
