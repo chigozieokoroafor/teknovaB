@@ -1,5 +1,15 @@
-const { PARAMS, RELATIONSHIP_NAMES } = require("../../util/consts");
-const { product, product_specifications, product_images, images, category } = require("../models/relationships");
+const { PARAMS, RELATIONSHIP_NAMES, MODEL_NAMES } = require("../../util/consts");
+const { product, product_images, images, category } = require("../models/relationships");
+
+const productAttributes = [
+    PARAMS.categoryId,
+    PARAMS.uid,
+    PARAMS.name,
+    PARAMS.price,
+    PARAMS.units,
+    PARAMS.description,
+    MODEL_NAMES.product_specifications
+]
 
 exports.uploadProduct = async (data) => {
     return await product.create(data)
@@ -12,14 +22,7 @@ exports.getProductsByCategory = async (query, limit, offset) => {
     return await product.findAll(
         {
             where: query,
-            attributes: [
-                PARAMS.categoryId,
-                PARAMS.uid,
-                PARAMS.name,
-                PARAMS.price,
-                PARAMS.units,
-                PARAMS.description
-            ],
+            attributes: productAttributes,
             include: [
                 {
                     model: category,
@@ -35,10 +38,7 @@ exports.getProductsByCategory = async (query, limit, offset) => {
                         as: RELATIONSHIP_NAMES.image
                     }
                 },
-                {
-                    model: product_specifications,
-                    attributes: [PARAMS.name, PARAMS.values]
-                }
+
             ],
             offset,
             limit
@@ -53,14 +53,7 @@ exports.getspecificProduct = async (productId) => {
                 [PARAMS.uid]: productId,
                 [PARAMS.isDeleted]: false
             },
-            attributes: [
-                PARAMS.categoryId,
-                PARAMS.uid,
-                PARAMS.name,
-                PARAMS.price,
-                PARAMS.units,
-                PARAMS.description
-            ],
+            attributes: productAttributes,
             include: [
                 {
                     model: category,
@@ -75,10 +68,6 @@ exports.getspecificProduct = async (productId) => {
                         attributes: [PARAMS.img_url],
                         as: RELATIONSHIP_NAMES.image
                     }
-                },
-                {
-                    model: product_specifications,
-                    attributes: [PARAMS.name, PARAMS.values]
                 }
             ],
 
@@ -94,14 +83,7 @@ exports.searchProduct = async (query, offset, limit) => {
     return await product.findAll(
         {
             where: query,
-            attributes: [
-                PARAMS.categoryId,
-                PARAMS.uid,
-                PARAMS.name,
-                PARAMS.price,
-                PARAMS.units,
-                PARAMS.description
-            ],
+            attributes: productAttributes,
             include: [
                 {
                     model: category,
@@ -117,10 +99,6 @@ exports.searchProduct = async (query, offset, limit) => {
                         as: RELATIONSHIP_NAMES.image
                     }
                 },
-                {
-                    model: product_specifications,
-                    attributes: [PARAMS.name, PARAMS.values]
-                }
             ],
             offset,
             limit
@@ -133,9 +111,9 @@ exports.deleteProductQuery = async (productId) => {
     return await product.update({ [PARAMS.isDeleted]: true }, { where: { [PARAMS.uid]: productId } })
 }
 
-exports.uploadProductSpecification = async (data) => {
-    return await product_specifications.bulkCreate(data)
-}
+// exports.uploadProductSpecification = async (data) => {
+//     return await product_specifications.bulkCreate(data)
+// }
 
 exports.uploadProductImages = async (data) => {
     return await product_images.bulkCreate(data)
@@ -171,10 +149,6 @@ exports.getspecificProductRaw = async (productId) => {
                         as: RELATIONSHIP_NAMES.image
                     }
                 },
-                {
-                    model: product_specifications,
-                    attributes: [PARAMS.name, PARAMS.values]
-                }
             ],
 
         }

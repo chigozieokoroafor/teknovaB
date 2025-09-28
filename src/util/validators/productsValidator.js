@@ -9,11 +9,11 @@ const specificationsSchema = Joi.object(
                 "string.empty": "provide name of specification, "
             }
         ),
-        values: Joi.string().required().messages(
+        values: Joi.array().required().messages(
             {
                 "any.required": "values for specification required.",
-                "string.base": "values required as comma seperated strings.",
-                "string.empty": "values for specification are required."
+                "array.base": "values required as an array.",
+                "array.empty": "values for specification are required."
             }
         )
     }

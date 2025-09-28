@@ -29,8 +29,8 @@ category.hasMany(product, {
 
 // category.hasMany(category_specifications, { foreignKey: PARAMS.categoryId, sourceKey: PARAMS.uid, as: RELATIONSHIP_NAMES.category_specifications })
 
-product_specifications.belongsTo(product, { foreignKey: PARAMS.productId, targetKey: PARAMS.uid })
-product.hasMany(product_specifications, { foreignKey: PARAMS.productId, sourceKey: PARAMS.uid })
+// product_specifications.belongsTo(product, { foreignKey: PARAMS.productId, targetKey: PARAMS.uid })
+// product.hasMany(product_specifications, { foreignKey: PARAMS.productId, sourceKey: PARAMS.uid })
 
 product.hasMany(cart, { foreignKey: PARAMS.productId, sourceKey: PARAMS.uid })
 cart.belongsTo(product, { foreignKey: PARAMS.productId, targetKey: PARAMS.uid })
@@ -63,7 +63,7 @@ module.exports = {
     // category_specifications,
     product,
     cart,
-    product_specifications,
+    // product_specifications,
     product_images,
     order
 }

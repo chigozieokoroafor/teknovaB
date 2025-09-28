@@ -54,8 +54,11 @@ const product = conn.define(MODEL_NAMES.product, {
     isDeleted:{
         type:DataTypes.BOOLEAN,
         defaultValue:false
-    }
+    },
 
+    [MODEL_NAMES.product_specifications]:{
+        type: DataTypes.JSON
+    }
 
 }, {
     tableName: MODEL_NAMES.product,
@@ -69,32 +72,32 @@ const product = conn.define(MODEL_NAMES.product, {
     ]
 })
 
-const product_specifications = conn.define(MODEL_NAMES.product_specifications, {
-    [PARAMS.id]:{
-        type: DataTypes.INTEGER,
-        unique: true,
-        autoIncrement: true,
-        primaryKey: true
-    },
-    [PARAMS.productId]:{
-        type:DataTypes.STRING(255),
-        allowNull:false
-    },
-    [PARAMS.name]:{
-        type:DataTypes.STRING(255),
-        allowNull:false
-    },
-    [PARAMS.values]:{
-        type:DataTypes.JSON,
-        allowNull:false,
-        // defaultValue:0
-    }
-}, {
-    tableName: MODEL_NAMES.product_specifications,
-    modelName: MODEL_NAMES.product_specifications,
-})
+// const product_specifications = conn.define(MODEL_NAMES.product_specifications, {
+//     [PARAMS.id]:{
+//         type: DataTypes.INTEGER,
+//         unique: true,
+//         autoIncrement: true,
+//         primaryKey: true
+//     },
+//     [PARAMS.productId]:{
+//         type:DataTypes.STRING(255),
+//         allowNull:false
+//     },
+//     [PARAMS.name]:{
+//         type:DataTypes.STRING(255),
+//         allowNull:false
+//     },
+//     [PARAMS.values]:{
+//         type:DataTypes.JSON,
+//         allowNull:false,
+//         // defaultValue:0
+//     }
+// }, {
+//     tableName: MODEL_NAMES.product_specifications,
+//     modelName: MODEL_NAMES.product_specifications,
+// })
 
 module.exports = {
     product,
-    product_specifications
+    // product_specifications
 }
