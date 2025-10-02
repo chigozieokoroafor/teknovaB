@@ -8,13 +8,14 @@ const {
     updateSpecificCategory,
     // createCategorySpecification 
 } = require("../db/querys/category");
-const { uploadProduct, getProductsByCategory, getspecificProduct, searchProduct, deleteProductQuery, uploadProductImages, deleteProductImages, updateProductDetails } = require("../db/querys/products");
+const { uploadProduct, getProductsByCategory, getspecificProduct, searchProduct, deleteProductQuery, uploadProductImages, deleteProductImages, updateProductDetails, getNewProducts } = require("../db/querys/products");
 const { catchAsync } = require("../errorHandler/allCatch");
 const { generalError, success, notFound } = require("../errorHandler/statusCodes");
 const { createUUID, sendEmail, baseValidator } = require("../util/base");
 const { FETCH_LIMIT, PARAMS, MODEL_NAMES } = require("../util/consts");
 const { categoryCreationSchema, categoryUpdateSchema } = require("../util/validators/categoryValidator");
 const { productUploadSchema, productUpdateSchema } = require("../util/validators/productsValidator");
+const { getTopProductCounts } = require("../db/querys/cart");
 
 // admin category 
 exports.createCategory = catchAsync(async (req, res) => {
@@ -433,9 +434,11 @@ exports.getAllProductsWithFilter = catchAsync(async (req, res) => {
 
 // merge these 2 items into 1 for the home page.
 exports.getPopularProducts = catchAsync(async (req, res) => {
-
+    const products = await getTopProductCounts()
+    return success(res, products, "Fetched")
 })
 
 exports.getNewArrivals = catchAsync(async (req, res) => {
-
+    const products = await getNewProducts()
+    return success(res, products, "Fetched")
 })

@@ -133,8 +133,6 @@ exports.getRecentTransactions = catchAsync(async (req, res) => {
 })
 
 exports.getTopProducts = catchAsync(async (req, res) => {
-    // const products = {}
-
     const products = await getTopProductCounts()
     return success(res, products, "Fetched")
 })

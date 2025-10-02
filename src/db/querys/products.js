@@ -120,11 +120,11 @@ exports.uploadProductImages = async (data) => {
     return await product_images.bulkCreate(data)
 }
 
-exports.updateProductDetails = async(productId, update) =>{
-    return await product.update(update, {where: {uid: productId}})
+exports.updateProductDetails = async (productId, update) => {
+    return await product.update(update, { where: { uid: productId } })
 }
 
-exports.deleteProductImages = async (productId) =>{
+exports.deleteProductImages = async (productId) => {
     return await product_images.destroy(
         {
             where: {
@@ -169,5 +169,38 @@ exports.getspecificProductRaw = async (productId) => {
             ],
 
         }
+    )
+}
+
+exports.getNewProducts = async () => {
+
+    return await product.findAll(
+        {
+            where: {
+                [PARAMS.isDeleted]: false,
+                [PARAMS.isActive] : true
+
+            },
+            attributes: [...productAttributes, PARAMS.createdAt],
+            include: [
+                {
+                    model: category,
+                    as: RELATIONSHIP_NAMES.category,
+                    attributes: [PARAMS.uid, PARAMS.name]
+                },
+                {
+                    model: product_images,
+                    attributes: [PARAMS.id, PARAMS.imageId],
+                    include: {
+                        model: images,
+                        attributes: [PARAMS.img_url],
+                        as: RELATIONSHIP_NAMES.image
+                    }
+                },
+            ],
+            order: [[PARAMS.createdAt, "DESC"]],
+            limit: 10
+        }
+
     )
 }
