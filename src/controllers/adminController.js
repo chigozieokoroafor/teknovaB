@@ -177,3 +177,20 @@ exports.updateStatusOfOrders = catchAsync(async (req, res) => {
     // add a notification here.
 
 })
+
+// for coupons
+exports.createCoupons = catchAsync( async(req, res) =>{
+
+})
+
+exports.fetchCoupons = catchAsync( async (req, res)=>{
+
+})
+
+exports.deleteCoupon = catchAsync(async(req, res) =>{
+    
+})
+
+exports.updateCoupon = catchAsync(async(req, res) =>{
+    
+})

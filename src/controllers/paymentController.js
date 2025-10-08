@@ -2,7 +2,7 @@
 require("dotenv").config()
 
 const { Op } = require("sequelize");
-const { updateCartItemsforOrder } = require("../db/querys/cart");
+const { updateCartItemsforOrder, updateOrderStatus } = require("../db/querys/cart");
 const { updateTransaction } = require("../db/querys/transactions");
 const { catchAsync } = require("../errorHandler/allCatch");
 const { success, generalError } = require("../errorHandler/statusCodes");
@@ -27,7 +27,7 @@ exports.paymentWebhook = catchAsync(async (req, res)=>{
         if (data.event == "charge.success"){      
             const cart_ids = data.data.metadata[PARAMS.cart_ids]
             const orderId = data.data.metadata[PARAMS.orderId]
-            const promises = await Promise.allSettled([updateTransaction({status:"Success"}, orderId ), , updateCartItemsforOrder({ orderId: orderId , [PARAMS.ordered]:true}, { id: { [Op.in]: cart_ids } })])
+            const promises = await Promise.allSettled([updateTransaction({status:"Success"}, orderId ), updateOrderStatus(orderId, "Success"), updateCartItemsforOrder({ orderId: orderId , [PARAMS.ordered]:true}, { id: { [Op.in]: cart_ids } })])
 
             promises.forEach((promise, index) =>{
                 console.log("promise:::::", index, ":::::", promise.status)

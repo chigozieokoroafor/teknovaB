@@ -112,10 +112,6 @@ exports.deleteProductQuery = async (productId) => {
     return await product.update({ [PARAMS.isDeleted]: true }, { where: { [PARAMS.uid]: productId } })
 }
 
-// exports.uploadProductSpecification = async (data) => {
-//     return await product_specifications.bulkCreate(data)
-// }
-
 exports.uploadProductImages = async (data) => {
     return await product_images.bulkCreate(data)
 }
