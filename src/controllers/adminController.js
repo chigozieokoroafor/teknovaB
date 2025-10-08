@@ -2,7 +2,7 @@ require("dotenv").config()
 
 const { checkAdmin } = require("../db/querys/admin");
 const { countOrders, fetchAllOrders, updateOrderStatus, getSpecificOrder, getTopProductCounts } = require("../db/querys/cart");
-const { createCouponRecord, fetchCouponRecord, updateSingleCouponRecord, deleteSingleCouponRecord } = require("../db/querys/coupons");
+const { createCouponRecord, fetchCouponRecord, updateSingleCouponRecord, deleteSingleCouponRecord, fetchSingleCouponRecord } = require("../db/querys/coupons");
 const { uploadBulkImages, fetchImages, fetchSingleImage, deleteImage, countAllImages } = require("../db/querys/images");
 
 const { fetchTransactions, getRevenue } = require("../db/querys/transactions");
@@ -187,6 +187,12 @@ exports.createCoupons = catchAsync(async (req, res) => {
         return generalError(res, valid_.error.message, valid_.error.details[0].context)
     }
 
+    const exists = await fetchSingleCouponRecord({[PARAMS.code]: req.body[PARAMS.code] })
+
+    if(exists){
+        return generalError(res, "Coupon with provided code exists")
+    }
+
     await createCouponRecord(req.body)
 
     return success(res, {}, "Coupon created")
@@ -218,6 +224,14 @@ exports.updateCoupon = catchAsync(async (req, res) => {
     const valid_ = couponUpdateValidator.validate(req.body)
     if (valid_.error) {
         return generalError(res, valid_.error.message, valid_.error.details[0].context)
+    }
+
+    const exist = await fetchSingleCouponRecord({id})
+
+    
+
+    if(!exist){
+        return  notFound(res, "Coupon not found.")
     }
 
     await updateSingleCouponRecord(id, req.body)

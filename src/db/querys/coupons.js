@@ -22,12 +22,11 @@ async function fetchCouponRecord ( limit, offset){
 
 async function fetchSingleCouponRecord ( query){
     query.deletedAt = null
-    return await coupon.findAll({
+    return await coupon.findOne({
         where: query,
         attributes
     })
 }
-
 
 async function deleteSingleCouponRecord(id){
     return await coupon.update({deletedAt: new Date()},{
@@ -40,7 +39,6 @@ async function updateSingleCouponRecord(id, update){
         where: {id}
     })
 }
-
 
 module.exports ={
     createCouponRecord,
