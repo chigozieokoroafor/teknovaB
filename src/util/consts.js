@@ -11,7 +11,8 @@ exports.MODEL_NAMES = {
     order: "Orders",
     category_specifications: "Category_Specifications",
     product_specifications: "Product_Specifications",
-    product_images: "Product_Images"
+    product_images: "Product_Images",
+    coupon:"Coupon"
 }
 
 exports.STATUSES = {
@@ -77,7 +78,18 @@ exports.PARAMS = {
     isTechnicianRequiredCost:"isTechnicianRequiredCost",
     deliveryType: "deliveryType",
     deliveryCost:"deliveryCost",
-    images:"images"
+    images:"images",
+    code: "code",
+    coupon_type:"coupon_type",
+    product_list:"product_list",
+    category_list:"category_list",
+    discount_value:"discount_value",
+    discount_type:"discount_type",
+    startDate:"startDate",
+    endDate:"endDate",
+    limit:"limit",
+    usage:"usage",
+    deletedAt:"deletedAt"
 
 }
 

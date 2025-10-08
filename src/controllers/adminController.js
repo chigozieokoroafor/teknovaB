@@ -2,6 +2,7 @@ require("dotenv").config()
 
 const { checkAdmin } = require("../db/querys/admin");
 const { countOrders, fetchAllOrders, updateOrderStatus, getSpecificOrder, getTopProductCounts } = require("../db/querys/cart");
+const { createCouponRecord, fetchCouponRecord, updateSingleCouponRecord, deleteSingleCouponRecord } = require("../db/querys/coupons");
 const { uploadBulkImages, fetchImages, fetchSingleImage, deleteImage, countAllImages } = require("../db/querys/images");
 
 const { fetchTransactions, getRevenue } = require("../db/querys/transactions");
@@ -12,6 +13,7 @@ const { generateToken, checkPassword, processAllImages, deleteImageFromBunny, ba
 const { PARAMS } = require("../util/consts");
 const { loginValidator } = require("../util/validators/accountValidator");
 const { orderStatusUpdateSchema } = require("../util/validators/cartValidator");
+const { couponCreateValidator, couponUpdateValidator } = require("../util/validators/couponValidator");
 
 exports.login = catchAsync(async (req, res) => {
 
@@ -55,9 +57,9 @@ exports.login = catchAsync(async (req, res) => {
 // for images
 exports.uploadImages = catchAsync(async (req, res) => {
     success(res, {}, "Processing")
-    
+
     const name = req.body.name
-    const urls = await processAllImages(req.files, name?? `IMG_${createUUID(5)}`)
+    const urls = await processAllImages(req.files, name ?? `IMG_${createUUID(5)}`)
 
     await uploadBulkImages(urls)
 
@@ -76,9 +78,9 @@ exports.getImages = catchAsync(async (req, res) => {
 
     const pages = Math.ceil(totalCount.value / limit)
 
-    
 
-    success(res, {images: data.value, pages: pages}, "Fetching")
+
+    success(res, { images: data.value, pages: pages }, "Fetching")
 
 })
 
@@ -179,18 +181,46 @@ exports.updateStatusOfOrders = catchAsync(async (req, res) => {
 })
 
 // for coupons
-exports.createCoupons = catchAsync( async(req, res) =>{
+exports.createCoupons = catchAsync(async (req, res) => {
+    const valid_ = couponCreateValidator.validate(req.body)
+    if (valid_.error) {
+        return generalError(res, valid_.error.message, valid_.error.details[0].context)
+    }
 
+    await createCouponRecord(req.body)
+
+    return success(res, {}, "Coupon created")
 })
 
-exports.fetchCoupons = catchAsync( async (req, res)=>{
+exports.fetchCoupons = catchAsync(async (req, res) => {
+    const page = req.query?.page
 
+    if (!page || Number.isNaN(page) || Number(page) < 1) return generalError(res, "Kindly provide page as a number greater than one.")
+
+    const limit = 10
+    const offset = (Number(page) - 1) * limit
+
+    const data = await fetchCouponRecord(limit, offset)
+
+    return success(res, data, "Fetched.")
 })
 
-exports.deleteCoupon = catchAsync(async(req, res) =>{
-    
+exports.deleteCoupon = catchAsync(async (req, res) => {
+    const id = req.params.id
+    await deleteSingleCouponRecord(id)
+
+    return success(res, {}, "Coupon Deleted")
 })
 
-exports.updateCoupon = catchAsync(async(req, res) =>{
-    
+exports.updateCoupon = catchAsync(async (req, res) => {
+    const id = req.params.id
+
+    const valid_ = couponUpdateValidator.validate(req.body)
+    if (valid_.error) {
+        return generalError(res, valid_.error.message, valid_.error.details[0].context)
+    }
+
+    await updateSingleCouponRecord(id, req.body)
+
+    return success(res, {}, "Updated.")
 })

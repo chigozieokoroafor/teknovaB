@@ -30,9 +30,7 @@ admin.delete("/product", adminAuth, productController.deleteProducts)
 
 
 // images
-admin.get("/images",
-    //  adminAuth, 
-    adminController.getImages)
+admin.get("/images",adminController.getImages)
 
 admin.post("/images",
     adminAuth, 
@@ -45,8 +43,12 @@ admin.delete('/images/:id', adminAuth, adminController.deleteImages)
 
 // orders
 admin.get("/orders", adminAuth, adminController.getOrders)
-
 admin.put("/orders", adminAuth, adminController.updateStatusOfOrders)
+
+admin.get("/coupons", adminAuth, adminController.fetchCoupons)
+admin.put("/coupon/:id", adminAuth, adminController.updateCoupon)
+admin.delete("/coupon/:id", adminAuth, adminController.deleteCoupon)
+admin.post("/coupon", adminAuth, adminController.createCoupons)
 
 
 

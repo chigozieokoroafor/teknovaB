@@ -27,15 +27,6 @@ const product = conn.define(MODEL_NAMES.product, {
         type: DataTypes.STRING(255),
         allowNull: true
     },
-
-    // discount: {
-    //     type: DataTypes.DOUBLE,
-    //     defaultValue: 0.0
-    // },
-    // discountExpiry:{
-    //     type:DataTypes.DATE,
-    //     allowNull:true
-    // },
     price: {
         type: DataTypes.DOUBLE
     },
@@ -72,32 +63,67 @@ const product = conn.define(MODEL_NAMES.product, {
     ]
 })
 
-// const product_specifications = conn.define(MODEL_NAMES.product_specifications, {
-//     [PARAMS.id]:{
-//         type: DataTypes.INTEGER,
-//         unique: true,
-//         autoIncrement: true,
-//         primaryKey: true
-//     },
-//     [PARAMS.productId]:{
-//         type:DataTypes.STRING(255),
-//         allowNull:false
-//     },
-//     [PARAMS.name]:{
-//         type:DataTypes.STRING(255),
-//         allowNull:false
-//     },
-//     [PARAMS.values]:{
-//         type:DataTypes.JSON,
-//         allowNull:false,
-//         // defaultValue:0
-//     }
-// }, {
-//     tableName: MODEL_NAMES.product_specifications,
-//     modelName: MODEL_NAMES.product_specifications,
-// })
+const coupon = conn.define(MODEL_NAMES.coupon, {
+    id: {
+        type: DataTypes.INTEGER,
+        unique: true,
+        autoIncrement: true,
+        primaryKey: true
+    },
+    code:{
+        type:DataTypes.STRING(50),
+        allowNull:false
+    },
+    name:{
+        type: DataTypes.TEXT("medium"),
+        allowNull: false
+    },
+    coupon_type:{ //product, category, order, shipping
+        type:DataTypes.STRING(20),
+        allowNull:false
+    },
+    product_list : {
+        type: DataTypes.JSON,
+    },
+    category_list: {
+        type: DataTypes.JSON
+    },
+
+    discount_value:{
+        type: DataTypes.DOUBLE,
+        allowNull:false
+    },
+    discount_type:{ //percentage / fixed
+        type: DataTypes.STRING(50),
+        allowNull: false
+    },
+    startDate:{
+        type: DataTypes.DATE,
+        allowNull:true
+    },
+    endDate:{
+        type: DataTypes.DATE,
+        allowNull:true
+    },
+    limit:{
+        type: DataTypes.INTEGER,
+        allowNull:false
+    },
+    usage:{
+        type: DataTypes.INTEGER,
+        defaultValue:0
+    },
+    status:{
+        type:DataTypes.STRING(20),
+        defaultValue:"Active"
+    },
+    deletedAt: {
+        type: DataTypes.DATE
+    }
+})
+
 
 module.exports = {
     product,
-    // product_specifications
+    coupon
 }
