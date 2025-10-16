@@ -1,6 +1,6 @@
 const { Op } = require("sequelize");
 const { PARAMS, RELATIONSHIP_NAMES, MODEL_NAMES } = require("../../util/consts");
-const { product, product_images, images, category } = require("../models/relationships");
+const { product, product_images, images, category, productDiscount } = require("../models/relationships");
 
 const productAttributes = [
     PARAMS.categoryId,
@@ -39,6 +39,15 @@ exports.getProductsByCategory = async (query, limit, offset) => {
                         as: RELATIONSHIP_NAMES.image
                     }
                 },
+                {
+                    model: productDiscount,
+                    where: {
+                        [Op.and]: [
+                            { [PARAMS.startDate]: { [Op.lt]: new Date() } },
+                            { [PARAMS.endDate]: { [Op.gte]: new Date() } }
+                        ]
+                    }
+                }
 
             ],
             offset,
@@ -48,6 +57,7 @@ exports.getProductsByCategory = async (query, limit, offset) => {
 }
 
 exports.getspecificProduct = async (productId) => {
+
     return await product.findOne(
         {
             where: {
@@ -68,6 +78,15 @@ exports.getspecificProduct = async (productId) => {
                         model: images,
                         attributes: [PARAMS.img_url],
                         as: RELATIONSHIP_NAMES.image
+                    }
+                },
+                {
+                    model: productDiscount,
+                    where: {
+                        [Op.and]: [
+                            { [PARAMS.startDate]: { [Op.lt]: new Date() } },
+                            { [PARAMS.endDate]: { [Op.gte]: new Date() } }
+                        ]
                     }
                 }
             ],
@@ -100,6 +119,15 @@ exports.searchProduct = async (query, offset, limit) => {
                         as: RELATIONSHIP_NAMES.image
                     }
                 },
+                {
+                    model: productDiscount,
+                    where: {
+                        [Op.and]: [
+                            { [PARAMS.startDate]: { [Op.lt]: new Date() } },
+                            { [PARAMS.endDate]: { [Op.gte]: new Date() } }
+                        ]
+                    }
+                }
             ],
             offset,
             limit
@@ -162,6 +190,15 @@ exports.getspecificProductRaw = async (productId) => {
                         as: RELATIONSHIP_NAMES.image
                     }
                 },
+                {
+                    model: productDiscount,
+                    where: {
+                        [Op.and]: [
+                            { [PARAMS.startDate]: { [Op.lt]: new Date() } },
+                            { [PARAMS.endDate]: { [Op.gte]: new Date() } }
+                        ]
+                    }
+                }
             ],
 
         }
@@ -174,7 +211,7 @@ exports.getNewProducts = async () => {
         {
             where: {
                 [PARAMS.isDeleted]: false,
-                [PARAMS.isActive] : true
+                [PARAMS.isActive]: true
 
             },
             attributes: [...productAttributes, PARAMS.createdAt],
@@ -193,10 +230,28 @@ exports.getNewProducts = async () => {
                         as: RELATIONSHIP_NAMES.image
                     }
                 },
+                {
+                    model: productDiscount,
+                    where: {
+                        [Op.and]: [
+                            { [PARAMS.startDate]: { [Op.lt]: new Date() } },
+                            { [PARAMS.endDate]: { [Op.gte]: new Date() } }
+                        ]
+                    }
+                }
             ],
             order: [[PARAMS.createdAt, "DESC"]],
             limit: 10
         }
 
     )
+}
+
+exports.addDiscountToProductRecord = async (data) => {
+    return await productDiscount.create(data)
+}
+
+
+exports.deleteDiscountToProductRecord = async (productId) => {
+    return await productDiscount.destroy({ where: { productId } })
 }

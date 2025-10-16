@@ -42,19 +42,19 @@ const product = conn.define(MODEL_NAMES.product, {
         type: DataTypes.BOOLEAN,
         defaultValue: true
     },
-    isDeleted:{
-        type:DataTypes.BOOLEAN,
-        defaultValue:false
+    isDeleted: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false
     },
 
-    [MODEL_NAMES.product_specifications]:{
+    [MODEL_NAMES.product_specifications]: {
         type: DataTypes.JSON
     }
 
 }, {
     tableName: MODEL_NAMES.product,
     modelName: MODEL_NAMES.product,
-    indexes:[
+    indexes: [
         {
             type: 'FULLTEXT',
             name: "product_text_idx",
@@ -70,60 +70,86 @@ const coupon = conn.define(MODEL_NAMES.coupon, {
         autoIncrement: true,
         primaryKey: true
     },
-    code:{
-        type:DataTypes.STRING(50),
-        allowNull:false
+    code: {
+        type: DataTypes.STRING(50),
+        allowNull: false
     },
-    name:{
+    name: {
         type: DataTypes.TEXT("medium"),
         allowNull: false
     },
-    coupon_type:{ //product, category, order, shipping
-        type:DataTypes.STRING(20),
-        allowNull:false
+    coupon_type: { //product, category, order, shipping
+        type: DataTypes.STRING(20),
+        allowNull: false
     },
-    product_list : {
+    product_list: {
         type: DataTypes.JSON,
     },
     category_list: {
         type: DataTypes.JSON
     },
 
-    discount_value:{
+    discount_value: {
         type: DataTypes.DOUBLE,
-        allowNull:false
+        allowNull: false
     },
-    discount_type:{ //percentage / fixed
+    discount_type: { //percentage / fixed
         type: DataTypes.STRING(50),
         allowNull: false
     },
-    startDate:{
+    startDate: {
         type: DataTypes.DATE,
-        allowNull:true
+        allowNull: true
     },
-    endDate:{
+    endDate: {
         type: DataTypes.DATE,
-        allowNull:true
+        allowNull: true
     },
-    limit:{
+    limit: {
         type: DataTypes.INTEGER,
-        allowNull:false
+        allowNull: false
     },
-    usage:{
+    usage: {
         type: DataTypes.INTEGER,
-        defaultValue:0
+        defaultValue: 0
     },
-    status:{
-        type:DataTypes.STRING(20),
-        defaultValue:"Active"
+    status: {
+        type: DataTypes.STRING(20),
+        defaultValue: "Active"
     },
     deletedAt: {
         type: DataTypes.DATE
     }
 })
 
+const productDiscount = conn.define(MODEL_NAMES.productdiscount, {
+    id: {
+        type: DataTypes.INTEGER,
+        unique: true,
+        autoIncrement: true,
+        primaryKey: true
+    },
+    [PARAMS.productId]: {
+        type: DataTypes.STRING(255),
+        allowNull: false,
+    },
+    price: {
+        type: DataTypes.INTEGER,
+        allowNull: false
+    },
+    startDate: {
+        type: DataTypes.DATE,
+        allowNull: true
+    },
+    endDate: {
+        type: DataTypes.DATE,
+        allowNull: true
+    },
+})
+
 
 module.exports = {
     product,
-    coupon
+    coupon,
+    productDiscount
 }

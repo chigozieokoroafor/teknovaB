@@ -8,7 +8,7 @@ const {
     updateSpecificCategory,
     // createCategorySpecification 
 } = require("../db/querys/category");
-const { uploadProduct, getProductsByCategory, getspecificProduct, searchProduct, deleteProductQuery, uploadProductImages, deleteProductImages, updateProductDetails, getNewProducts } = require("../db/querys/products");
+const { uploadProduct, getProductsByCategory, getspecificProduct, searchProduct, deleteProductQuery, uploadProductImages, deleteProductImages, updateProductDetails, getNewProducts, deleteDiscountToProductRecord, addDiscountToProductRecord } = require("../db/querys/products");
 const { catchAsync } = require("../errorHandler/allCatch");
 const { generalError, success, notFound } = require("../errorHandler/statusCodes");
 const { createUUID, sendEmail, baseValidator } = require("../util/base");
@@ -16,6 +16,7 @@ const { FETCH_LIMIT, PARAMS, MODEL_NAMES } = require("../util/consts");
 const { categoryCreationSchema, categoryUpdateSchema } = require("../util/validators/categoryValidator");
 const { productUploadSchema, productUpdateSchema } = require("../util/validators/productsValidator");
 const { getTopProductCounts } = require("../db/querys/cart");
+const { discountValidator } = require("../util/validators/couponValidator");
 
 // admin category 
 exports.createCategory = catchAsync(async (req, res) => {
@@ -184,13 +185,13 @@ exports.fetchProductsUnderCategory = catchAsync(async (req, res) => {
         ]
     }
 
-    if(l&&!h){
+    if (l && !h) {
         s_q[PARAMS.price] = {
             [Op.gte]: l
         }
     }
 
-    if (l&&h){
+    if (l && h) {
         s_q[PARAMS.price] = {
             [Op.between]: [l, h]
         }
@@ -251,13 +252,13 @@ exports.getAllProducts = catchAsync(async (req, res) => {
         ]
     }
 
-    if(l&&!h){
+    if (l && !h) {
         s_q[PARAMS.price] = {
             [Op.gte]: l
         }
     }
 
-    if (l&&h){
+    if (l && h) {
         s_q[PARAMS.price] = {
             [Op.between]: [l, h]
         }
@@ -307,9 +308,9 @@ exports.updateProducts = catchAsync(async (req, res) => {
         update[MODEL_NAMES.product_specifications] = update[PARAMS.specifications]
     }
 
-    if (update[PARAMS.images]){
+    if (update[PARAMS.images]) {
         const images = update[PARAMS.images]
-        
+
         images.map((img, index) => {
             images[index] = {
                 [PARAMS.productId]: productId,
@@ -373,18 +374,18 @@ exports.updateProducts = catchAsync(async (req, res) => {
     }
 })
 
-exports.getProductForUpdate = catchAsync(async (req, res) =>{
+exports.getProductForUpdate = catchAsync(async (req, res) => {
     const productId = req.params.product_id
 
     const product = (await getspecificProduct(productId))?.toJSON()
-    if(!product){
+    if (!product) {
         return notFound(res, "Product not found.")
     }
 
-    const x = new Map (Object.entries(product))
+    const x = new Map(Object.entries(product))
     // console.log("x ====> ",x)
 
-    const images = x.get("Product_Images").map(item => {return item.imageId})
+    const images = x.get("Product_Images").map(item => { return item.imageId })
     const specifications = x.get("Product_Specifications")
 
     x.set("images", images)
@@ -441,4 +442,44 @@ exports.getPopularProducts = catchAsync(async (req, res) => {
 exports.getNewArrivals = catchAsync(async (req, res) => {
     const products = await getNewProducts()
     return success(res, products, "Fetched")
+})
+
+exports.addDiscountToProducts = catchAsync(async (req, res) => {
+
+    const error = baseValidator(productUploadSchema, req.body, res)
+    if (error) {
+        return error
+    }
+
+    const product = await getspecificProduct(req.body[PARAMS.productId])
+
+    if (!product) {
+        return notFound(res, "Product not found.")
+    }
+
+    const price = req.body[PARAMS.discount_type].toLowerCase() == "percentage" ? product.price - (product.price * req.body[PARAMS.discount_value] / 100) : product.price - req.body[PARAMS.discount_value]
+
+    const body = {
+        productId:
+            price,
+        [PARAMS.startDate]: req.body[PARAMS.startDate],
+        [PARAMS.endDate]: req.body[PARAMS.endDate],
+    }
+
+    await addDiscountToProductRecord(body)
+
+    return success(res, {}, "Discount added to product.")
+
+})
+
+exports.deleteDiscountFromProducts = catchAsync(async (req, res,) => {
+    const product = await getspecificProduct(req.query[PARAMS.productId])
+
+    if (!product) {
+        return notFound(res, "Product not found.")
+    }
+
+    await deleteDiscountToProductRecord(req.query[PARAMS.productId])
+
+    return success(res , {}, "Product discount deleted.")
 })

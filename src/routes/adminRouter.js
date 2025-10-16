@@ -51,6 +51,12 @@ admin.delete("/coupon/:id", adminAuth, adminController.deleteCoupon)
 admin.post("/coupon", adminAuth, adminController.createCoupons)
 
 
+admin.post("/discount", adminAuth, productController.addDiscountToProducts)
+admin.delete("/discount", adminAuth, productController.deleteDiscountFromProducts)
+
+
+
+
 
 
 module.exports = {

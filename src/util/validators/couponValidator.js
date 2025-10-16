@@ -62,11 +62,11 @@ const couponCreateValidator = joi.object({
     "string.base": "Status must be a string if provided."
   })
 })
-.required()
-.messages({
-  "object.base": "A valid coupon object is required.",
-  "any.required": "Coupon data is required."
-});
+  .required()
+  .messages({
+    "object.base": "A valid coupon object is required.",
+    "any.required": "Coupon data is required."
+  });
 
 
 const couponUpdateValidator = joi.object({
@@ -101,7 +101,8 @@ const couponUpdateValidator = joi.object({
     "number.base": "Discount value must be a number."
   }),
 
-  [PARAMS.discount_type]: joi.string().messages({
+  [PARAMS.discount_type]: joi.string().valid("fixed", "percentage").messages({
+    "any.only": "discount type must be one of: fixed or percentage.",
     "string.base": "Discount type must be an string."
   }),
 
@@ -121,14 +122,46 @@ const couponUpdateValidator = joi.object({
     "string.base": "Status must be a string if provided."
   })
 })
-.min(1) // ✅ ensures at least one field is provided
-.messages({
-  "object.base": "A valid coupon update object is required.",
-  "object.min": "At least one field must be provided for update."
-});
+  .min(1) // ✅ ensures at least one field is provided
+  .messages({
+    "object.base": "A valid coupon update object is required.",
+    "object.min": "At least one field must be provided for update."
+  });
 
+
+const discountValidator = joi.object(
+  {
+    [PARAMS.productId]: joi.string().required().messages(
+      {
+
+        "string.base": "Kindly select a product to discount.",
+        "string.empty": "Kindly select a product to discount."
+      }
+    ),
+
+    [PARAMS.discount_value]: joi.number().required().messages(
+      {
+        "number.base": "Discount value must be a valid number."
+      }
+    ),
+
+    [PARAMS.discount_type]: joi.string().valid("fixed", "percentage").messages({
+      "any.only": "discount type must be one of: fixed or percentage.",
+      "string.base": "Discount type must be an string."
+    }),
+
+    [PARAMS.startDate]: joi.date().messages({
+      "date.base": "Start date must be a valid date."
+    }),
+
+    [PARAMS.endDate]: joi.date().messages({
+      "date.base": "End date must be a valid date."
+    }),
+  }
+)
 
 module.exports = {
-    couponCreateValidator,
-    couponUpdateValidator
+  couponCreateValidator,
+  couponUpdateValidator,
+  discountValidator
 }
