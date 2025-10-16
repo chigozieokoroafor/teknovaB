@@ -89,7 +89,9 @@ exports.PARAMS = {
     endDate:"endDate",
     limit:"limit",
     usage:"usage",
-    deletedAt:"deletedAt"
+    deletedAt:"deletedAt",
+    coupon_code: "coupon_code",
+    coupon_used: "coupon_used"
 
 }
 

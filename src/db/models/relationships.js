@@ -2,10 +2,12 @@ const { PARAMS, RELATIONSHIP_NAMES } = require("../../util/consts");
 const { transaction } = require("./transaction");
 const { user } = require("./user");
 const { images, product_images } = require("./images");
-const { category} = require("./category");
+// const {category} = require("./category")
 const { product, coupon } = require("./product");
 const { cart } = require("./cart");
-const { order } = require("./order")
+const { order } = require("./order");
+const { category } = require("teknovab/src/db/models/category");
+
 
 
 user.hasMany(transaction, { foreignKey: PARAMS.uid, sourceKey: PARAMS.uid, as: RELATIONSHIP_NAMES.transaction })
@@ -19,6 +21,7 @@ product.belongsTo(category, {
     foreignKey: PARAMS.categoryId, targetKey: PARAMS.uid
     , as: RELATIONSHIP_NAMES.category
 })
+
 category.hasMany(product, {
     foreignKey: PARAMS.categoryId, sourceKey: PARAMS.uid
     , as: RELATIONSHIP_NAMES.product
@@ -35,7 +38,7 @@ order.hasMany(cart, { foreignKey: PARAMS.orderId, sourceKey: PARAMS.orderId })
 cart.belongsTo(order, { foreignKey: PARAMS.orderId, targetKey: PARAMS.orderId })
 
 order.hasOne(transaction, { foreignKey: PARAMS.orderId, sourceKey: PARAMS.orderId })
-transaction.belongsTo(transaction, { foreignKey: PARAMS.orderId, targetKey: PARAMS.orderId })
+transaction.belongsTo(order, { foreignKey: PARAMS.orderId, targetKey: PARAMS.orderId })
 
 order.belongsTo(user, { foreignKey: PARAMS.uid, targetKey: PARAMS.uid })
 user.hasMany(order, { foreignKey: PARAMS.uid, sourceKey: PARAMS.uid })
@@ -46,10 +49,8 @@ module.exports = {
     user,
     images,
     category,
-    // category_specifications,
     product,
     cart,
-    // product_specifications,
     coupon,
     product_images,
     order

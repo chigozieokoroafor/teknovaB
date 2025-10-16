@@ -3,8 +3,8 @@ const { addToCartQuery, fetchCartItems, fetchCartItemsToOrder, updateCartItemsfo
 const { getspecificProduct, getspecificProductRaw } = require("../db/querys/products");
 const { catchAsync } = require("../errorHandler/allCatch");
 const { generalError, notFound, internalServerError, success } = require("../errorHandler/statusCodes");
-const { createUUID, initializePayment, baseValidator } = require("../util/base");
-const { PARAMS, FETCH_LIMIT } = require("../util/consts");
+const { createUUID, initializePayment, baseValidator, validateProvidedCoupon } = require("../util/base");
+const { PARAMS, FETCH_LIMIT, MODEL_NAMES } = require("../util/consts");
 const { addToCartSchema, checkoutSchema } = require("../util/validators/cartValidator");
 const { uploadTransaction } = require("../db/querys/transactions");
 const { fetchSingleCartItem, destroyCartItem } = require("../db/querys/category");
@@ -94,6 +94,17 @@ exports.checkout = catchAsync(async (req, res) => {
     const user_id = req.user?.uid
     let deliveryType = "Pick-up"
     let deliveryCost = 0.0
+    let product_list = []
+    let category_list = []
+    let discount_type
+    let discount_value = 0
+    let coupon_type
+    // let total_cart_amount = 0
+    let coupon_usage_count = 0
+    let coupon_used = false
+    let coupon_code = req.body.coupon
+
+
     // "add contact info and billing info"
     const cart = await fetchCartItemsToOrder(user_id)
 
@@ -101,39 +112,95 @@ exports.checkout = catchAsync(async (req, res) => {
         return generalError(res, "No items in cart to purchase")
     }
 
-
     const error = baseValidator(checkoutSchema, req.body, res)
     if (error) {
         return error
     }
 
+    let coupon_detail = null
+
+    if (req.body.coupon) {
+        coupon_detail = await validateProvidedCoupon(req.body.coupon)
+
+        if (!coupon_detail.success) {
+            return generalError(res, coupon_detail.msg)
+        }
+
+        product_list = coupon_detail.product_list
+        category_list = coupon_detail.category_list
+        discount_type = coupon_detail.discount_type
+        discount_value = coupon_detail.discount_value
+        coupon_type = coupon_detail.type
+        coupon_used = true
+    }
+
+    const cart_ids = []
+
+
+
+
+    const valid_prices = cart.map((product) => {
+        let calculatedProductPrice = 0
+
+        // console.log("product === >", product.toJSON())
+        if (product_list?.includes(product.productId) || category_list?.includes(product[MODEL_NAMES.product].categoryId)) {
+            if (discount_type.toLowerCase() == "fixed") {
+                calculatedProductPrice = (product.unit_price - discount_value) * product.units
+            } else {
+                calculatedProductPrice = (product.unit_price - (product.unit_price * (discount_value / 100))) * product.units
+            }
+            coupon_usage_count += 1
+        }else{
+            calculatedProductPrice = product[PARAMS.total_amount] + product[PARAMS.isTechnicianRequiredCost]
+        }
+        cart_ids.push(product.id)
+
+        return calculatedProductPrice + product[PARAMS.isTechnicianRequiredCost]
+    })
+
+    const total_cart_amount_ = cart.reduce((total, current) => total + current[PARAMS.total_amount] + current[PARAMS.isTechnicianRequiredCost], 0) 
+
+    const total_cart_amount = valid_prices.reduce((total, current) => total + current, 0)
+
+    // console.log ({
+    //     coupon_detail,
+    //     total_cart_amount_,
+    //     total_cart_amount
+    // })
+
 
     const orderId = `#ORD${createUUID(6)}`
-    const total_cart_amount = cart.reduce((total, current) => total + current[PARAMS.total_amount] + current[PARAMS.isTechnicianRequiredCost], 0)
-    const cart_ids = cart.map((item) => {
-
-        return item.id
-
-    })
 
     if (req.body[PARAMS.deliveryType]) {
 
-        if (!["pick-up", "free", "express"].includes(req.body[PARAMS.deliveryType].toLowerCase())){
+        if (!["pick-up", "free", "express"].includes(req.body[PARAMS.deliveryType].toLowerCase())) {
             return generalError(res, "Selected delivery method is not available.")
         }
 
-
         deliveryType = req.body[PARAMS.deliveryType]
         deliveryCost = (await getExtraPayments(deliveryType.toLowerCase()))?.price ?? 0.0
+
+        if (coupon_type == "shipping") {
+            if (deliveryCost > 0) {
+                deliveryCost = discount_type == "fixed" ? deliveryCost - discount_value : deliveryCost - (deliveryCost * (discount_value / 100))
+            }
+
+            coupon_usage_count += 1
+        }
     }
 
-    
-    const total_amount = total_cart_amount + deliveryCost
+    const total_amount = coupon_type == "order" ?
+        (discount_type == "fixed" ?
+            (total_cart_amount + deliveryCost) - discount_value :
+            (total_cart_amount + deliveryCost) - ((total_cart_amount + deliveryCost) * (discount_value / 100))
+        ) :
+        (total_cart_amount + deliveryCost)
 
-    
+    if (coupon_type == "order") coupon_usage_count += 1
+
 
     const ref = `TRX_${createUUID(7)}`
-    const response = await initializePayment(ref, total_amount, req.user?.email, { [PARAMS.orderId]: orderId, [PARAMS.cart_ids]: cart_ids })
+    const response = await initializePayment(ref, total_amount, req.user?.email, { [PARAMS.orderId]: orderId, [PARAMS.cart_ids]: cart_ids, coupon_used, coupon_code })
     if (!response.success) {
         return generalError(res, response.msg,)
     }
@@ -181,5 +248,5 @@ exports.getOrders = catchAsync(async (req, res) => {
 exports.getDeliveryPrices = catchAsync(async (req, res) => {
     const extra = (await getExtraPayments("express"))?.price ?? 0.0
 
-    return success(res, {express: extra, free: 0.0, pickup: 0.0})
+    return success(res, { express: extra, free: 0.0, pickup: 0.0 })
 })

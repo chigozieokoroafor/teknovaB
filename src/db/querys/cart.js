@@ -54,7 +54,11 @@ exports.fetchCartItemsToOrder = async (uid) => {
                 [PARAMS.ordered]: false
 
             },
-            attributes: [PARAMS.id, PARAMS.total_amount, PARAMS.isTechnicianRequiredCost]
+            attributes: [PARAMS.id, PARAMS.productId, PARAMS.total_amount, PARAMS.isTechnicianRequiredCost],
+            include: {
+                model: product,
+                attributes: [PARAMS.uid, PARAMS.categoryId, PARAMS.price ]
+            }
         }
     )
 }

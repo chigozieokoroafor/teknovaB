@@ -6,8 +6,9 @@ const bcrypt = require("bcryptjs");
 const randToken = require("rand-token")
 const axios = require("axios");
 const { Readable } = require("stream");
-const { BUNNY } = require("./consts");
+const { BUNNY, PARAMS } = require("./consts");
 const { generalError } = require("../errorHandler/statusCodes");
+const { fetchSingleCouponRecord } = require("../db/querys/coupons");
 
 
 exports.sendEmail = (subject, to, html, attachments, envelope) => { //attachments should be an array; envelope is a json containing a 'to' and 'cc'
@@ -375,7 +376,7 @@ exports.processAllImages = async (files, name) => {
         const file_name = `${this.createUUID()}.${ext}`;
 
         return this.processFile(item.buffer, file_name).then((url) => {
-            return { "img_url": url, name: `${name}_${index}`};
+            return { "img_url": url, name: `${name}_${index}` };
         });
     });
 
@@ -418,3 +419,35 @@ exports.baseValidator = (fn, body, res) => {
     return
 }
 
+exports.validateProvidedCoupon = async (code) => {
+    const now = new Date()
+    const coupon = await fetchSingleCouponRecord(
+        {
+            code: code
+        }
+    )
+
+    if (!coupon) {
+        return { success: false, msg: "Sorry, we couldn't locate this coupon. It may have been removed or is no longer active" }
+    }
+
+    if (coupon.status.toLowerCase() != "active") {
+        return { success: false, msg: "Coupon expired" }
+    }
+
+    if (coupon.usage >= coupon.limit) {
+        return { success: false, msg: "Aww shucks, the coupon has reached it's usage limit." }
+    }
+    
+    console.log(coupon.endDate, coupon.startDate, now, (coupon.endDate > now > coupon.startDate))
+
+    console.log(coupon.endDate > now)
+    console.log(now > coupon.startDate)
+
+    if (!(coupon.endDate >now &&  now > coupon.startDate)) {
+        return { success: false, msg: "Coupon usage has Expired" }
+    }
+
+    return { success: true, type: coupon[PARAMS.coupon_type], discount_type: coupon[PARAMS.discount_type], discount_value: coupon[PARAMS.discount_value], product_list: coupon[PARAMS.product_list], category_list: coupon[PARAMS.category_list] }
+
+}

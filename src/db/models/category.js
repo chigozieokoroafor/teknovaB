@@ -3,7 +3,7 @@ const { MODEL_NAMES, PARAMS } = require("../../util/consts");
 const { conn } = require("../base");
 const { createUUID } = require("../../util/base");
 
-const category = conn.define(MODEL_NAMES.user, {
+const category = conn.define(MODEL_NAMES.category, {
     id: {
         type: DataTypes.INTEGER,
         unique: true,
@@ -32,32 +32,7 @@ const category = conn.define(MODEL_NAMES.user, {
 }
 )
 
-// const category_specifications = conn.define(MODEL_NAMES.category_specifications, {
-//     [PARAMS.id]:{
-//         type: DataTypes.INTEGER,
-//         unique: true,
-//         autoIncrement: true,
-//         primaryKey: true
-//     },
-//     [PARAMS.categoryId]:{
-//         type:DataTypes.STRING(255),
-//         allowNull:false
-//     },
-//     [PARAMS.name]:{
-//         type:DataTypes.STRING(255),
-//         allowNull:false
-//     },
-//     [PARAMS.values]:{
-//         type:DataTypes.JSON,
-//         allowNull:false,
-//         // defaultValue:0
-//     }
-// }, {
-//     tableName: MODEL_NAMES.category_specifications,
-//     modelName: MODEL_NAMES.category_specifications,
-// })
 
 module.exports = {
-    category,
-    // category_specifications
+    category
 }

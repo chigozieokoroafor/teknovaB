@@ -45,6 +45,14 @@ const cart = conn.define(MODEL_NAMES.cart, {
     [PARAMS.isTechnicianRequiredCost]: {
         type: DataTypes.DOUBLE,
         defaultValue: 0.0
+    },
+    coupon_used : {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false
+    },
+
+    coupon_code: {
+        type: DataTypes.INTEGER
     }
 }, {
     tableName: MODEL_NAMES.cart,

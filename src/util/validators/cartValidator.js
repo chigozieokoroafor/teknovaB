@@ -106,7 +106,8 @@ exports.checkoutSchema = Joi.object(
                 "any.required": "Kindly provide the contact info of receipient."
             }
         ),
-        [PARAMS.deliveryType] : Joi.string()
+        [PARAMS.deliveryType] : Joi.string(),
+        [PARAMS.coupon]: Joi.string()
 
     }
 ).required().messages(
