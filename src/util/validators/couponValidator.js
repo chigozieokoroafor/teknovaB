@@ -66,7 +66,7 @@ const couponCreateValidator = joi.object({
   .messages({
     "object.base": "A valid coupon object is required.",
     "any.required": "Coupon data is required."
-  });
+});
 
 
 const couponUpdateValidator = joi.object({
@@ -150,11 +150,11 @@ const discountValidator = joi.object(
       "string.base": "Discount type must be an string."
     }),
 
-    [PARAMS.startDate]: joi.date().messages({
+    [PARAMS.startDate]: joi.date().required().messages({
       "date.base": "Start date must be a valid date."
     }),
 
-    [PARAMS.endDate]: joi.date().messages({
+    [PARAMS.endDate]: joi.date().required().messages({
       "date.base": "End date must be a valid date."
     }),
   }

@@ -446,21 +446,27 @@ exports.getNewArrivals = catchAsync(async (req, res) => {
 
 exports.addDiscountToProducts = catchAsync(async (req, res) => {
 
-    const error = baseValidator(productUploadSchema, req.body, res)
+    const error = baseValidator(discountValidator, req.body, res)
     if (error) {
         return error
     }
 
-    const product = await getspecificProduct(req.body[PARAMS.productId])
+    let product = await getspecificProduct(req.body[PARAMS.productId])
 
     if (!product) {
         return notFound(res, "Product not found.")
     }
 
+    product = product.toJSON()
+    console.log("product ====> ", product.price)
+
     const price = req.body[PARAMS.discount_type].toLowerCase() == "percentage" ? product.price - (product.price * req.body[PARAMS.discount_value] / 100) : product.price - req.body[PARAMS.discount_value]
 
+
+
+
     const body = {
-        productId:
+        productId: product.uid,
             price,
         [PARAMS.startDate]: req.body[PARAMS.startDate],
         [PARAMS.endDate]: req.body[PARAMS.endDate],

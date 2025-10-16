@@ -1,6 +1,6 @@
 const { Op } = require("sequelize");
 const { PARAMS, RELATIONSHIP_NAMES, MODEL_NAMES } = require("../../util/consts");
-const { product, product_images, images, category, productDiscount } = require("../models/relationships");
+const { product, product_images, images, category_, productDiscount } = require("../models/relationships");
 
 const productAttributes = [
     PARAMS.categoryId,
@@ -26,7 +26,7 @@ exports.getProductsByCategory = async (query, limit, offset) => {
             attributes: productAttributes,
             include: [
                 {
-                    model: category,
+                    model: category_,
                     as: RELATIONSHIP_NAMES.category,
                     attributes: [PARAMS.uid, PARAMS.name]
                 },
@@ -46,7 +46,8 @@ exports.getProductsByCategory = async (query, limit, offset) => {
                             { [PARAMS.startDate]: { [Op.lt]: new Date() } },
                             { [PARAMS.endDate]: { [Op.gte]: new Date() } }
                         ]
-                    }
+                    },
+                    required: false
                 }
 
             ],
@@ -67,7 +68,7 @@ exports.getspecificProduct = async (productId) => {
             attributes: productAttributes,
             include: [
                 {
-                    model: category,
+                    model: category_,
                     as: RELATIONSHIP_NAMES.category,
                     attributes: [PARAMS.uid, PARAMS.name]
                 },
@@ -87,7 +88,8 @@ exports.getspecificProduct = async (productId) => {
                             { [PARAMS.startDate]: { [Op.lt]: new Date() } },
                             { [PARAMS.endDate]: { [Op.gte]: new Date() } }
                         ]
-                    }
+                    },
+                    required: false
                 }
             ],
 
@@ -106,7 +108,7 @@ exports.searchProduct = async (query, offset, limit) => {
             attributes: productAttributes,
             include: [
                 {
-                    model: category,
+                    model: category_,
                     as: RELATIONSHIP_NAMES.category,
                     attributes: [PARAMS.uid, PARAMS.name]
                 },
@@ -126,7 +128,8 @@ exports.searchProduct = async (query, offset, limit) => {
                             { [PARAMS.startDate]: { [Op.lt]: new Date() } },
                             { [PARAMS.endDate]: { [Op.gte]: new Date() } }
                         ]
-                    }
+                    },
+                    required: false
                 }
             ],
             offset,
@@ -177,7 +180,7 @@ exports.getspecificProductRaw = async (productId) => {
             // ],
             include: [
                 {
-                    model: category,
+                    model: category_,
                     as: RELATIONSHIP_NAMES.category,
                     attributes: [PARAMS.uid, PARAMS.name]
                 },
@@ -197,7 +200,8 @@ exports.getspecificProductRaw = async (productId) => {
                             { [PARAMS.startDate]: { [Op.lt]: new Date() } },
                             { [PARAMS.endDate]: { [Op.gte]: new Date() } }
                         ]
-                    }
+                    },
+                    required: false
                 }
             ],
 
@@ -217,7 +221,7 @@ exports.getNewProducts = async () => {
             attributes: [...productAttributes, PARAMS.createdAt],
             include: [
                 {
-                    model: category,
+                    model: category_,
                     as: RELATIONSHIP_NAMES.category,
                     attributes: [PARAMS.uid, PARAMS.name]
                 },
@@ -237,7 +241,8 @@ exports.getNewProducts = async () => {
                             { [PARAMS.startDate]: { [Op.lt]: new Date() } },
                             { [PARAMS.endDate]: { [Op.gte]: new Date() } }
                         ]
-                    }
+                    },
+                    required: false
                 }
             ],
             order: [[PARAMS.createdAt, "DESC"]],

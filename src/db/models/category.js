@@ -10,10 +10,10 @@ const category = conn.define(MODEL_NAMES.category, {
         autoIncrement: true,
         primaryKey: true
     },
-    uid:{
-        type:DataTypes.STRING(255),
-        allowNull:false,
-        unique:true,
+    uid: {
+        type: DataTypes.STRING(255),
+        allowNull: false,
+        unique: true,
         defaultValue: () => createUUID()
     },
     name: {
@@ -21,7 +21,7 @@ const category = conn.define(MODEL_NAMES.category, {
         allowNull: true
     },
     imageId: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.INTEGER
     },
     [PARAMS.category_specifications]: {
         type: DataTypes.JSON

@@ -147,9 +147,40 @@ const productDiscount = conn.define(MODEL_NAMES.productdiscount, {
     },
 })
 
+const category_ = conn.define(MODEL_NAMES.category, {
+    [PARAMS.id]: {
+        type: DataTypes.INTEGER,
+        unique: true,
+        autoIncrement: true,
+        primaryKey: true
+    },
+    [PARAMS.uid]: {
+        type: DataTypes.STRING(255),
+        allowNull: false,
+        unique: true,
+        defaultValue: () => createUUID()
+    },
+    name: {
+        type: DataTypes.STRING(255),
+        allowNull: true
+    },
+    imageId: {
+        type: DataTypes.INTEGER
+    },
+    [PARAMS.category_specifications]: {
+        type: DataTypes.JSON
+    }
+}, {
+    modelName: MODEL_NAMES.category,
+    tableName: MODEL_NAMES.category
+}
+
+)
+
 
 module.exports = {
     product,
     coupon,
-    productDiscount
+    productDiscount,
+    category_
 }

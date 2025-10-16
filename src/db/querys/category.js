@@ -1,17 +1,17 @@
 
 const { Op } = require("sequelize");
 const { PARAMS, RELATIONSHIP_NAMES } = require("../../util/consts");
-const { category, images, cart } = require("../models/relationships");
+const { category_, images, cart } = require("../models/relationships");
 
 exports.createCategoryQuery = async (data) => {
-    return await category.create(
+    return await category_.create(
         data
         // {name, img_blob}
     )
 }
 
 exports.checkCategoryExists = async (searchKeyword) => {
-    return await category.findOne(
+    return await category_.findOne(
         {
             where: {
                 [PARAMS.name]: {
@@ -23,7 +23,7 @@ exports.checkCategoryExists = async (searchKeyword) => {
 }
 
 exports.fetchCategoryQuery = async () => {
-    return await category.findAll(
+    return await category_.findAll(
         {
             attributes: [PARAMS.uid, PARAMS.name, PARAMS.category_specifications],
             include: [
@@ -43,7 +43,7 @@ exports.fetchCategoryQuery = async () => {
 }
 
 exports.fetchCategoryById = async (uid) => {
-    return await category.findOne({
+    return await category_.findOne({
         where: { uid }
     })
 }
@@ -72,9 +72,9 @@ exports.destroyCartItem = async (uid, cartId) => {
 }
 
 exports.deleteCategory = async (categoryId) => {
-    await category.destroy({ where: { uid: categoryId } })
+    await category_.destroy({ where: { uid: categoryId } })
 }
 
 exports.updateSpecificCategory = async (categoryId, update) => {
-    return await category.update(update, { where: { uid: categoryId } })
+    return await category_.update(update, { where: { uid: categoryId } })
 }
