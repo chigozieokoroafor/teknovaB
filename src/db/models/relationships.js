@@ -2,11 +2,11 @@ const { PARAMS, RELATIONSHIP_NAMES } = require("../../util/consts");
 const { transaction } = require("./transaction");
 const { user } = require("./user");
 const { images, product_images } = require("./images");
-// const {category} = require("./category")
+const { category } = require("./category")
 const { product, coupon } = require("./product");
 const { cart } = require("./cart");
 const { order } = require("./order");
-const { category } = require("teknovab/src/db/models/category");
+
 
 
 
