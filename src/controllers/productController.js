@@ -458,12 +458,8 @@ exports.addDiscountToProducts = catchAsync(async (req, res) => {
     }
 
     product = product.toJSON()
-    console.log("product ====> ", product.price)
-
+    
     const price = req.body[PARAMS.discount_type].toLowerCase() == "percentage" ? product.price - (product.price * req.body[PARAMS.discount_value] / 100) : product.price - req.body[PARAMS.discount_value]
-
-
-
 
     const body = {
         productId: product.uid,
@@ -471,10 +467,11 @@ exports.addDiscountToProducts = catchAsync(async (req, res) => {
         [PARAMS.startDate]: req.body[PARAMS.startDate],
         [PARAMS.endDate]: req.body[PARAMS.endDate],
     }
+    await deleteDiscountToProductRecord(body.productId)
+
+    success(res, {}, "Discount added to product.")
 
     await addDiscountToProductRecord(body)
-
-    return success(res, {}, "Discount added to product.")
 
 })
 

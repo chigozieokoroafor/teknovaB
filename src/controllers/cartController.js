@@ -158,7 +158,7 @@ exports.checkout = catchAsync(async (req, res) => {
         return calculatedProductPrice + product[PARAMS.isTechnicianRequiredCost]
     })
 
-    const total_cart_amount_ = cart.reduce((total, current) => total + current[PARAMS.total_amount] + current[PARAMS.isTechnicianRequiredCost], 0) 
+    // const total_cart_amount_ = cart.reduce((total, current) => total + current[PARAMS.total_amount] + current[PARAMS.isTechnicianRequiredCost], 0) 
 
     const total_cart_amount = valid_prices.reduce((total, current) => total + current, 0)
 
@@ -213,8 +213,6 @@ exports.checkout = catchAsync(async (req, res) => {
             [PARAMS.orderId]: orderId,
             [PARAMS.reference]: ref,
             [PARAMS.amount]: total_amount,
-
-
         }
     )
 
@@ -250,3 +248,7 @@ exports.getDeliveryPrices = catchAsync(async (req, res) => {
 
     return success(res, { express: extra, free: 0.0, pickup: 0.0 })
 })
+
+// exports.validateCoupon = catchAsync( async (req, res) =>{
+//     req.
+// })
