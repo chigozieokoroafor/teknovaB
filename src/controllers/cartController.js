@@ -30,6 +30,10 @@ exports.addItemToCart = catchAsync(async (req, res) => {
     // data["unit_price"] = product[PARAMS.price]
     let price = product[PARAMS.price]
 
+    if(product[MODEL_NAMES.productdiscount]){
+        price = product[MODEL_NAMES.productdiscount][PARAMS.price]
+    }
+
     const isUnitAvailable = product[PARAMS.units] > data[PARAMS.units]
 
     if (!isUnitAvailable) {
@@ -136,9 +140,6 @@ exports.checkout = catchAsync(async (req, res) => {
     }
 
     const cart_ids = []
-
-
-
 
     const valid_prices = cart.map((product) => {
         let calculatedProductPrice = 0
