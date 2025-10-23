@@ -1,5 +1,6 @@
 require("dotenv").config()
 
+const { Op } = require("sequelize");
 const { checkAdmin } = require("../db/querys/admin");
 const { countOrders, fetchAllOrders, updateOrderStatus, getSpecificOrder, getTopProductCounts } = require("../db/querys/cart");
 const { createCouponRecord, fetchCouponRecord, updateSingleCouponRecord, deleteSingleCouponRecord, fetchSingleCouponRecord } = require("../db/querys/coupons");
@@ -187,9 +188,9 @@ exports.createCoupons = catchAsync(async (req, res) => {
         return generalError(res, valid_.error.message, valid_.error.details[0].context)
     }
 
-    const exists = await fetchSingleCouponRecord({[PARAMS.code]: req.body[PARAMS.code] })
+    const exists = await fetchSingleCouponRecord({ [PARAMS.code]: req.body[PARAMS.code] })
 
-    if(exists){
+    if (exists) {
         return generalError(res, "Coupon with provided code exists")
     }
 
@@ -205,8 +206,22 @@ exports.fetchCoupons = catchAsync(async (req, res) => {
 
     const limit = 10
     const offset = (Number(page) - 1) * limit
+    let query = {}
+    let filter = req.query?.filter
 
-    const data = await fetchCouponRecord(limit, offset)
+    if (filter?.toLowerCase() == "expired") {
+        query = {
+            endDate: {
+                [Op.lte]: new Date()
+            }
+        }
+    }else if (filter?.toLowerCase() == "disabled") {
+        query = {
+            status: "Disabled"
+        }
+    }
+
+    const data = await fetchCouponRecord(query, limit, offset)
 
     return success(res, data, "Fetched.")
 })
@@ -226,12 +241,10 @@ exports.updateCoupon = catchAsync(async (req, res) => {
         return generalError(res, valid_.error.message, valid_.error.details[0].context)
     }
 
-    const exist = await fetchSingleCouponRecord({id})
+    const exist = await fetchSingleCouponRecord({ id })
 
-    
-
-    if(!exist){
-        return  notFound(res, "Coupon not found.")
+    if (!exist) {
+        return notFound(res, "Coupon not found.")
     }
 
     await updateSingleCouponRecord(id, req.body)

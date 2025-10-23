@@ -8,11 +8,10 @@ async function createCouponRecord (data){
     return await coupon.create(data)
 }
 
-async function fetchCouponRecord ( limit, offset){
+async function fetchCouponRecord (query, limit, offset){
+    query.deletedAt = null
     return await coupon.findAll({
-        where: {
-            deletedAt: null
-        },
+        where: query,
         attributes,
         limit,
         offset,

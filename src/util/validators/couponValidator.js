@@ -118,7 +118,10 @@ const couponUpdateValidator = joi.object({
     "number.base": "Limit must be a valid number."
   }),
 
-  [PARAMS.status]: joi.string().allow(null).messages({
+  [PARAMS.status]: joi.string()
+  .allow(null)
+  .valid("Active", "Disabled")
+  .messages({
     "string.base": "Status must be a string if provided."
   })
 })
