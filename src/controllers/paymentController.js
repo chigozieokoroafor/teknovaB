@@ -27,7 +27,7 @@ exports.paymentWebhook = catchAsync(async (req, res)=>{
         if (data.event == "charge.success"){      
             const cart_ids = data.data.metadata[PARAMS.cart_ids]
             const orderId = data.data.metadata[PARAMS.orderId]
-            const coupon_code = data.data.metadata[PARAMS.coupon_code]
+            const coupon_code = data.data.metadata?.coupon_code
             const coupon_used = data.data.metadata[PARAMS.coupon_used] || false
 
             const promises = await Promise.allSettled([updateTransaction({status:"Success"}, orderId ), updateOrderStatus(orderId, "Success"), updateCartItemsforOrder({ orderId: orderId , [PARAMS.ordered]:true, coupon_code, coupon_used}, { id: { [Op.in]: cart_ids } })])

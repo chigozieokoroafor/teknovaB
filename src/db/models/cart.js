@@ -52,7 +52,7 @@ const cart = conn.define(MODEL_NAMES.cart, {
     },
 
     coupon_code: {
-        type: DataTypes.INTEGER
+        type: DataTypes.STRING
     }
 }, {
     tableName: MODEL_NAMES.cart,
