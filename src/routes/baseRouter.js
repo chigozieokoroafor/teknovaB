@@ -5,6 +5,7 @@ const cartController = require("../controllers/cartController")
 const paymentController = require("../controllers/paymentController")
 const { baseAuth } = require("../middleware/auth")
 
+
 const base = Router()
 
 base.post("/register", baseController.createAccount)
@@ -27,6 +28,7 @@ base.delete("/cart", baseAuth, cartController.deleteCartItems)
 
 base.post("/checkout", baseAuth, cartController.checkout)
 base.get("/orders", baseAuth, cartController.getOrders)
+base.post("/coupon/validate", baseAuth, cartController.validateCoupon)
 
 base.post("/payment/webhook", paymentController.paymentWebhook)
 

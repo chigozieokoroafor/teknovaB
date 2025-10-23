@@ -8,6 +8,7 @@ const { PARAMS, FETCH_LIMIT, MODEL_NAMES } = require("../util/consts");
 const { addToCartSchema, checkoutSchema } = require("../util/validators/cartValidator");
 const { uploadTransaction } = require("../db/querys/transactions");
 const { fetchSingleCartItem, destroyCartItem } = require("../db/querys/category");
+const { fetchSingleCouponRecord } = require("../db/querys/coupons");
 
 exports.addItemToCart = catchAsync(async (req, res) => {
     const user_id = req.user.uid
@@ -249,6 +250,38 @@ exports.getDeliveryPrices = catchAsync(async (req, res) => {
     return success(res, { express: extra, free: 0.0, pickup: 0.0 })
 })
 
-// exports.validateCoupon = catchAsync( async (req, res) =>{
-//     req.
-// })
+exports.validateCoupon = catchAsync( async (req, res) =>{
+    const code = req?.body?.code
+
+    if(!code){
+        return generalError(res, "Kindly provide a coupon code for use.")
+    }
+
+    const coupon = await fetchSingleCouponRecord( 
+        { code, 
+            status: "Active",
+            endDate: {
+                [Op.gte] : new Date()
+            }
+        } 
+    ) 
+
+    if(!coupon){
+        return notFound(res, "Sorry, seems the coupon provided has expired.")
+    }
+
+    if (coupon.limit <= coupon.usage){
+        return generalError(res, "Oops, Coupon")
+    }
+    
+    const data = {
+        code,
+        status: coupon.status,
+        coupon_type: coupon[PARAMS.coupon_type],
+        discount_type: coupon[PARAMS.discount_type],
+        discount_value: coupon[PARAMS.discount_value],
+
+    }
+
+    return success(res, data, "Fetched.")
+})
