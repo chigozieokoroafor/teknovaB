@@ -281,6 +281,7 @@ exports.validateCoupon = catchAsync( async (req, res) =>{
         coupon_type: coupon[PARAMS.coupon_type],
         discount_type: coupon[PARAMS.discount_type],
         discount_value: coupon[PARAMS.discount_value],
+        list: coupon[PARAMS.coupon_type].toLowerCase() == "product" ? coupon[PARAMS.product_list] : (coupon[PARAMS.coupon_type].toLowerCase() == "category" ? coupon[PARAMS.category_list]: undefined )
 
     }
 

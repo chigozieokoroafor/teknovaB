@@ -19,6 +19,7 @@ exports.paymentWebhook = catchAsync(async (req, res)=>{
         return generalError(res, "Lmao, transaction unverified.")
     }
     console.log("recieved:::webhook", req.body )
+
     success(res, {}, "Recieved")
     
     try{
@@ -36,8 +37,6 @@ exports.paymentWebhook = catchAsync(async (req, res)=>{
                 console.log("promise:::::", index, ":::::", promise.status)
                 console.log("promise:::::", promise.reason)
             })
-            
-            
         }
 
     }
