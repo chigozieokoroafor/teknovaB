@@ -43,6 +43,7 @@ exports.createCategory = catchAsync(async (req, res) => {
     })
 
     data[PARAMS.category_specifications] = specifications
+    data["uid"] = `CAT_${createUUID()}`
 
     const category = await createCategoryQuery(data)
 
