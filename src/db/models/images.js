@@ -1,7 +1,6 @@
 const { DataTypes } = require("sequelize");
 const { MODEL_NAMES, PARAMS } = require("../../util/consts");
 const { conn } = require("../base");
-const { createUUID } = require("../../util/base");
 
 const images = conn.define(MODEL_NAMES.images, {
     [PARAMS.id]: {
@@ -13,7 +12,7 @@ const images = conn.define(MODEL_NAMES.images, {
     [PARAMS.name]: {
         type: DataTypes.TEXT("medium"),
         allowNull: false,
-        defaultValue: () => {`IMG_${createUUID(12)}`}
+        // defaultValue: () => {`IMG_${createUUID(12)}`}
     },
     [PARAMS.img_url]: {
         type: DataTypes.TEXT("long")
