@@ -18,7 +18,7 @@ const product = conn.define(MODEL_NAMES.product, {
         type: DataTypes.STRING(255),
         allowNull: false,
         unique: true,
-        defaultValue: () => "PRD-" + createUUID()
+        // defaultValue: () => "PRD-" + createUUID()
     },
     categoryId: {
         type: DataTypes.STRING(255),

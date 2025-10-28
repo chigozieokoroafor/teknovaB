@@ -147,6 +147,8 @@ exports.addProducts = catchAsync(async (req, res) => {
         await uploadProductImages(images)
 
     } catch (error) {
+
+        console.log("error===>", error)
         sendEmail("Error on product upload", "okoroaforc14@gmail.com", error)
         return generalError(res, "Unable to add product at current time.", {})
     }
