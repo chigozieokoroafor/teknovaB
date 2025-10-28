@@ -157,8 +157,8 @@ const category_ = conn.define(MODEL_NAMES.category, {
     [PARAMS.uid]: {
         type: DataTypes.STRING(255),
         allowNull: false,
-        unique: true,
-        defaultValue: () => createUUID()
+        // unique: true,
+        // defaultValue: () => createUUID()
     },
     name: {
         type: DataTypes.STRING(255),
