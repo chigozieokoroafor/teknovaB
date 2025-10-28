@@ -120,7 +120,7 @@ exports.addProducts = catchAsync(async (req, res) => {
     }
 
     let data = {}
-
+    data["uid"] =  "PRD-" + createUUID()
     data["name"] = req.body?.name
     data["categoryId"] = req.body?.categoryId
     data["discount"] = req.body?.discount ?? 0.0

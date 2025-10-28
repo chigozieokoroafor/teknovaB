@@ -376,7 +376,7 @@ exports.processAllImages = async (files, name) => {
         const file_name = `${this.createUUID()}.${ext}`;
 
         return this.processFile(item.buffer, file_name).then((url) => {
-            return { "img_url": url, name: `${name}_${index}` };
+            return { "img_url": url, name: `${name}_${index}`};
         });
     });
 
