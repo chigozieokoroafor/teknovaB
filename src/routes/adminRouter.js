@@ -28,18 +28,14 @@ admin.put("/product/:product_id", adminAuth, productController.updateProducts)
 admin.post("/product", adminAuth, productController.addProducts)
 admin.delete("/product", adminAuth, productController.deleteProducts)
 
-
 // images
 admin.get("/images",adminController.getImages)
-
 admin.post("/images",
     adminAuth, 
     multipleuploadMiddleWare,
     adminController.uploadImages
 )
-
 admin.delete('/images/:id', adminAuth, adminController.deleteImages)
-
 
 // orders
 admin.get("/orders", adminAuth, adminController.getOrders)
@@ -50,13 +46,9 @@ admin.put("/coupon/:id", adminAuth, adminController.updateCoupon)
 admin.delete("/coupon/:id", adminAuth, adminController.deleteCoupon)
 admin.post("/coupon", adminAuth, adminController.createCoupons)
 
-
 admin.post("/discount", adminAuth, productController.addDiscountToProducts)
 admin.delete("/discount", adminAuth, productController.deleteDiscountFromProducts)
-
-
-
-
+admin.get("/discount", adminAuth, productController.getAllProductsDiscount)
 
 
 module.exports = {

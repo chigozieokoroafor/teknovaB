@@ -1,6 +1,7 @@
 const { Op } = require("sequelize");
 const { PARAMS, RELATIONSHIP_NAMES, MODEL_NAMES } = require("../../util/consts");
 const { product, product_images, images, category_, productDiscount } = require("../models/relationships");
+const { conn } = require("../base");
 
 const productAttributes = [
     PARAMS.categoryId,
@@ -136,6 +137,90 @@ exports.searchProduct = async (query, offset, limit) => {
             limit
         }
 
+    )
+}
+
+exports.getDiscountedProducts = async (query, offset, limit) => {
+
+    query[PARAMS.isDeleted] = false
+    query[PARAMS.isActive] = true
+
+    return await product.findAll(
+        {
+            where: query,
+            attributes: productAttributes,
+            include: [
+                {
+                    model: category_,
+                    as: RELATIONSHIP_NAMES.category,
+                    attributes: [PARAMS.uid, PARAMS.name]
+                },
+                {
+                    model: product_images,
+                    attributes: [PARAMS.id, PARAMS.imageId],
+                    include: {
+                        model: images,
+                        attributes: [PARAMS.img_url],
+                        as: RELATIONSHIP_NAMES.image
+                    }
+                },
+                {
+                    model: productDiscount,
+                    where: {
+                        [Op.and]: [
+                            { [PARAMS.startDate]: { [Op.lt]: new Date() } },
+                            { [PARAMS.endDate]: { [Op.gte]: new Date() } }
+                        ]
+                    },
+                    required: true
+                }
+            ],
+            offset,
+            limit
+        }
+
+    )
+}
+
+exports.getProductsWithoutDiscount = async (offset, limit) => {
+    let query = {}
+
+    query[PARAMS.isDeleted] = false
+    query[PARAMS.isActive] = true
+    
+    // Add condition to exclude products with active discounts
+    query[PARAMS.uid] = {
+        [Op.notIn]: conn.literal(`(
+            SELECT DISTINCT ${PARAMS.productId} 
+            FROM ${MODEL_NAMES.productdiscount}s
+            WHERE ${PARAMS.startDate} < NOW() 
+            AND ${PARAMS.endDate} >= NOW()
+        )`)
+    }
+    
+    return await product.findAll(
+        {
+            where: query,
+            attributes: productAttributes,
+            include: [
+                {
+                    model: category_,
+                    as: RELATIONSHIP_NAMES.category,
+                    attributes: [PARAMS.uid, PARAMS.name]
+                },
+                {
+                    model: product_images,
+                    attributes: [PARAMS.id, PARAMS.imageId],
+                    include: {
+                        model: images,
+                        attributes: [PARAMS.img_url],
+                        as: RELATIONSHIP_NAMES.image
+                    }
+                }
+            ],
+            offset,
+            limit
+        }
     )
 }
 

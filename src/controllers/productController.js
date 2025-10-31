@@ -8,7 +8,7 @@ const {
     updateSpecificCategory,
     // createCategorySpecification 
 } = require("../db/querys/category");
-const { uploadProduct, getProductsByCategory, getspecificProduct, searchProduct, deleteProductQuery, uploadProductImages, deleteProductImages, updateProductDetails, getNewProducts, deleteDiscountToProductRecord, addDiscountToProductRecord } = require("../db/querys/products");
+const { uploadProduct, getProductsByCategory, getspecificProduct, searchProduct, deleteProductQuery, uploadProductImages, deleteProductImages, updateProductDetails, getNewProducts, deleteDiscountToProductRecord, addDiscountToProductRecord, getProductsWithoutDiscount, getDiscountedProducts } = require("../db/querys/products");
 const { catchAsync } = require("../errorHandler/allCatch");
 const { generalError, success, notFound } = require("../errorHandler/statusCodes");
 const { createUUID, sendEmail, baseValidator } = require("../util/base");
@@ -490,4 +490,29 @@ exports.deleteDiscountFromProducts = catchAsync(async (req, res,) => {
     await deleteDiscountToProductRecord(req.query[PARAMS.productId])
 
     return success(res , {}, "Product discount deleted.")
+})
+
+exports.getAllProductsDiscount = catchAsync(async (req, res) => {
+    const page = req.query?.page
+
+    if (page <= 0 || Number.isNaN(Number(page))) {
+        return generalError(res, "Page cannot be less than 1")
+    }
+    const offset = (Number(page) - 1) * FETCH_LIMIT
+
+    const { discount } = req.query
+
+    let products
+    
+    if(discount || discount=="false"){
+        if(discount=="false"){
+            products = await getProductsWithoutDiscount(offset, FETCH_LIMIT)
+        }else{
+            products = await getDiscountedProducts({},offset, FETCH_LIMIT)
+        }
+    }else{
+        products = await searchProduct({}, offset, FETCH_LIMIT)
+    }
+    
+    return success(res, products, "Fetched")
 })
