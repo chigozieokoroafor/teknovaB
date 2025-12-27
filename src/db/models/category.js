@@ -25,6 +25,10 @@ const category = conn.define(MODEL_NAMES.category, {
     },
     [PARAMS.category_specifications]: {
         type: DataTypes.JSON
+    },
+    [PARAMS.parentId]:{
+        type: DataTypes.STRING(255),
+        allowNull: true
     }
 }, {
     tableName: MODEL_NAMES.category,
@@ -32,7 +36,37 @@ const category = conn.define(MODEL_NAMES.category, {
 }
 )
 
+// const subCategory = conn.define(MODEL_NAMES.subCategory, {
+//     id: {
+//         type: DataTypes.INTEGER,
+//         unique: true,
+//         autoIncrement: true,
+//         primaryKey: true
+//     },
+//     uid: {
+//         type: DataTypes.STRING(255),
+//         allowNull: false,
+//         unique: true,
+//         defaultValue: () => createUUID()
+//     },
+//     categoryId: {
+//         type: DataTypes.STRING(),
+//         allowNull: false
+//     },
+//     name: {
+//         type: DataTypes.STRING(255),
+//         allowNull: true
+//     },
+//     imageId: {
+//         type: DataTypes.INTEGER
+//     },
+// }, {
+//     tableName: MODEL_NAMES.subCategory,
+//     modelName: MODEL_NAMES.subCategory,
+// })
+
 
 module.exports = {
-    category
+    category,
+    // subCategory
 }

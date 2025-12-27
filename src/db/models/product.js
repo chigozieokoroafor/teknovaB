@@ -169,6 +169,10 @@ const category_ = conn.define(MODEL_NAMES.category, {
     },
     [PARAMS.category_specifications]: {
         type: DataTypes.JSON
+    },
+    [PARAMS.parentId]: {
+        type: DataTypes.STRING(255),
+        allowNull: true
     }
 }, {
     modelName: MODEL_NAMES.category,

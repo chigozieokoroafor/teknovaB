@@ -36,7 +36,7 @@ exports.createCategory = catchAsync(async (req, res) => {
     }
 
     // const cat_id = category.uid
-    specifications.map((item, index) => {
+    specifications?.map((item, index) => {
         // item[PARAMS.categoryId] = cat_id
         item[PARAMS.values] = item[PARAMS.values].split(",")
         specifications[index] = item
@@ -44,8 +44,6 @@ exports.createCategory = catchAsync(async (req, res) => {
 
     data[PARAMS.category_specifications] = specifications
     data["uid"] = `CAT_${createUUID()}`
-
-    // console.log("data ===> ",data)
 
     const category = await createCategoryQuery(data)
 
@@ -56,6 +54,20 @@ exports.createCategory = catchAsync(async (req, res) => {
 })
 
 exports.fetchCategories = catchAsync(async (req, res) => {
+    const {page, limit} = req.query
+
+    if (page <= 0 || Number.isNaN(Number(page))) {
+        return generalError(res, "Page cannot be less than 1")
+    }
+    let offset = 10
+    let skip = 0
+
+    if(limit){
+        offset = Number(limit)
+    }
+
+    skip = Number(page) - 1 * offset
+
     const data = await fetchCategoryQuery()
     return success(res, data, "Fetched")
 })
@@ -101,12 +113,6 @@ exports.updateCategory = catchAsync(async (req, res) => {
     await updateSpecificCategory(categoryId, req.body)
 
     return success(res, {}, "Updated.")
-
-
-
-
-
-
 })
 
 // admin products

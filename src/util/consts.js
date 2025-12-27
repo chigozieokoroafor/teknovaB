@@ -3,6 +3,7 @@ exports.MODEL_NAMES = {
     shipping: "ShippingAddress",
     admin: "Admin",
     category: "Category",
+    subCategory:"Sub_Category",
     product: "Product",
     cart: "Cart",
     transaction: "Transactions",
@@ -92,7 +93,8 @@ exports.PARAMS = {
     usage:"usage",
     deletedAt:"deletedAt",
     coupon_code: "coupon_code",
-    coupon_used: "coupon_used"
+    coupon_used: "coupon_used",
+    parentId: "parentId"
 
 }
 
@@ -112,7 +114,9 @@ exports.RELATIONSHIP_NAMES = {
     category_specifications: "category_specifications",
     category: "category",
     product: "product",
-    defaultImage:"defaultImage"
+    defaultImage:"defaultImage",
+    subCategories: "subCategories",
+    parentCategory:"parentCategory"
 
 }
 

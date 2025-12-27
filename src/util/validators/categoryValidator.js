@@ -37,12 +37,13 @@ exports.categoryCreationSchema = Joi.object(
                 
             }
         ),
-        specifications:Joi.array().min(1).items(specificationsSchema).required().messages(
+        specifications:Joi.array().min(0).items(specificationsSchema).messages(
             {
                 "any.required":"Kindly select specifications for category",
                 "array.min.base":"At least one specification must be provided."
             }
-        )
+        ),
+        parentId: Joi.string()
     }
 ).required().messages(
     {
@@ -69,7 +70,8 @@ exports.categoryUpdateSchema = Joi.object(
                 "any.required":"Kindly select specifications for category",
                 "array.min.base":"At least one specification must be provided."
             }
-        )
+        ),
+        parentId: Joi.string()
     }
 ).required().messages(
     {

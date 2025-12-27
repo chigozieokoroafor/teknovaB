@@ -6,7 +6,7 @@ const { category_, images, cart } = require("../models/relationships");
 exports.createCategoryQuery = async (data) => {
     return await category_.create(
         data
-        // {name, img_blob}
+        
     )
 }
 
@@ -22,7 +22,7 @@ exports.checkCategoryExists = async (searchKeyword) => {
     )
 }
 
-exports.fetchCategoryQuery = async () => {
+exports.fetchCategoryQuery = async (limit, skip) => {
     return await category_.findAll(
         {
             attributes: [PARAMS.uid, PARAMS.name, PARAMS.category_specifications],
@@ -32,11 +32,11 @@ exports.fetchCategoryQuery = async () => {
                     as: RELATIONSHIP_NAMES.image,
                     attributes: [PARAMS.id, PARAMS.img_url]
                 },
-                // {
-                //     model: category_specifications,
-                //     attributes:[PARAMS.id, PARAMS.name, PARAMS.values],
-                //     as: RELATIONSHIP_NAMES.category_specifications
-                // }
+                {
+                    model: category_,
+                    attributes:[PARAMS.uid, PARAMS.name, PARAMS.category_specifications],
+                    as: RELATIONSHIP_NAMES.subCategories
+                }
             ]
         }
     )

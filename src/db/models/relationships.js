@@ -7,7 +7,6 @@ const { cart } = require("./cart");
 const { order } = require("./order");
 
 
-
 user.hasMany(transaction, { foreignKey: PARAMS.uid, sourceKey: PARAMS.uid, as: RELATIONSHIP_NAMES.transaction })
 transaction.belongsTo(user, { foreignKey: PARAMS.uid, targetKey: PARAMS.uid, as: RELATIONSHIP_NAMES.customer })
 
@@ -28,6 +27,9 @@ category_.hasMany(product, {
     foreignKey: PARAMS.categoryId, sourceKey: PARAMS.uid
     , as: RELATIONSHIP_NAMES.product
 })
+
+category_.hasMany(category_, {foreignKey: PARAMS.parentId, sourceKey: PARAMS.uid, as: RELATIONSHIP_NAMES.subCategories})
+category_.belongsTo(category_, {foreignKey: PARAMS.parentId, targetKey: PARAMS.uid, as: RELATIONSHIP_NAMES.parentCategory})
 
 product.hasMany(cart, { foreignKey: PARAMS.productId, sourceKey: PARAMS.uid })
 cart.belongsTo(product, { foreignKey: PARAMS.productId, targetKey: PARAMS.uid })
