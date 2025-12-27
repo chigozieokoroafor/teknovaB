@@ -30,17 +30,17 @@ exports.categoryCreationSchema = Joi.object(
                 "string.empty": "Kindly provide a category name"
             }
         ),
-        
+
         [PARAMS.imageId]: Joi.number().required().messages(
             {
                 "any.required": "Image for categoy required",
-                
+
             }
         ),
-        specifications:Joi.array().min(0).items(specificationsSchema).messages(
+        specifications: Joi.array().min(0).items(specificationsSchema).messages(
             {
-                "any.required":"Kindly select specifications for category",
-                "array.min.base":"At least one specification must be provided."
+                "any.required": "Kindly select specifications for category",
+                "array.min.base": "At least one specification must be provided."
             }
         ),
         parentId: Joi.string()
@@ -62,13 +62,13 @@ exports.categoryUpdateSchema = Joi.object(
         [PARAMS.imageId]: Joi.number().messages(
             {
                 "any.required": "Image for categoy required",
-                
+
             }
         ),
-        specifications:Joi.array().min(1).items(specificationsSchema).messages(
+        specifications: Joi.array().min(1).items(specificationsSchema).messages(
             {
-                "any.required":"Kindly select specifications for category",
-                "array.min.base":"At least one specification must be provided."
+                "any.required": "Kindly select specifications for category",
+                "array.min.base": "At least one specification must be provided."
             }
         ),
         parentId: Joi.string()
@@ -78,3 +78,26 @@ exports.categoryUpdateSchema = Joi.object(
         "any.required": "Kindly upload a category to continue."
     }
 )
+
+exports.categoryOrderSchema =
+    Joi.object(
+        {
+            categories: Joi.array().items(
+                Joi.object(
+                    {
+                        uid: Joi.string().required().messages(
+                            {
+                                "any.required": "Category sort order required."
+                            }
+                        ),
+                        sortOrder: Joi.number().required().messages(
+                            {
+                                "any.required": "Category sort order required."
+                            }
+                        )
+                    }
+                )
+            ).required().messages({"any.required":""})
+        }
+    )
+

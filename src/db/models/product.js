@@ -173,6 +173,11 @@ const category_ = conn.define(MODEL_NAMES.category, {
     [PARAMS.parentId]: {
         type: DataTypes.STRING(255),
         allowNull: true
+    },
+    [PARAMS.sortOrder]: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+        // field: 'sort_order'
     }
 }, {
     modelName: MODEL_NAMES.category,

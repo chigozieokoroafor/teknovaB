@@ -6,6 +6,7 @@ const {
     deleteCategory,
     fetchCategoryById,
     updateSpecificCategory,
+    updateDifferentCategory,
     // createCategorySpecification 
 } = require("../db/querys/category");
 const { uploadProduct, getProductsByCategory, getspecificProduct, searchProduct, deleteProductQuery, uploadProductImages, deleteProductImages, updateProductDetails, getNewProducts, deleteDiscountToProductRecord, addDiscountToProductRecord, getProductsWithoutDiscount, getDiscountedProducts } = require("../db/querys/products");
@@ -13,10 +14,11 @@ const { catchAsync } = require("../errorHandler/allCatch");
 const { generalError, success, notFound } = require("../errorHandler/statusCodes");
 const { createUUID, sendEmail, baseValidator } = require("../util/base");
 const { FETCH_LIMIT, PARAMS, MODEL_NAMES } = require("../util/consts");
-const { categoryCreationSchema, categoryUpdateSchema } = require("../util/validators/categoryValidator");
+const { categoryCreationSchema, categoryUpdateSchema, categoryOrderSchema } = require("../util/validators/categoryValidator");
 const { productUploadSchema, productUpdateSchema } = require("../util/validators/productsValidator");
 const { getTopProductCounts } = require("../db/querys/cart");
 const { discountValidator } = require("../util/validators/couponValidator");
+const { conn } = require("../db/base");
 
 // admin category 
 exports.createCategory = catchAsync(async (req, res) => {
@@ -54,7 +56,7 @@ exports.createCategory = catchAsync(async (req, res) => {
 })
 
 exports.fetchCategories = catchAsync(async (req, res) => {
-    const {page, limit} = req.query
+    const { page, limit } = req.query
 
     if (page <= 0 || Number.isNaN(Number(page))) {
         return generalError(res, "Page cannot be less than 1")
@@ -62,13 +64,13 @@ exports.fetchCategories = catchAsync(async (req, res) => {
     let offset = 10
     let skip = 0
 
-    if(limit){
+    if (limit) {
         offset = Number(limit)
     }
 
-    skip = Number(page) - 1 * offset
+    skip = (Number(page) - 1) * offset
 
-    const data = await fetchCategoryQuery()
+    const data = await fetchCategoryQuery(Number(limit || offset), Number(skip))
     return success(res, data, "Fetched")
 })
 
@@ -115,6 +117,22 @@ exports.updateCategory = catchAsync(async (req, res) => {
     return success(res, {}, "Updated.")
 })
 
+exports.updateCategoryOrder = catchAsync(async (req, res) => {
+    const error = baseValidator(categoryOrderSchema, req.body, res)
+    if (error) {
+        return error
+    }
+
+    req.body.categories.forEach(async (cat_order) => {
+        await updateDifferentCategory({[PARAMS.sortOrder]: cat_order.sortOrder}, {sortOrder: null})
+
+        await updateSpecificCategory(cat_order.uid, {sortOrder: cat_order.sortOrder})
+    })
+
+    success(res, {}, "Orders have been sorted.")
+
+})
+
 // admin products
 exports.addProducts = catchAsync(async (req, res) => {
 
@@ -129,7 +147,7 @@ exports.addProducts = catchAsync(async (req, res) => {
     }
 
     let data = {}
-    data["uid"] =  "PRD-" + createUUID()
+    data["uid"] = "PRD-" + createUUID()
     data["name"] = req.body?.name
     data["categoryId"] = req.body?.categoryId
     data["discount"] = req.body?.discount ?? 0.0
@@ -469,12 +487,12 @@ exports.addDiscountToProducts = catchAsync(async (req, res) => {
     }
 
     product = product.toJSON()
-    
+
     const price = req.body[PARAMS.discount_type].toLowerCase() == "percentage" ? product.price - (product.price * req.body[PARAMS.discount_value] / 100) : product.price - req.body[PARAMS.discount_value]
 
     const body = {
         productId: product.uid,
-            price,
+        price,
         [PARAMS.startDate]: req.body[PARAMS.startDate],
         [PARAMS.endDate]: req.body[PARAMS.endDate],
     }
@@ -495,7 +513,7 @@ exports.deleteDiscountFromProducts = catchAsync(async (req, res,) => {
 
     await deleteDiscountToProductRecord(req.query[PARAMS.productId])
 
-    return success(res , {}, "Product discount deleted.")
+    return success(res, {}, "Product discount deleted.")
 })
 
 exports.getAllProductsDiscount = catchAsync(async (req, res) => {
@@ -509,16 +527,16 @@ exports.getAllProductsDiscount = catchAsync(async (req, res) => {
     const { discount } = req.query
 
     let products
-    
-    if(discount || discount=="false"){
-        if(discount=="false"){
+
+    if (discount || discount == "false") {
+        if (discount == "false") {
             products = await getProductsWithoutDiscount(offset, FETCH_LIMIT)
-        }else{
-            products = await getDiscountedProducts({},offset, FETCH_LIMIT)
+        } else {
+            products = await getDiscountedProducts({}, offset, FETCH_LIMIT)
         }
-    }else{
+    } else {
         products = await searchProduct({}, offset, FETCH_LIMIT)
     }
-    
+
     return success(res, products, "Fetched")
 })

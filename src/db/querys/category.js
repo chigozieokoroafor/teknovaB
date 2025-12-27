@@ -2,6 +2,7 @@
 const { Op } = require("sequelize");
 const { PARAMS, RELATIONSHIP_NAMES } = require("../../util/consts");
 const { category_, images, cart } = require("../models/relationships");
+const { conn } = require("../base");
 
 exports.createCategoryQuery = async (data) => {
     return await category_.create(
@@ -25,7 +26,7 @@ exports.checkCategoryExists = async (searchKeyword) => {
 exports.fetchCategoryQuery = async (limit, skip) => {
     return await category_.findAll(
         {
-            attributes: [PARAMS.uid, PARAMS.name, PARAMS.category_specifications],
+            attributes: [PARAMS.uid, PARAMS.name, PARAMS.category_specifications, PARAMS.sortOrder],
             include: [
                 {
                     model: images,
@@ -37,7 +38,15 @@ exports.fetchCategoryQuery = async (limit, skip) => {
                     attributes:[PARAMS.uid, PARAMS.name, PARAMS.category_specifications],
                     as: RELATIONSHIP_NAMES.subCategories
                 }
-            ]
+            ],
+            limit: limit,
+            offset: skip,
+
+            // order: [
+            //     [conn.literal("sortOrder IS NULL"), "ASC"],
+            //     [PARAMS.sortOrder, "ASC"]
+            // ],
+            
         }
     )
 }
@@ -77,4 +86,8 @@ exports.deleteCategory = async (categoryId) => {
 
 exports.updateSpecificCategory = async (categoryId, update) => {
     return await category_.update(update, { where: { uid: categoryId } })
+}
+
+exports.updateDifferentCategory = async (where, update) => {
+    return await category_.update(update, { where: {...where} })
 }
