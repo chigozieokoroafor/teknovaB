@@ -95,7 +95,8 @@ exports.PARAMS = {
     coupon_code: "coupon_code",
     coupon_used: "coupon_used",
     parentId: "parentId",
-    sortOrder:"sortOrder"
+    sortOrder:"sortOrder",
+    parentCategoryId:"parentCategoryId"
 
 }
 

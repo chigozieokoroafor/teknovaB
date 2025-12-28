@@ -23,6 +23,9 @@ const product = conn.define(MODEL_NAMES.product, {
     categoryId: {
         type: DataTypes.STRING(255),
     },
+    [PARAMS.parentCategoryId]: {
+        type: DataTypes.STRING(255)
+    },
     name: {
         type: DataTypes.STRING(255),
         allowNull: true

@@ -124,9 +124,9 @@ exports.updateCategoryOrder = catchAsync(async (req, res) => {
     }
 
     req.body.categories.forEach(async (cat_order) => {
-        await updateDifferentCategory({[PARAMS.sortOrder]: cat_order.sortOrder}, {sortOrder: null})
+        await updateDifferentCategory({ [PARAMS.sortOrder]: cat_order.sortOrder }, { sortOrder: null })
 
-        await updateSpecificCategory(cat_order.uid, {sortOrder: cat_order.sortOrder})
+        await updateSpecificCategory(cat_order.uid, { sortOrder: cat_order.sortOrder })
     })
 
     success(res, {}, "Orders have been sorted.")
@@ -154,6 +154,7 @@ exports.addProducts = catchAsync(async (req, res) => {
     data["price"] = req.body?.price
     data["description"] = req.body?.description
     data["units"] = req.body?.units
+    data["parentCategoryId"] = category_exists?.parentId
     data[MODEL_NAMES.product_specifications] = req.body["specifications"]
 
     try {
@@ -192,26 +193,47 @@ exports.fetchProductsUnderCategory = catchAsync(async (req, res) => {
         return generalError(res, "Page cannot be less than 1")
     }
 
-    const { t, h, l } = req.query
+    const { t, h, l, sub } = req.query // t-> text, h-> high, l-> low, sub -> subCategory
 
     const s_q = {
-        categoryId: category_id
+        [Op.and]: [
+            {
+                [Op.or]: [
+                    { categoryId: category_id },
+                    { [PARAMS.parentCategoryId]: category_id }
+                ]
+            }
+        ]
+
+
+    }
+
+    if (sub) {
+        s_q[Op.and].push(
+            {
+                categoryId: sub,
+            }
+        )
     }
 
     if (t) {
-        s_q[Op.or] = [
+        s_q[Op.and].push(
             {
-                [PARAMS.name]: {
-                    [Op.like]: `%${t}%`
-                }
-            },
+                [Op.or]: [
+                    {
+                        [PARAMS.name]: {
+                            [Op.like]: `%${t}%`
+                        }
+                    },
 
-            {
-                [PARAMS.description]: {
-                    [Op.like]: `%${t}%`
-                }
+                    {
+                        [PARAMS.description]: {
+                            [Op.like]: `%${t}%`
+                        }
+                    }
+                ]
             }
-        ]
+        )
     }
 
     if (l && !h) {

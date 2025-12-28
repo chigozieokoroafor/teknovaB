@@ -21,6 +21,10 @@ exports.getProductsByCategory = async (query, limit, offset) => {
 
     query[PARAMS.isDeleted] = false
     query[PARAMS.isActive] = true
+
+    // console.log(query)
+
+
     return await product.findAll(
         {
             where: query,
