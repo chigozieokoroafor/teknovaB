@@ -58,8 +58,11 @@ exports.createCategory = catchAsync(async (req, res) => {
 exports.fetchCategories = catchAsync(async (req, res) => {
     const { page, limit } = req.query
 
+    let page_ = 1
+
     if (page <= 0 || Number.isNaN(Number(page))) {
-        return generalError(res, "Page cannot be less than 1")
+        page_ = Number(page)
+        // return generalError(res, "Page cannot be less than 1")
     }
     let offset = 10
     let skip = 0
@@ -68,7 +71,7 @@ exports.fetchCategories = catchAsync(async (req, res) => {
         offset = Number(limit)
     }
 
-    skip = (Number(page) - 1) * offset
+    skip = (Number(page_) - 1) * offset
 
     const data = await fetchCategoryQuery(Number(limit || offset), Number(skip))
     return success(res, data, "Fetched")
@@ -204,7 +207,6 @@ exports.fetchProductsUnderCategory = catchAsync(async (req, res) => {
                 ]
             }
         ]
-
 
     }
 
