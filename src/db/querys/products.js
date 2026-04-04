@@ -191,7 +191,7 @@ exports.getProductsWithoutDiscount = async (offset, limit) => {
 
     query[PARAMS.isDeleted] = false
     query[PARAMS.isActive] = true
-    
+
     // Add condition to exclude products with active discounts
     query[PARAMS.uid] = {
         [Op.notIn]: conn.literal(`(
@@ -201,7 +201,7 @@ exports.getProductsWithoutDiscount = async (offset, limit) => {
             AND ${PARAMS.endDate} >= NOW()
         )`)
     }
-    
+
     return await product.findAll(
         {
             where: query,
@@ -349,3 +349,81 @@ exports.addDiscountToProductRecord = async (data) => {
 exports.deleteDiscountToProductRecord = async (productId) => {
     return await productDiscount.destroy({ where: { productId } })
 }
+
+// exports.getProductsByCategoryTree = async (categoryUid, page = 1, pageSize = 20) => {
+//     // Recursive CTE to get all descendant categories
+//     const offset = (page - 1) * pageSize;
+//     const replacements = { categoryUid, limit: pageSize, offset };
+
+//     const [results] = await conn.query(`
+//         WITH RECURSIVE category_tree AS (
+//             SELECT uid FROM ${MODEL_NAMES.category} WHERE uid = :categoryUid
+//             UNION ALL
+//             SELECT c.uid FROM ${MODEL_NAMES.category} c
+//             INNER JOIN category_tree ct ON c.parentId = ct.uid
+//         )
+//         SELECT p.* FROM ${MODEL_NAMES.product} p
+//         WHERE p.categoryId IN (SELECT uid FROM category_tree)
+//         LIMIT :limit OFFSET :offset
+//     `, { replacements, model: product, mapToModel: true });
+
+//     return results;
+// }
+
+
+
+// Helper to get all descendant category UIDs (recursive CTE)
+async function getAllCategoryUids(categoryUid) {
+    const [rows] = await conn.query(`
+        WITH RECURSIVE category_tree AS (
+            SELECT uid FROM ${MODEL_NAMES.category} WHERE uid = :categoryUid
+            UNION ALL
+            SELECT c.uid FROM ${MODEL_NAMES.category} c
+            INNER JOIN category_tree ct ON c.parentId = ct.uid
+        )
+        SELECT uid FROM category_tree
+    `, { replacements: { categoryUid } });
+    return rows.map(r => r.uid);
+}
+
+exports.getProductsByCategoryTree = async (categoryUid, product_query, offset = 0, limit = 20) => {
+    const categoryUids = await getAllCategoryUids(categoryUid);
+
+    return await product.findAll({
+        where: {
+            categoryId: { [Op.in]: categoryUids },
+            [PARAMS.isDeleted]: false,
+            [PARAMS.isActive]: true,
+            ...product_query
+        },
+        attributes: productAttributes,
+        include: [
+            {
+                model: category_,
+                as: RELATIONSHIP_NAMES.category,
+                attributes: [PARAMS.uid, PARAMS.name]
+            },
+            {
+                model: product_images,
+                attributes: [PARAMS.id, PARAMS.imageId],
+                include: {
+                    model: images,
+                    attributes: [PARAMS.img_url],
+                    as: RELATIONSHIP_NAMES.image
+                }
+            },
+            {
+                model: productDiscount,
+                where: {
+                    [Op.and]: [
+                        { [PARAMS.startDate]: { [Op.lt]: new Date() } },
+                        { [PARAMS.endDate]: { [Op.gte]: new Date() } }
+                    ]
+                },
+                required: false
+            }
+        ],
+        offset,
+        limit
+    });
+};

@@ -11,7 +11,7 @@ const {
     fetchParentCategoryQuery,
     // createCategorySpecification 
 } = require("../db/querys/category");
-const { uploadProduct, getProductsByCategory, getspecificProduct, searchProduct, deleteProductQuery, uploadProductImages, deleteProductImages, updateProductDetails, getNewProducts, deleteDiscountToProductRecord, addDiscountToProductRecord, getProductsWithoutDiscount, getDiscountedProducts } = require("../db/querys/products");
+const { uploadProduct, getProductsByCategory, getspecificProduct, searchProduct, deleteProductQuery, uploadProductImages, deleteProductImages, updateProductDetails, getNewProducts, deleteDiscountToProductRecord, addDiscountToProductRecord, getProductsWithoutDiscount, getDiscountedProducts, getProductsByCategoryTree } = require("../db/querys/products");
 const { catchAsync } = require("../errorHandler/allCatch");
 const { generalError, success, notFound } = require("../errorHandler/statusCodes");
 const { createUUID, sendEmail, baseValidator } = require("../util/base");
@@ -91,7 +91,7 @@ exports.fetchParentCategories = catchAsync(async (req, res) => {
     skip = (Number(page_) - 1) * offset
 
     const data = await fetchParentCategoryQuery(Number(limit || offset), Number(skip))
-    
+
     return success(res, data, "Fetched")
 })
 
@@ -494,34 +494,44 @@ exports.getProductForUpdate = catchAsync(async (req, res) => {
 
 // for search
 exports.getAllProductsWithFilter = catchAsync(async (req, res) => {
-    const { category, search, max_price, min_price, page } = req.query
+    const { category, search, h, l, page, subcategory } = req.query
 
     if (page <= 0 || !page) {
         return generalError(res, "Page cannot be less than 1")
     }
 
     const offset = (Number(page) - 1) * FETCH_LIMIT
-    let actual_query = {}
+    // let category_query = {}
     // const query_list = []
-    let sub = {}
+    let product_query = {}
 
     if (search) {
         // query_list.push(Sequelize.literal(`MATCH (${PARAMS.name}) AGAINST("${search}" IN BOOLEAN MODE)`),)
-        actual_query[PARAMS.name] = {
+        product_query[PARAMS.name] = {
             [Op.like]: `%${search}%`
         }
-
     }
-    if (category) {
-        actual_query[PARAMS.categoryId] = category
-    }
-    if (max_price && min_price) {
-        actual_query[PARAMS.price] = {
-            [Op.between]: [Number(min_price), Number(max_price)]
+    if (h && l) {
+        product_query[PARAMS.price] = {
+            [Op.between]: [Number(l), Number(h)]
         }
     }
 
-    const data = await searchProduct(actual_query, offset, FETCH_LIMIT)
+    let data = []
+
+
+    if (category && !subcategory) {
+        
+        data = await getProductsByCategoryTree(category, product_query)
+    }
+    if (category && subcategory) {
+        // product_query[PARAMS.parentId] = category
+        product_query[PARAMS.categoryId] = subcategory
+        data = await searchProduct(product_query, offset, FETCH_LIMIT)
+    }
+    
+
+    // const data = await searchProduct(actual_query, offset, FETCH_LIMIT)
 
     return success(res, data, "testing")
 
