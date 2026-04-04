@@ -51,6 +51,39 @@ exports.fetchCategoryQuery = async (limit, skip) => {
     )
 }
 
+exports.fetchOrderedCategoryForHomeQuery = async (limit, skip) => {
+    return await category_.findAll(
+        {
+            where: {
+                [PARAMS.sortOrder]: {
+                    [Op.not]: null
+                }
+            },
+            attributes: [PARAMS.uid, PARAMS.name, PARAMS.category_specifications, PARAMS.sortOrder],
+            include: [
+                {
+                    model: images,
+                    as: RELATIONSHIP_NAMES.image,
+                    attributes: [PARAMS.id, PARAMS.img_url]
+                },
+                {
+                    model: category_,
+                    attributes:[PARAMS.uid, PARAMS.name, PARAMS.category_specifications],
+                    as: RELATIONSHIP_NAMES.subCategories
+                }
+            ],
+            limit: 4,
+            offset: 0,
+
+            order: [
+                // [conn.literal("sortOrder IS NULL"), "ASC"],
+                [PARAMS.sortOrder, "ASC"]
+            ],
+            
+        }
+    )
+}
+
 exports.fetchCategoryById = async (uid) => {
     return await category_.findOne({
         where: { uid }

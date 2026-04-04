@@ -7,6 +7,7 @@ const {
     fetchCategoryById,
     updateSpecificCategory,
     updateDifferentCategory,
+    fetchOrderedCategoryForHomeQuery,
     // createCategorySpecification 
 } = require("../db/querys/category");
 const { uploadProduct, getProductsByCategory, getspecificProduct, searchProduct, deleteProductQuery, uploadProductImages, deleteProductImages, updateProductDetails, getNewProducts, deleteDiscountToProductRecord, addDiscountToProductRecord, getProductsWithoutDiscount, getDiscountedProducts } = require("../db/querys/products");
@@ -75,6 +76,32 @@ exports.fetchCategories = catchAsync(async (req, res) => {
     const data = await fetchCategoryQuery(Number(limit || offset), Number(skip))
     return success(res, data, "Fetched")
 })
+
+
+exports.fetchCategoriesForHome = catchAsync(async (req, res) => {
+    const { page, limit } = req.query
+
+    let page_ = 1
+
+    if (page <= 0 || Number.isNaN(Number(page))) {
+        page_ = Number(page)
+        // return generalError(res, "Page cannot be less than 1")
+    }
+    let offset = 10
+    let skip = 0
+
+    if (limit) {
+        offset = Number(limit)
+    }
+
+    skip = (Number(page_) - 1) * offset
+
+    const data = await fetchOrderedCategoryForHomeQuery(Number(limit || offset), Number(skip))
+    return success(res, data, "Fetched")
+})
+
+
+
 
 exports.deleteCategory = catchAsync(async (req, res) => {
 
