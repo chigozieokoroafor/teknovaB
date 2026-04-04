@@ -43,7 +43,7 @@ exports.categoryCreationSchema = Joi.object(
                 "array.min.base": "At least one specification must be provided."
             }
         ),
-        parentId: Joi.string()
+        parentId: Joi.string().allow(null).optional()
     }
 ).required().messages(
     {
@@ -71,7 +71,7 @@ exports.categoryUpdateSchema = Joi.object(
                 "array.min.base": "At least one specification must be provided."
             }
         ),
-        parentId: Joi.string()
+        parentId: Joi.string().allow(null).optional()
     }
 ).required().messages(
     {

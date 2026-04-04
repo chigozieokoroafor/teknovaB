@@ -24,9 +24,9 @@ exports.sync = async () => {
                 // product.sync({alter:true}),
                 // extra_payments.sync({alter:true}),
                 // shipping.sync({alter:true}),
-                // transaction.sync({alter:true})
-                // product_images.sync({alter: true})
-                // coupon.sync({alter: true})
+                // transaction.sync({alter:true}),
+                // product_images.sync({alter: true}),
+                // coupon.sync({alter: true}),
                 // productDiscount.sync({alter: true})
             ]
         )

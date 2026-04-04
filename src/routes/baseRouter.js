@@ -16,6 +16,7 @@ base.get("/profile", baseAuth, baseController.fetchProfile)
 
 base.get("/category", productController.fetchCategories)
 base.get("/category/home", productController.fetchCategoriesForHome)
+base.get("/category/parent", productController.fetchParentCategories)
 
 base.get("/category/:category_id", productController.fetchProductsUnderCategory)
 

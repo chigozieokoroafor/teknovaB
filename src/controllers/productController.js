@@ -8,6 +8,7 @@ const {
     updateSpecificCategory,
     updateDifferentCategory,
     fetchOrderedCategoryForHomeQuery,
+    fetchParentCategoryQuery,
     // createCategorySpecification 
 } = require("../db/querys/category");
 const { uploadProduct, getProductsByCategory, getspecificProduct, searchProduct, deleteProductQuery, uploadProductImages, deleteProductImages, updateProductDetails, getNewProducts, deleteDiscountToProductRecord, addDiscountToProductRecord, getProductsWithoutDiscount, getDiscountedProducts } = require("../db/querys/products");
@@ -49,8 +50,6 @@ exports.createCategory = catchAsync(async (req, res) => {
 
     const category = await createCategoryQuery(data)
 
-    // await createCategorySpecification(specifications)
-
     return success(res, {}, "Category Created")
 
 })
@@ -60,7 +59,7 @@ exports.fetchCategories = catchAsync(async (req, res) => {
 
     let page_ = 1
 
-    if (page <= 0 || Number.isNaN(Number(page))) {
+    if (page <= 0 || !Number.isNaN(Number(page))) {
         page_ = Number(page)
         // return generalError(res, "Page cannot be less than 1")
     }
@@ -73,10 +72,28 @@ exports.fetchCategories = catchAsync(async (req, res) => {
 
     skip = (Number(page_) - 1) * offset
 
-    const data = await fetchCategoryQuery(Number(limit || offset), Number(skip))
+    const data = await fetchCategoryQuery(Number(offset), Number(skip))
     return success(res, data, "Fetched")
 })
 
+exports.fetchParentCategories = catchAsync(async (req, res) => {
+    const { page, limit } = req.query
+
+    let page_ = 1
+
+    if (page <= 0 || Number.isNaN(Number(page))) {
+        page_ = Number(page)
+        // return generalError(res, "Page cannot be less than 1")
+    }
+    let offset = 10
+    let skip = 0
+
+    skip = (Number(page_) - 1) * offset
+
+    const data = await fetchParentCategoryQuery(Number(limit || offset), Number(skip))
+    
+    return success(res, data, "Fetched")
+})
 
 exports.fetchCategoriesForHome = catchAsync(async (req, res) => {
     const { page, limit } = req.query
@@ -85,7 +102,6 @@ exports.fetchCategoriesForHome = catchAsync(async (req, res) => {
 
     if (page <= 0 || Number.isNaN(Number(page))) {
         page_ = Number(page)
-        // return generalError(res, "Page cannot be less than 1")
     }
     let offset = 10
     let skip = 0
@@ -99,9 +115,6 @@ exports.fetchCategoriesForHome = catchAsync(async (req, res) => {
     const data = await fetchOrderedCategoryForHomeQuery(Number(limit || offset), Number(skip))
     return success(res, data, "Fetched")
 })
-
-
-
 
 exports.deleteCategory = catchAsync(async (req, res) => {
 
@@ -124,6 +137,8 @@ exports.updateCategory = catchAsync(async (req, res) => {
     if (error) {
         return error
     }
+
+    console.log("body::::", req.body)
 
     const exists = fetchCategoryById(categoryId)
     if (!exists) {
