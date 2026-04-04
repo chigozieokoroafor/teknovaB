@@ -6,12 +6,14 @@ const { sync } = require("./src/db/sync")
 const { createDatabaseIfNotExists } = require("./src/db/base")
 const { baseRouter } = require("./src/routes/baseRouter")
 const { adminRouter } = require("./src/routes/adminRouter")
+const morgan = require("morgan")
 // const compression = require("compression")
 
 
 const app = express()
 
-app.use(cors())
+app.use(cors({ origin: "*" }))
+app.use(morgan("dev"));
 
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
@@ -32,7 +34,7 @@ app.use(errorHandler)
 const port = process.env.PORT ?? 9500
 
 
-console.log("proposed port::",port)
+console.log("proposed port::", port)
 createDatabaseIfNotExists().then(() => {
     sync().then(() => {
         app.listen(port, () => {

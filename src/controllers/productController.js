@@ -18,7 +18,6 @@ const { categoryCreationSchema, categoryUpdateSchema, categoryOrderSchema } = re
 const { productUploadSchema, productUpdateSchema } = require("../util/validators/productsValidator");
 const { getTopProductCounts } = require("../db/querys/cart");
 const { discountValidator } = require("../util/validators/couponValidator");
-const { conn } = require("../db/base");
 
 // admin category 
 exports.createCategory = catchAsync(async (req, res) => {
