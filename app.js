@@ -1,5 +1,5 @@
 const express = require("express")
-const cors = require("cors")
+// const cors = require("cors")
 const { errorHandler } = require("./src/errorHandler/errorHandler")
 const { success, notFound } = require("./src/errorHandler/statusCodes")
 const { sync } = require("./src/db/sync")
@@ -12,7 +12,7 @@ const morgan = require("morgan")
 
 const app = express()
 
-app.use(cors({ origin: "http://69.169.110.131:5173" }))
+// app.use(cors({ origin: "http://69.169.110.131:5173" }))
 app.use(morgan("dev"));
 
 app.use(express.json({ limit: '50mb' }));
