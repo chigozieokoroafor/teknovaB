@@ -1,5 +1,5 @@
 const express = require("express")
-// const cors = require("cors")
+const cors = require("cors")
 const { errorHandler } = require("./src/errorHandler/errorHandler")
 const { success, notFound } = require("./src/errorHandler/statusCodes")
 const { sync } = require("./src/db/sync")
