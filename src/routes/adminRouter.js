@@ -16,12 +16,14 @@ admin.get("/top/products", adminAuth, adminController.getTopProducts)
 
 admin.post("/category", adminAuth, productController.createCategory)
 admin.get("/category", productController.fetchCategories)
+admin.get("/category/:id", productController.fetchSingleCategoryController)
+
 
 admin.post("/order/category", productController.updateCategoryOrder)
 
 
 
-admin.get("/category/:category_id", productController.fetchProductsUnderCategory)
+admin.get("/category/:category_id/product", productController.fetchProductsUnderCategory)
 admin.delete("/category/:category_id", adminAuth, productController.deleteCategory)
 admin.put("/category/:category_id", adminAuth, productController.updateCategory)
 

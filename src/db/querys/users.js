@@ -1,40 +1,47 @@
-const { PARAMS } = require("../../util/consts")
-const { user } = require("../models/user")
+const { prisma } = require("../base");
 
 exports.checkUserExists = async (email) => {
-    return user.findOne({ where: { email }, attributes: [PARAMS.id] })
-}
+    return prisma.user.findFirst({
+        where: { email },
+        select: { id: true }
+    });
+};
 
 exports.getUserByEmail = async (email) => {
-    return user.findOne({ where: { email } })
-}
+    return prisma.user.findFirst({
+        where: { email }
+    });
+};
 
 exports.createUserAccount = async (body) => {
-    return await user.create(body)
-}
+    return prisma.user.create({
+        data: body
+    });
+};
 
 exports.verifyUser = async (uid) => {
-    return await user.update({ isVerified: true }, { where: { uid } })
-}
+    return prisma.user.update({
+        where: { uid },
+        data: { isVerified: true }
+    });
+};
 
 exports.fetchUserForMiddleware = async (uid) => {
-
-    // console.log(" userId ===> ", uid)
-
-    return await user.findOne(
-        {
-            where:{uid},
-            attributes:[PARAMS.email, PARAMS.uid, PARAMS.billing_address, PARAMS.shpping_address]
+    return prisma.user.findUnique({
+        where: { uid },
+        select: {
+            email: true,
+            uid: true,
+            billing_address: true,
+            shipping_address: true
         }
-    )
-}
+    });
+};
 
-exports.countUsers = async() =>{
-    return await user.count(
-        {
-            where: {
-                [PARAMS.isVerified]: true
-            }
+exports.countUsers = async () => {
+    return prisma.user.count({
+        where: {
+            isVerified: true
         }
-    )
-}
+    });
+};

@@ -1,45 +1,70 @@
+const { prisma } = require("../base");
+const { buildPrismaWhere } = require("../../util/prismaHelper");
 
-const { PARAMS } = require("../../util/consts");
-const { coupon } = require("../models/relationships");
+const selectAttributes = {
+    id: true,
+    name: true,
+    code: true,
+    coupon_type: true,
+    discount_type: true,
+    discount_value: true,
+    startDate: true,
+    endDate: true,
+    usage: true,
+    limit: true,
+    createdAt: true,
+    category_list: true,
+    product_list: true,
+    status: true
+};
 
-
-const attributes = [PARAMS.id, PARAMS.name, PARAMS.code, PARAMS.coupon_type, PARAMS.discount_type, PARAMS.discount_value, PARAMS.startDate, PARAMS.endDate, PARAMS.usage, PARAMS.limit, PARAMS.createdAt,  PARAMS.category_list, PARAMS.product_list, PARAMS.status]
-async function createCouponRecord (data){
-    return await coupon.create(data)
+async function createCouponRecord(data) {
+    return prisma.coupon.create({
+        data
+    });
 }
 
-async function fetchCouponRecord (query, limit, offset){
-    query.deletedAt = null
-    return await coupon.findAll({
-        where: query,
-        attributes,
-        limit,
-        offset,
-        order: [[PARAMS.status, "ASC"],[PARAMS.createdAt, "DESC"]]
-    })
+async function fetchCouponRecord(query, limit, offset) {
+    const where = buildPrismaWhere(query);
+    where.deletedAt = null;
+
+    return prisma.coupon.findMany({
+        where,
+        select: selectAttributes,
+        take: limit,
+        skip: offset,
+        orderBy: [
+            { status: 'asc' },
+            { createdAt: 'desc' }
+        ]
+    });
 }
 
-async function fetchSingleCouponRecord ( query){
-    query.deletedAt = null
-    return await coupon.findOne({
-        where: query,
-        attributes
-    })
+async function fetchSingleCouponRecord(query) {
+    const where = buildPrismaWhere(query);
+    where.deletedAt = null;
+
+    return prisma.coupon.findFirst({
+        where,
+        select: selectAttributes
+    });
 }
 
-async function deleteSingleCouponRecord(id){
-    return await coupon.update({deletedAt: new Date()},{
-        where: {id}
-    })
+async function deleteSingleCouponRecord(id) {
+    return prisma.coupon.update({
+        where: { id: Number(id) },
+        data: { deletedAt: new Date() }
+    });
 }
 
-async function updateSingleCouponRecord(id, update){
-    return await coupon.update(update,{
-        where: {id}
-    })
+async function updateSingleCouponRecord(id, update) {
+    return prisma.coupon.update({
+        where: { id: Number(id) },
+        data: update
+    });
 }
 
-module.exports ={
+module.exports = {
     createCouponRecord,
     fetchCouponRecord,
     deleteSingleCouponRecord,

@@ -1,429 +1,346 @@
-const { Op } = require("sequelize");
-const { PARAMS, RELATIONSHIP_NAMES, MODEL_NAMES } = require("../../util/consts");
-const { product, product_images, images, category_, productDiscount } = require("../models/relationships");
-const { conn } = require("../base");
+const { prisma } = require("../base");
+const { buildPrismaWhere, addPrototypeHelpers } = require("../../util/prismaHelper");
 
-const productAttributes = [
-    PARAMS.categoryId,
-    PARAMS.uid,
-    PARAMS.name,
-    PARAMS.price,
-    PARAMS.units,
-    PARAMS.description,
-    MODEL_NAMES.product_specifications
-]
-
-exports.uploadProduct = async (data) => {
-    return await product.create(data)
-}
-
-exports.getProductsByCategory = async (query, limit, offset) => {
-
-    query[PARAMS.isDeleted] = false
-    query[PARAMS.isActive] = true
-
-    // console.log(query)
-
-
-    return await product.findAll(
-        {
-            where: query,
-            attributes: productAttributes,
-            include: [
-                {
-                    model: category_,
-                    as: RELATIONSHIP_NAMES.category,
-                    attributes: [PARAMS.uid, PARAMS.name]
-                },
-                {
-                    model: product_images,
-                    attributes: [PARAMS.id, PARAMS.imageId],
-                    include: {
-                        model: images,
-                        attributes: [PARAMS.img_url],
-                        as: RELATIONSHIP_NAMES.image
-                    }
-                },
-                {
-                    model: productDiscount,
-                    where: {
-                        [Op.and]: [
-                            { [PARAMS.startDate]: { [Op.lt]: new Date() } },
-                            { [PARAMS.endDate]: { [Op.gte]: new Date() } }
-                        ]
-                    },
-                    required: false
-                }
-
-            ],
-            offset,
-            limit
+const productSelect = {
+    categoryId: true,
+    uid: true,
+    name: true,
+    // price: true,
+    // units: true,
+    description: true,
+    category: {
+        select: {
+            uid: true,
+            name: true
         }
-    )
-}
-
-exports.getspecificProduct = async (productId) => {
-
-    return await product.findOne(
-        {
-            where: {
-                [PARAMS.uid]: productId,
-                [PARAMS.isDeleted]: false
-            },
-            attributes: productAttributes,
-            include: [
-                {
-                    model: category_,
-                    as: RELATIONSHIP_NAMES.category,
-                    attributes: [PARAMS.uid, PARAMS.name]
-                },
-                {
-                    model: product_images,
-                    attributes: [PARAMS.id, PARAMS.imageId],
-                    include: {
-                        model: images,
-                        attributes: [PARAMS.img_url],
-                        as: RELATIONSHIP_NAMES.image
-                    }
-                },
-                {
-                    model: productDiscount,
-                    where: {
-                        [Op.and]: [
-                            { [PARAMS.startDate]: { [Op.lt]: new Date() } },
-                            { [PARAMS.endDate]: { [Op.gte]: new Date() } }
-                        ]
-                    },
-                    required: false
+    },
+    images: {
+        select: {
+            id: true,
+            imageId: true,
+            image: {
+                select: {
+                    img_url: true
                 }
-            ],
-
-        }
-    )
-}
-
-exports.searchProduct = async (query, offset, limit) => {
-
-    query[PARAMS.isDeleted] = false
-    query[PARAMS.isActive] = true
-
-    return await product.findAll(
-        {
-            where: query,
-            attributes: productAttributes,
-            include: [
-                {
-                    model: category_,
-                    as: RELATIONSHIP_NAMES.category,
-                    attributes: [PARAMS.uid, PARAMS.name]
-                },
-                {
-                    model: product_images,
-                    attributes: [PARAMS.id, PARAMS.imageId],
-                    include: {
-                        model: images,
-                        attributes: [PARAMS.img_url],
-                        as: RELATIONSHIP_NAMES.image
-                    }
-                },
-                {
-                    model: productDiscount,
-                    where: {
-                        [Op.and]: [
-                            { [PARAMS.startDate]: { [Op.lt]: new Date() } },
-                            { [PARAMS.endDate]: { [Op.gte]: new Date() } }
-                        ]
-                    },
-                    required: false
-                }
-            ],
-            offset,
-            limit
-        }
-
-    )
-}
-
-exports.getDiscountedProducts = async (query, offset, limit) => {
-
-    query[PARAMS.isDeleted] = false
-    query[PARAMS.isActive] = true
-
-    return await product.findAll(
-        {
-            where: query,
-            attributes: productAttributes,
-            include: [
-                {
-                    model: category_,
-                    as: RELATIONSHIP_NAMES.category,
-                    attributes: [PARAMS.uid, PARAMS.name]
-                },
-                {
-                    model: product_images,
-                    attributes: [PARAMS.id, PARAMS.imageId],
-                    include: {
-                        model: images,
-                        attributes: [PARAMS.img_url],
-                        as: RELATIONSHIP_NAMES.image
-                    }
-                },
-                {
-                    model: productDiscount,
-                    where: {
-                        [Op.and]: [
-                            { [PARAMS.startDate]: { [Op.lt]: new Date() } },
-                            { [PARAMS.endDate]: { [Op.gte]: new Date() } }
-                        ]
-                    },
-                    required: true
-                }
-            ],
-            offset,
-            limit
-        }
-
-    )
-}
-
-exports.getProductsWithoutDiscount = async (offset, limit) => {
-    let query = {}
-
-    query[PARAMS.isDeleted] = false
-    query[PARAMS.isActive] = true
-
-    // Add condition to exclude products with active discounts
-    query[PARAMS.uid] = {
-        [Op.notIn]: conn.literal(`(
-            SELECT DISTINCT ${PARAMS.productId} 
-            FROM ${MODEL_NAMES.productdiscount}s
-            WHERE ${PARAMS.startDate} < NOW() 
-            AND ${PARAMS.endDate} >= NOW()
-        )`)
-    }
-
-    return await product.findAll(
-        {
-            where: query,
-            attributes: productAttributes,
-            include: [
-                {
-                    model: category_,
-                    as: RELATIONSHIP_NAMES.category,
-                    attributes: [PARAMS.uid, PARAMS.name]
-                },
-                {
-                    model: product_images,
-                    attributes: [PARAMS.id, PARAMS.imageId],
-                    include: {
-                        model: images,
-                        attributes: [PARAMS.img_url],
-                        as: RELATIONSHIP_NAMES.image
-                    }
-                }
-            ],
-            offset,
-            limit
-        }
-    )
-}
-
-exports.deleteProductQuery = async (productId) => {
-    return await product.update({ [PARAMS.isDeleted]: true }, { where: { [PARAMS.uid]: productId } })
-}
-
-exports.uploadProductImages = async (data) => {
-    return await product_images.bulkCreate(data)
-}
-
-exports.updateProductDetails = async (productId, update) => {
-    return await product.update(update, { where: { uid: productId } })
-}
-
-exports.deleteProductImages = async (productId) => {
-    return await product_images.destroy(
-        {
-            where: {
-                productId,
-                // imageIds: {
-                //     [Op.notIn]: imageIds
-                // }
             }
         }
-    )
-}
+    },
+    discount: {
+        where: {
+            startDate: { lt: new Date() },
+            endDate: { gte: new Date() }
+        }
+    },
+    variants: {
+        select: {
+            uid: true,
+            name: true,
+            price: true, units: true,
+            specifications: true
+        }
+    }
+    // p
+};
+
+const mapProduct = (p) => {
+    if (!p) return p;
+    const res = { ...p };
+    
+    if (p.category) {
+        res.Category = p.category;
+    }
+    
+    if (p.Product_Discount) {
+        res.Product_Discount = p.Product_Discount;
+        res.productdiscount = p.Product_Discount;
+    }
+    
+    if (p.Product_Images) {
+        res.Product_Images = p.Product_Images.map(pi => ({
+            id: pi.id,
+            imageId: pi.imageId,
+            image: pi.image
+        }));
+    }
+    
+    return addPrototypeHelpers(res);
+};
+
+exports.uploadProduct = async (data) => {
+    // Note: in Sequelize this returns the created product model
+    const created = await prisma.product.create({
+        data: {
+            uid: data.uid,
+            name: data.name,
+            categoryId: data?.categoryId,
+            // price: Number(data.price),
+            description: data.description,
+            // units: Number(data.units || 0),  .
+            parentCategoryId: data?.parentCategoryId,
+            
+        }
+    });
+    return addPrototypeHelpers(created);
+};
+
+exports.getProductsByCategory = async (query, limit, offset) => {
+    const where = buildPrismaWhere(query);
+    where.isDeleted = false;
+    where.isActive = true;
+
+    const list = await prisma.product.findMany({
+        where,
+        select: productSelect,
+        take: limit,
+        skip: offset
+    });
+    return list.map(mapProduct);
+};
+
+exports.getspecificProduct = async (productId) => {
+    const p = await prisma.product.findFirst({
+        where: {
+            uid: productId,
+            isDeleted: false
+        },
+        include: {
+            category: {
+                select: {
+                    uid: true,
+                    name: true
+                }
+            },
+            Product_Images: {
+                select: {
+                    id: true,
+                    imageId: true,
+                    image: {
+                        select: {
+                            img_url: true
+                        }
+                    }
+                }
+            },
+            Product_Discount: {
+                where: {
+                    startDate: { lt: new Date() },
+                    endDate: { gte: new Date() }
+                }
+            },
+            Product_Variants: true
+        }
+    });
+    return mapProduct(p);
+};
+
+exports.searchProduct = async (query, offset, limit) => {
+    const where = buildPrismaWhere(query);
+    where.isDeleted = false;
+    where.isActive = true;
+
+    const list = await prisma.product.findMany({
+        where,
+        select: productSelect,
+        take: limit,
+        skip: offset
+    });
+    return list.map(mapProduct);
+};
+
+exports.getDiscountedProducts = async (query, offset, limit) => {
+    const where = buildPrismaWhere(query);
+    where.isDeleted = false;
+    where.isActive = true;
+    where.Product_Discount = {
+        startDate: { lt: new Date() },
+        endDate: { gte: new Date() }
+    };
+
+    const list = await prisma.product.findMany({
+        where,
+        select: productSelect,
+        take: limit,
+        skip: offset
+    });
+    return list.map(mapProduct);
+};
+
+exports.getProductsWithoutDiscount = async (offset, limit) => {
+    const activeDiscounts = await prisma.product_Discount.findMany({
+        where: {
+            startDate: { lt: new Date() },
+            endDate: { gte: new Date() }
+        },
+        select: {
+            productId: true
+        }
+    });
+
+    const activeProductIds = activeDiscounts.map(d => d.productId).filter(Boolean);
+
+    const list = await prisma.product.findMany({
+        where: {
+            isDeleted: false,
+            isActive: true,
+            uid: {
+                notIn: activeProductIds
+            }
+        },
+        select: productSelect,
+        take: limit,
+        skip: offset
+    });
+    return list.map(mapProduct);
+};
+
+exports.deleteProductQuery = async (productId) => {
+    return prisma.product.update({
+        where: { uid: productId },
+        data: { isDeleted: true }
+    });
+};
+
+exports.uploadProductImages = async (data) => {
+    return prisma.product_Images.createMany({
+        data
+    });
+};
+
+exports.updateProductDetails = async (productId, update) => {
+    // We omit relation fields or non-existing fields from direct update
+    const data = {};
+    if (update.name !== undefined) data.name = update.name;
+    if (update.categoryId !== undefined) data.categoryId = update.categoryId;
+    if (update.price !== undefined) data.price = Number(update.price);
+    if (update.description !== undefined) data.description = update.description;
+    if (update.units !== undefined) data.units = Number(update.units);
+    if (update.isActive !== undefined) data.isActive = update.isActive;
+    if (update.isDeleted !== undefined) data.isDeleted = update.isDeleted;
+
+    return prisma.product.update({
+        where: { uid: productId },
+        data
+    });
+};
+
+exports.deleteProductImages = async (productId) => {
+    return prisma.product_Images.deleteMany({
+        where: {
+            productId
+        }
+    });
+};
 
 exports.getspecificProductRaw = async (productId) => {
-    return await product.findOne(
-        {
-            where: {
-                [PARAMS.uid]: productId,
-                [PARAMS.isDeleted]: false
-            },
-            // attributes: [
-            //     PARAMS.categoryId,
-            //     PARAMS.uid,
-            //     PARAMS.name,
-            //     PARAMS.price,
-            //     PARAMS.units
-            // ],
-            include: [
-                {
-                    model: category_,
-                    as: RELATIONSHIP_NAMES.category,
-                    attributes: [PARAMS.uid, PARAMS.name]
-                },
-                {
-                    model: product_images,
-                    attributes: [PARAMS.id, PARAMS.imageId],
-                    include: {
-                        model: images,
-                        attributes: [PARAMS.img_url],
-                        as: RELATIONSHIP_NAMES.image
-                    }
-                },
-                {
-                    model: productDiscount,
-                    where: {
-                        [Op.and]: [
-                            { [PARAMS.startDate]: { [Op.lt]: new Date() } },
-                            { [PARAMS.endDate]: { [Op.gte]: new Date() } }
-                        ]
-                    },
-                    required: false
+    const p = await prisma.product.findFirst({
+        where: {
+            uid: productId,
+            isDeleted: false
+        },
+        include: {
+            category: {
+                select: {
+                    uid: true,
+                    name: true
                 }
-            ],
-
+            },
+            Product_Images: {
+                select: {
+                    id: true,
+                    imageId: true,
+                    image: {
+                        select: {
+                            img_url: true
+                        }
+                    }
+                }
+            },
+            Product_Discount: {
+                where: {
+                    startDate: { lt: new Date() },
+                    endDate: { gte: new Date() }
+                }
+            }
         }
-    )
-}
+    });
+    return mapProduct(p);
+};
 
 exports.getNewProducts = async () => {
-
-    return await product.findAll(
-        {
-            where: {
-                [PARAMS.isDeleted]: false,
-                [PARAMS.isActive]: true
-
-            },
-            attributes: [...productAttributes, PARAMS.createdAt],
-            include: [
-                {
-                    model: category_,
-                    as: RELATIONSHIP_NAMES.category,
-                    attributes: [PARAMS.uid, PARAMS.name]
-                },
-                {
-                    model: product_images,
-                    attributes: [PARAMS.id, PARAMS.imageId],
-                    include: {
-                        model: images,
-                        attributes: [PARAMS.img_url],
-                        as: RELATIONSHIP_NAMES.image
-                    }
-                },
-                {
-                    model: productDiscount,
-                    where: {
-                        [Op.and]: [
-                            { [PARAMS.startDate]: { [Op.lt]: new Date() } },
-                            { [PARAMS.endDate]: { [Op.gte]: new Date() } }
-                        ]
-                    },
-                    required: false
-                }
-            ],
-            order: [[PARAMS.createdAt, "DESC"]],
-            limit: 10
-        }
-
-    )
-}
+    const list = await prisma.product.findMany({
+        where: {
+            isDeleted: false,
+            isActive: true
+        },
+        select: productSelect,
+        orderBy: {
+            createdAt: "desc"
+        },
+        take: 10
+    });
+    return list.map(mapProduct);
+};
 
 exports.addDiscountToProductRecord = async (data) => {
-    return await productDiscount.create(data)
-}
-
+    return prisma.product_Discount.create({
+        data: {
+            productId: data.productId,
+            price: Number(data.price),
+            startDate: data.startDate ? new Date(data.startDate) : null,
+            endDate: data.endDate ? new Date(data.endDate) : null
+        }
+    });
+};
 
 exports.deleteDiscountToProductRecord = async (productId) => {
-    return await productDiscount.destroy({ where: { productId } })
-}
+    return prisma.product_Discount.deleteMany({
+        where: {
+            productId
+        }
+    });
+};
 
-// exports.getProductsByCategoryTree = async (categoryUid, page = 1, pageSize = 20) => {
-//     // Recursive CTE to get all descendant categories
-//     const offset = (page - 1) * pageSize;
-//     const replacements = { categoryUid, limit: pageSize, offset };
-
-//     const [results] = await conn.query(`
-//         WITH RECURSIVE category_tree AS (
-//             SELECT uid FROM ${MODEL_NAMES.category} WHERE uid = :categoryUid
-//             UNION ALL
-//             SELECT c.uid FROM ${MODEL_NAMES.category} c
-//             INNER JOIN category_tree ct ON c.parentId = ct.uid
-//         )
-//         SELECT p.* FROM ${MODEL_NAMES.product} p
-//         WHERE p.categoryId IN (SELECT uid FROM category_tree)
-//         LIMIT :limit OFFSET :offset
-//     `, { replacements, model: product, mapToModel: true });
-
-//     return results;
-// }
-
-
-
-// Helper to get all descendant category UIDs (recursive CTE)
-async function getAllCategoryUids(categoryUid) {
-    const [rows] = await conn.query(`
+exports.getProductsByCategoryTree = async (categoryUid, product_query, offset = 0, limit = 20) => {
+    const rows = await prisma.$queryRawUnsafe(`
         WITH RECURSIVE category_tree AS (
-            SELECT uid FROM ${MODEL_NAMES.category} WHERE uid = :categoryUid
+            SELECT uid FROM Category WHERE uid = ?
             UNION ALL
-            SELECT c.uid FROM ${MODEL_NAMES.category} c
+            SELECT c.uid FROM Category c
             INNER JOIN category_tree ct ON c.parentId = ct.uid
         )
         SELECT uid FROM category_tree
-    `, { replacements: { categoryUid } });
-    return rows.map(r => r.uid);
-}
+    `, categoryUid);
 
-exports.getProductsByCategoryTree = async (categoryUid, product_query, offset = 0, limit = 20) => {
-    const categoryUids = await getAllCategoryUids(categoryUid);
+    const categoryUids = rows.map(r => r.uid).filter(Boolean);
 
-    return await product.findAll({
-        where: {
-            categoryId: { [Op.in]: categoryUids },
-            [PARAMS.isDeleted]: false,
-            [PARAMS.isActive]: true,
-            ...product_query
-        },
-        attributes: productAttributes,
-        include: [
-            {
-                model: category_,
-                as: RELATIONSHIP_NAMES.category,
-                attributes: [PARAMS.uid, PARAMS.name]
-            },
-            {
-                model: product_images,
-                attributes: [PARAMS.id, PARAMS.imageId],
-                include: {
-                    model: images,
-                    attributes: [PARAMS.img_url],
-                    as: RELATIONSHIP_NAMES.image
-                }
-            },
-            {
-                model: productDiscount,
-                where: {
-                    [Op.and]: [
-                        { [PARAMS.startDate]: { [Op.lt]: new Date() } },
-                        { [PARAMS.endDate]: { [Op.gte]: new Date() } }
-                    ]
-                },
-                required: false
-            }
-        ],
-        offset,
-        limit
+    
+
+    const where = buildPrismaWhere(product_query);
+
+    
+    where.categoryId = {
+        in: categoryUids
+    };
+    where.isDeleted = false;
+    where.isActive = true;
+
+    const list = await prisma.product.findMany({
+        where,
+        select: productSelect,
+        take: limit,
+        skip: offset
+    });
+    return list.map(mapProduct);
+};
+
+exports.createProductVariants = async (data) => {
+    return prisma.product_Variants.createMany({
+        data: data.map(variant => ({
+            uid: variant.uid,
+            productId: variant.productId,
+            name: variant.name,
+            price: Number(variant.price),
+            units: Number(variant.units || 0)
+        }))
     });
 };

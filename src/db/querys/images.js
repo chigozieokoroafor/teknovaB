@@ -1,36 +1,31 @@
-const { Op } = require("sequelize");
-const { images } = require("../models/relationships");
+const { prisma } = require("../base");
 
 exports.uploadBulkImages = async (data) => {
-    return await images.bulkCreate(data)
-}
-
+    // Note: createMany is supported on MySQL and returns { count: number }
+    return prisma.images.createMany({
+        data
+    });
+};
 
 exports.fetchImages = async (limit, offset) => {
-    return await images.findAll(
-        {
-            limit,
-            offset
-        }
-    )
-}
+    return prisma.images.findMany({
+        take: limit,
+        skip: offset
+    });
+};
 
 exports.countAllImages = async () => {
-    return await images.count()
-}
-
+    return prisma.images.count();
+};
 
 exports.fetchSingleImage = async (id) => {
-    return await images.findOne({ where: { id } })
-}
+    return prisma.images.findUnique({
+        where: { id: Number(id) }
+    });
+};
 
 exports.deleteImage = async (id) => {
-    return await images.destroy(
-        {
-            where: {
-                id
-                
-            }
-        }
-    )
-}
+    return prisma.images.delete({
+        where: { id: Number(id) }
+    });
+};

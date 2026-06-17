@@ -1,158 +1,166 @@
-
-const { Op } = require("sequelize");
-const { PARAMS, RELATIONSHIP_NAMES } = require("../../util/consts");
-const { category_, images, cart } = require("../models/relationships");
-const { conn } = require("../base");
+const { prisma } = require("../base");
+const { buildPrismaWhere } = require("../../util/prismaHelper");
 
 exports.createCategoryQuery = async (data) => {
-    return await category_.create(
+    return prisma.category.create({
         data
-        
-    )
-}
+    });
+};
 
 exports.checkCategoryExists = async (searchKeyword) => {
-    return await category_.findOne(
-        {
-            where: {
-                [PARAMS.name]: {
-                    [Op.like]: `%${searchKeyword}%`
+    return prisma.category.findFirst({
+        where: {
+            name: {
+                contains: searchKeyword
+            }
+        }
+    });
+};
+
+exports.fetchSingleCategory = async (id) => {
+    return prisma.category.findUnique({
+        where: { uid: id },
+        include: {
+            subCategories: {
+                select: {
+                    uid: true,
+                    name: true
                 }
             }
         }
-    )
-}
+    });
+};
 
 exports.fetchCategoryQuery = async (limit, skip) => {
-    return await category_.findAll(
-        {
-            attributes: [PARAMS.uid, PARAMS.name, PARAMS.category_specifications, PARAMS.sortOrder],
-            include: [
-                {
-                    model: images,
-                    as: RELATIONSHIP_NAMES.image,
-                    attributes: [PARAMS.id, PARAMS.img_url]
-                },
-                {
-                    model: category_,
-                    attributes:[PARAMS.uid, PARAMS.name, PARAMS.category_specifications],
-                    as: RELATIONSHIP_NAMES.subCategories
+    return prisma.category.findMany({
+        where: {
+            parentId: null
+        },
+        select: {
+            uid: true,
+            name: true,
+            sortOrder: true,
+            image: {
+                select: {
+                    id: true,
+                    img_url: true
                 }
-            ],
-            limit: limit,
-            offset: skip,
-
-            // order: [
-            //     [conn.literal("sortOrder IS NULL"), "ASC"],
-            //     [PARAMS.sortOrder, "ASC"]
-            // ],
-            
-        }
-    )
-}
+            },
+            subCategories: {
+                select: {
+                    uid: true,
+                    name: true,
+                    // category_specifications: true
+                }
+            }
+        },
+        take: limit,
+        skip: skip
+    });
+};
 
 exports.fetchParentCategoryQuery = async (limit, skip) => {
-    return await category_.findAll(
-        {
-            where: {
-                [PARAMS.parentId]: null
-            },
-            attributes: [PARAMS.uid, PARAMS.name, PARAMS.category_specifications, PARAMS.sortOrder],
-            include: [
-                {
-                    model: images,
-                    as: RELATIONSHIP_NAMES.image,
-                    attributes: [PARAMS.id, PARAMS.img_url]
-                },
-                {
-                    model: category_,
-                    attributes:[PARAMS.uid, PARAMS.name, PARAMS.category_specifications],
-                    as: RELATIONSHIP_NAMES.subCategories
+    return prisma.category.findMany({
+        where: {
+            parentId: null
+        },
+        select: {
+            uid: true,
+            name: true,
+            sortOrder: true,
+            image: {
+                select: {
+                    id: true,
+                    img_url: true
                 }
-            ],
-            offset: skip,
-            limit: limit,
-            
-
-            // order: [
-            //     [conn.literal("sortOrder IS NULL"), "ASC"],
-            //     [PARAMS.sortOrder, "ASC"]
-            // ],
-            
-        }
-    )
-}
+            },
+            subCategories: {
+                select: {
+                    uid: true,
+                    name: true,
+                    // category_specifications: true
+                }
+            }
+        },
+        take: limit,
+        skip: skip
+    });
+};
 
 exports.fetchOrderedCategoryForHomeQuery = async (limit, skip) => {
-    return await category_.findAll(
-        {
-            where: {
-                [PARAMS.sortOrder]: {
-                    [Op.not]: null
+    return prisma.category.findMany({
+        where: {
+            sortOrder: {
+                not: null
+            }
+        },
+        select: {
+            uid: true,
+            name: true,
+            sortOrder: true,
+            image: {
+                select: {
+                    id: true,
+                    img_url: true
                 }
             },
-            attributes: [PARAMS.uid, PARAMS.name, PARAMS.category_specifications, PARAMS.sortOrder],
-            include: [
-                {
-                    model: images,
-                    as: RELATIONSHIP_NAMES.image,
-                    attributes: [PARAMS.id, PARAMS.img_url]
-                },
-                {
-                    model: category_,
-                    attributes:[PARAMS.uid, PARAMS.name, PARAMS.category_specifications],
-                    as: RELATIONSHIP_NAMES.subCategories
+            subCategories: {
+                select: {
+                    uid: true,
+                    name: true,
+                    // category_specifications: true
                 }
-            ],
-            limit: 4,
-            offset: 0,
-
-            order: [
-                // [conn.literal("sortOrder IS NULL"), "ASC"],
-                [PARAMS.sortOrder, "ASC"]
-            ],
-            
+            }
+        },
+        take: 4,
+        skip: 0,
+        orderBy: {
+            sortOrder: 'asc'
         }
-    )
-}
+    });
+};
 
 exports.fetchCategoryById = async (uid) => {
-    return await category_.findOne({
+    return prisma.category.findUnique({
         where: { uid }
-    })
-}
+    });
+};
 
 exports.fetchSingleCartItem = async (uid, cartId) => {
-    return await cart.findOne(
-        {
-            where: {
-                id: cartId,
-                uid: uid
-            }
+    return prisma.cart.findFirst({
+        where: {
+            id: Number(cartId),
+            uid: uid
         }
-    )
-}
+    });
+};
 
 exports.destroyCartItem = async (uid, cartId) => {
-    return await cart.destroy(
-        {
-            where:{
-                id: cartId,
-                uid: uid
-            }
-            
+    return prisma.cart.deleteMany({
+        where: {
+            id: Number(cartId),
+            uid: uid
         }
-    )
-}
+    });
+};
 
 exports.deleteCategory = async (categoryId) => {
-    await category_.destroy({ where: { uid: categoryId } })
-}
+    return prisma.category.delete({
+        where: { uid: categoryId }
+    });
+};
 
 exports.updateSpecificCategory = async (categoryId, update) => {
-    return await category_.update(update, { where: { uid: categoryId } })
-}
+    return prisma.category.update({
+        where: { uid: categoryId },
+        data: update
+    });
+};
 
 exports.updateDifferentCategory = async (where, update) => {
-    return await category_.update(update, { where: {...where} })
-}
+    const prismaWhere = buildPrismaWhere(where);
+    return prisma.category.updateMany({
+        where: prismaWhere,
+        data: update
+    });
+};

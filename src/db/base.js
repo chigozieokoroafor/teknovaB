@@ -1,51 +1,32 @@
 require("dotenv").config()
-const { Sequelize } = require("sequelize")
-const { createPool } = require("mysql2")
+const { PrismaClient } = require("@prisma/client");
+const { PrismaMariaDb } = require("@prisma/adapter-mariadb");
 const mysql = require('mysql2/promise');
 
+const adapter = new PrismaMariaDb({
+    host: process.env.DB_HOST || 'localhost',
+    port: Number(process.env.DB_PORT || '3306'),
+    user: process.env.DB_USER || 'root',
+    password: process.env.DB_PWD || '',
+    database: process.env.DB_NAME || 'teknova',
+});
 
-const conn_option = {
-    database: process.env.DB_NAME ,
-    username: process.env.DB_USER ,
-    password: process.env.DB_PWD ,
-    host: process.env.DB_HOST ,
-    port: process.env.DB_PORT ,
-    dialect: 'mysql',
-    logging: false
-    // logging: true, // ensure this is a boolean
-};
-
+const prisma = new PrismaClient({ adapter });
 
 async function createDatabaseIfNotExists() {
     const connection = await mysql.createConnection({
-        host: conn_option.host,
-        port: conn_option.port,
-        user: conn_option.username,
-        password: conn_option.password,
+        host: process.env.DB_HOST || 'localhost',
+        port: process.env.DB_PORT || '3306',
+        user: process.env.DB_USER || 'root',
+        password: process.env.DB_PWD || '',
     });
 
-    await connection.query(`CREATE DATABASE IF NOT EXISTS \`${conn_option.database}\`;`);
+    await connection.query(`CREATE DATABASE IF NOT EXISTS \`${process.env.DB_NAME || 'teknova'}\`;`);
     await connection.end();
 }
 
-
-
-const conn = new Sequelize(conn_option)
-
-
-// const pool = createPool({
-//     host: process.env.DB_HOST,
-//     user: process.env.DB_USER,
-//     port: process.env.DB_PORT,
-//     database: process.env.DB_NAME,
-//     password: process.env.DB_PWD,
-//     waitForConnections: true,
-//     connectionLimit: 10,
-//     queueLimit: 0
-// });
-
 module.exports = {
-    conn: conn,
+    prisma,
+    conn: prisma,
     createDatabaseIfNotExists
-    // pool
 }

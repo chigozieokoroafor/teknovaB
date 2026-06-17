@@ -9,17 +9,11 @@ const specificationsSchema = Joi.object(
                 "string.empty": "provide name of specification, "
             }
         ),
-        values: Joi.array().required().messages(
+        value: Joi.string().required().messages(
             {
                 "any.required": "values for specification required.",
-                "array.base": "values required as an array.",
-                "array.empty": "values for specification are required."
             }
         )
-    }
-).required().messages(
-    {
-        "any.required": "specification object requred."
     }
 )
 
@@ -43,34 +37,43 @@ exports.productUploadSchema = Joi.object(
                 "number.empty": "Discount should be set as zero if none."
             }
         ),
-        price: Joi.number().required().messages(
-            {
-                "any.required": "Price of product required.",
-                "number.base": "Kindly provide the price of the product.",
-                "number.empty": "Number cannot be empty."
-            }
-        ),
+        // price: Joi.number().required().messages(
+        //     {
+        //         "any.required": "Price of product required.",
+        //         "number.base": "Kindly provide the price of the product.",
+        //         "number.empty": "Number cannot be empty."
+        //     }
+        // ),
 
         description: Joi.string().messages({ "string.base": "Kindly provide a valid description." }),
 
-        units: Joi.number().required().messages(
-            {
-                "any.required": "Units of product is required.",
-                "number.base": "Kindly provide the product units as a number"
-            }
-        ),
+        // units: Joi.number().required().messages(
+        //     {
+        //         "any.required": "Units of product is required.",
+        //         "number.base": "Kindly provide the product units as a number"
+        //     }
+        // ),
 
-        specifications: Joi.array().items(
-            specificationsSchema
-        ).messages({
-            "array.base": "Specifications must be an array",
-            "array.includesRequiredUnknowns": "Specifications items must contain ram, rom and cost."
-        }),
+        // specifications: Joi.array().items(
+        //     specificationsSchema
+        // ).messages({
+        //     "array.base": "Specifications must be an array",
+        //     // "array.includesRequiredUnknowns": "Specifications items must contain ram, rom and cost."
+        // }),
 
         images: Joi.array().required().messages(
             {
                 "any.required": "Provide image ids",
                 "array.base": "provide at least one image id"
+            }
+        ),
+
+        variants: Joi.array().items(
+            {
+                name: Joi.string(),
+                price: Joi.number(),
+                units: Joi.number(),
+                specifications: Joi.array().items(specificationsSchema)
             }
         )
 
@@ -123,7 +126,7 @@ exports.productUpdateSchema = Joi.object(
             specificationsSchema
         ).messages({
             "array.base": "Specifications must be an array",
-            "array.includesRequiredUnknowns": "Specifications items must contain ram, rom and cost."
+            // "array.includesRequiredUnknowns": "Specifications items must contain ram, rom and cost."
         }),
 
         images: Joi.array().messages(

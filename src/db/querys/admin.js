@@ -1,5 +1,7 @@
-const { admin } = require("../models/admin");
+const { prisma } = require("../base");
 
-exports.checkAdmin = async(uid) =>{
-    return admin.findOne({where:{uid}})
-}
+exports.checkAdmin = async (uid) => {
+    return prisma.admin.findUnique({
+        where: { uid }
+    });
+};

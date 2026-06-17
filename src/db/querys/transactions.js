@@ -1,49 +1,50 @@
-const { Sequelize } = require("sequelize");
-const { PARAMS, RELATIONSHIP_NAMES, MODEL_NAMES } = require("../../util/consts");
-const { transaction, user } = require("../models/relationships");
+const { prisma } = require("../base");
 
-exports.uploadTransaction = async (data )=>{
-    await transaction.create(data)
-}
+exports.uploadTransaction = async (data) => {
+    return prisma.transactions.create({
+        data
+    });
+};
 
-exports.fetchTransactions = async(limit, offset) =>{
-    return await transaction.findAll(
-        {
-            attributes:[PARAMS.reference, PARAMS.amount, PARAMS.status, PARAMS.createdAt],
-            include: [
-                {
-                    model: user,
-                    attributes: [PARAMS.uid, PARAMS.name],
-                    as: RELATIONSHIP_NAMES.customer
+exports.fetchTransactions = async (limit, offset) => {
+    return prisma.transactions.findMany({
+        select: {
+            reference: true,
+            amount: true,
+            status: true,
+            createdAt: true,
+            customer: {
+                select: {
+                    uid: true,
+                    name: true
                 }
-            ],
-            limit,
-            offset
-        }
-    )
-}
+            }
+        },
+        take: limit,
+        skip: offset
+    });
+};
 
-exports.updateTransaction = async(update, orderId) =>{
-    await transaction.update(update, {
-        where:{
-            [PARAMS.orderId]:orderId
-        }
-    })
-}
+exports.updateTransaction = async (update, orderId) => {
+    return prisma.transactions.updateMany({
+        where: { orderId },
+        data: update
+    });
+};
 
 exports.getRevenue = async () => {
-    return await transaction.findAll(
-        {
-            where: {
-                // agencyId: agencyId,
-                status: "Success",
-                // serviceType:"serviceType"
-            },
-            attributes: [
-                
-                [Sequelize.fn('SUM', Sequelize.col(`${MODEL_NAMES.transaction}.amount`)), 'revenue_sum'],
-            ],
-            raw:true
+    const aggregate = await prisma.transactions.aggregate({
+        _sum: {
+            amount: true
+        },
+        where: {
+            status: "Success"
         }
-    )
-}
+    });
+    
+    return [
+        {
+            revenue_sum: aggregate._sum.amount || 0
+        }
+    ];
+};

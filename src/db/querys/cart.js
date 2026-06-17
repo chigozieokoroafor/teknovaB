@@ -1,193 +1,273 @@
-const { Op, fn, col, literal } = require("sequelize");
-const { PARAMS, RELATIONSHIP_NAMES, STATUSES } = require("../../util/consts");
-// const { cart } = require("../models/cart");
-// const { product_images, images } = require("../models/images");
-// const { product } = require("../models/product");
-const { order, user, transaction, product, images, product_images, cart } = require("../models/relationships");
-const { extra_payments } = require("../models/review");
+const { prisma } = require("../base");
+const { buildPrismaWhere } = require("../../util/prismaHelper");
 
+const mapCartItem = (item) => {
+    if (!item) return item;
+    const res = { ...item };
+    if (item.product) {
+        res.Product = {
+            uid: item.product.uid,
+            name: item.product.name,
+            price: item.product.price,
+            Product_Images: (item.product.Product_Images || []).map(pi => ({
+                id: pi.id,
+                imageId: pi.imageId,
+                image: pi.image
+            }))
+        };
+        delete res.product;
+    }
+    return res;
+};
 
-exports.getExtraPayments = async(name) =>{
-    return await extra_payments.findOne({
-        where: {name}
-    })
-}
+const mapOrder = (order) => {
+    if (!order) return order;
+    const res = { ...order };
+    if (order.Cart) {
+        const mappedCarts = order.Cart.map(mapCartItem);
+        res.Cart = mappedCarts;
+        res.Carts = mappedCarts;
+    }
+    if (order.user) {
+        res.User = order.user;
+    }
+    if (order.Transactions) {
+        res.Transaction = order.Transactions;
+        res.Transactions = order.Transactions;
+    }
+    return res;
+};
+
+exports.getExtraPayments = async (name) => {
+    return prisma.extraPayments.findFirst({
+        where: { name }
+    });
+};
 
 exports.addToCartQuery = async (data) => {
-    return await cart.create(data)
-}
+    return prisma.cart.create({
+        data
+    });
+};
 
 exports.fetchCartItems = async (uid, offset, limit) => {
-    return await cart.findAll(
-        {
-            where: {
-                uid,
-                [PARAMS.ordered]: false
-
-            },
-            include: [
-                {
-                    model: product,
-                    attributes: [PARAMS.uid, PARAMS.name, PARAMS.price],
-                    include: {
-                        model: product_images,
-                        attributes: [PARAMS.id, PARAMS.imageId],
-                        include: {
-                            model: images,
-                            attributes: [PARAMS.img_url],
-                            as: RELATIONSHIP_NAMES.image
+    const items = await prisma.cart.findMany({
+        where: {
+            uid,
+            ordered: false
+        },
+        include: {
+            product: {
+                select: {
+                    uid: true,
+                    name: true,
+                    // price: true,
+                    images: {
+                        select: {
+                            id: true,
+                            imageId: true,
+                            image: {
+                                select: {
+                                    img_url: true
+                                }
+                            }
                         }
-                    },
+                    }
                 }
-            ],
-            offset,
-            limit
-        }
-    )
-}
+            }
+        },
+        skip: offset,
+        take: limit
+    });
+    return items.map(mapCartItem);
+};
 
 exports.fetchCartItemsToOrder = async (uid) => {
-    return await cart.findAll(
-        {
-            where: {
-                uid,
-                [PARAMS.ordered]: false
-
-            },
-            attributes: [PARAMS.id, PARAMS.productId, PARAMS.total_amount, PARAMS.isTechnicianRequiredCost],
-            include: {
-                model: product,
-                attributes: [PARAMS.uid, PARAMS.categoryId, PARAMS.price ]
+    const items = await prisma.cart.findMany({
+        where: {
+            uid,
+            ordered: false
+        },
+        select: {
+            id: true,
+            productId: true,
+            total_amount: true,
+            isTechnicianRequiredCost: true,
+            product: {
+                select: {
+                    uid: true,
+                    categoryId: true,
+                    price: true
+                }
             }
         }
-    )
-}
+    });
+    return items.map(item => {
+        const obj = { ...item };
+        obj.Product = item.product;
+        delete obj.product;
+        return obj;
+    });
+};
 
 exports.updateCartItemsforOrder = async (update, where) => {
-    await cart.update(update, { where: where })
-}
+    const prismaWhere = buildPrismaWhere(where);
+    return prisma.cart.updateMany({
+        where: prismaWhere,
+        data: update
+    });
+};
 
 exports.countOrders = async () => {
-    return await cart.count(
-        {
-            where: {
-                [PARAMS.ordered]: true
-            }
-
+    return prisma.cart.count({
+        where: {
+            ordered: true
         }
-    )
-}
+    });
+};
 
 exports.createOrderOnOrderTable = async (data) => {
-    await order.create(data)
-}
+    return prisma.orders.create({
+        data
+    });
+};
 
 exports.fetchOrdersForClient = async (uid, limit, offset) => {
-    return await order.findAll(
-        {
-            where: {
-                uid,
-                // [PARAMS.paymentStatus]: {
-                //     [Op.not]: STATUSES.pending
-                // }
-            },
-            include: {
-                model: cart,
-                include: [
-                    {
-                        model: product,
-                        attributes: [PARAMS.uid, PARAMS.name, PARAMS.price],
-                        include: {
-                            model: product_images,
-                            attributes: [PARAMS.id, PARAMS.imageId],
-                            include: {
-                                model: images,
-                                attributes: [PARAMS.img_url],
-                                as: RELATIONSHIP_NAMES.image
+    const orders = await prisma.orders.findMany({
+        where: {
+            uid
+        },
+        include: {
+            Cart: {
+                include: {
+                    product: {
+                        select: {
+                            uid: true,
+                            name: true,
+                            price: true,
+                            Product_Images: {
+                                select: {
+                                    id: true,
+                                    imageId: true,
+                                    image: {
+                                        select: {
+                                            img_url: true
+                                        }
+                                    }
+                                }
                             }
-                        },
+                        }
                     }
-                ]
-            },
-            limit,
-            offset
-        }
-    )
-}
+                }
+            }
+        },
+        take: limit,
+        skip: offset
+    });
+    return orders.map(mapOrder);
+};
 
 exports.fetchAllOrders = async (limit, offset) => {
-    return await order.findAll(
-        {
-            include: [
-                {
-                    model: user,
-                    attributes: [PARAMS.name, PARAMS.email]
-                },
-                {
-                    model: transaction,
-                    attributes: [PARAMS.amount]
+    const orders = await prisma.orders.findMany({
+        include: {
+            user: {
+                select: {
+                    name: true,
+                    email: true
                 }
-            ],
-            limit,
-            offset
-        }
-    )
-}
+            },
+            Transactions: {
+                select: {
+                    amount: true
+                }
+            }
+        },
+        take: limit,
+        skip: offset
+    });
+    return orders.map(mapOrder);
+};
 
 exports.updateOrderStatus = async (orderId, status) => {
-    return await order.update({ status }, { where: { orderId } })
-}
+    return prisma.orders.update({
+        where: { orderId },
+        data: { status }
+    });
+};
 
 exports.updateOrderPaymentStatus = async (orderId, status) => {
-    return await order.update({ [PARAMS.paymentStatus]: status }, { where: { orderId } })
-}
+    return prisma.orders.update({
+        where: { orderId },
+        data: { paymentStatus: status }
+    });
+};
 
 exports.getSpecificOrder = async (orderId) => {
-    return await order.findOne(
-        {
-            where: { orderId },
-            include: {
-                model: user,
-                attributes: [PARAMS.name, PARAMS.email]
+    const order = await prisma.orders.findUnique({
+        where: { orderId },
+        include: {
+            user: {
+                select: {
+                    name: true,
+                    email: true
+                }
             }
         }
-    )
-}
+    });
+    return mapOrder(order);
+};
 
 exports.getTopProductCounts = async () => {
-    return await cart.findAll({
+    const topSales = await prisma.$queryRawUnsafe(`
+        SELECT productId, COUNT(productId) AS count, SUM(CAST(units AS DOUBLE)) AS totalUnitSold
+        FROM Cart
+        WHERE ordered = true
+        GROUP BY productId
+        ORDER BY totalUnitSold DESC
+        LIMIT 5
+    `);
+
+    if (topSales.length === 0) return [];
+
+    const productIds = topSales.map(item => item.productId).filter(Boolean);
+
+    const products = await prisma.product.findMany({
         where: {
-            [PARAMS.ordered]: true
+            uid: { in: productIds }
         },
-        attributes: [
-            PARAMS.productId,
-            [fn('COUNT', col(PARAMS.productId)), 'count'],   // count actual product rows
-            [fn('SUM', col(PARAMS.units)), 'totalUnitSold'],
-        ],
-        include: [
-            {
-                model: product,
-                attributes: [PARAMS.name, PARAMS.price],
-                include: [
-                    {
-                        model: product_images,
-                        // as: RELATIONSHIP_NAMES.defaultImage,
-                        attributes: [PARAMS.imageId],
-                        include: [
-                            {
-                                model: images,
-                                attributes: [PARAMS.img_url],
-                                as: RELATIONSHIP_NAMES.image
-                            }
-                        ]
+        select: {
+            uid: true,
+            name: true,
+            price: true,
+            Product_Images: {
+                select: {
+                    imageId: true,
+                    image: {
+                        select: {
+                            img_url: true
+                        }
                     }
-                ]
+                }
             }
-        ],
-        group: [
-            PARAMS.productId,
-        ],
-        limit: 5,
-        order: [[literal("totalUnitSold"), "DESC"]]
+        }
+    });
+
+    const productMap = new Map(products.map(p => [p.uid, p]));
+
+    return topSales.map(sale => {
+        const prod = productMap.get(sale.productId);
+        return {
+            productId: sale.productId,
+            count: Number(sale.count),
+            totalUnitSold: Number(sale.totalUnitSold),
+            Product: prod ? {
+                name: prod.name,
+                price: prod.price,
+                Product_Images: prod.Product_Images.map(pi => ({
+                    imageId: pi.imageId,
+                    image: pi.image ? { img_url: pi.image.img_url } : null
+                }))
+            } : null
+        };
     });
 };

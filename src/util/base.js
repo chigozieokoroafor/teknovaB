@@ -413,9 +413,12 @@ exports.baseValidator = (fn, body, res) => {
     const valid_ = fn.validate(body)
 
     if (valid_.error) {
-        // console.log(valid_.error)
-        return generalError(res, valid_.error.message, valid_.error.details[0].context)
+        console.dir(valid_.error, {depth: 12})
+        generalError(res, valid_.error.message, valid_.error.details[0].context)
+        return true
     }
+
+    // console.log("validddddd ==== > ",valid_)
     return
 }
 

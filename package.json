@@ -1,5 +1,7 @@
 {
   "dependencies": {
+    "@prisma/adapter-mariadb": "^7.8.0",
+    "@prisma/client": "^7.8.0",
     "axios": "^1.9.0",
     "bcryptjs": "^3.0.2",
     "cors": "^2.8.5",
@@ -8,15 +10,16 @@
     "express-session": "^1.18.1",
     "joi": "^17.13.3",
     "jsonwebtoken": "^9.0.2",
-    "morgan": "^1.10.1",
+    "mariadb": "^3.5.3",
+    "morgan": "^1.11.0",
     "multer": "^1.4.5-lts.2",
     "mysql2": "^3.14.0",
     "nodemailer": "^6.10.1",
-    "rand-token": "^1.0.1",
-    "sequelize": "^6.37.7"
+    "rand-token": "^1.0.1"
   },
   "devDependencies": {
-    "nodemon": "^3.1.9"
+    "nodemon": "^3.1.9",
+    "prisma": "^7.8.0"
   },
   "name": "teknovab",
   "version": "1.0.0",
@@ -24,7 +27,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "bun --watch app.js",
-    "start": "node app.js"
+    "start": "bun --watch app.js",
+    "migrate": "npx prisma db push && sleep 2 && npx prisma generate"
   },
   "repository": {
     "type": "git",

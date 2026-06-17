@@ -36,7 +36,7 @@ class Auth {
             // console.log("payload ===> ",payload)
             const user_data = await fetchUserForMiddleware(payload.id ?? payload.uid)
             // console.log("user data ===>",user_data)
-            req.user = user_data?.toJSON();
+            req.user = user_data
 
             if (payload?.userType) {
                 req.user.userType = payload?.userType

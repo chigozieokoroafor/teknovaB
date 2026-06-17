@@ -9,9 +9,10 @@ const {
     updateDifferentCategory,
     fetchOrderedCategoryForHomeQuery,
     fetchParentCategoryQuery,
+    fetchSingleCategory,
     // createCategorySpecification 
 } = require("../db/querys/category");
-const { uploadProduct, getProductsByCategory, getspecificProduct, searchProduct, deleteProductQuery, uploadProductImages, deleteProductImages, updateProductDetails, getNewProducts, deleteDiscountToProductRecord, addDiscountToProductRecord, getProductsWithoutDiscount, getDiscountedProducts, getProductsByCategoryTree } = require("../db/querys/products");
+const { uploadProduct, getProductsByCategory, getspecificProduct, searchProduct, deleteProductQuery, uploadProductImages, deleteProductImages, updateProductDetails, getNewProducts, deleteDiscountToProductRecord, addDiscountToProductRecord, getProductsWithoutDiscount, getDiscountedProducts, getProductsByCategoryTree, createProductVariants } = require("../db/querys/products");
 const { catchAsync } = require("../errorHandler/allCatch");
 const { generalError, success, notFound } = require("../errorHandler/statusCodes");
 const { createUUID, sendEmail, baseValidator } = require("../util/base");
@@ -20,6 +21,7 @@ const { categoryCreationSchema, categoryUpdateSchema, categoryOrderSchema } = re
 const { productUploadSchema, productUpdateSchema } = require("../util/validators/productsValidator");
 const { getTopProductCounts } = require("../db/querys/cart");
 const { discountValidator } = require("../util/validators/couponValidator");
+const { conn } = require("../db/base");
 
 // admin category 
 exports.createCategory = catchAsync(async (req, res) => {
@@ -31,7 +33,9 @@ exports.createCategory = catchAsync(async (req, res) => {
 
     let data = req.body
 
-    const specifications = data.specifications
+    console.log("data ====> ", data)
+
+    // const specifications = data.specifications
 
     const cat_exists = await checkCategoryExists(req.body?.name)
     if (cat_exists) {
@@ -39,13 +43,13 @@ exports.createCategory = catchAsync(async (req, res) => {
     }
 
     // const cat_id = category.uid
-    specifications?.map((item, index) => {
-        // item[PARAMS.categoryId] = cat_id
-        item[PARAMS.values] = item[PARAMS.values].split(",")
-        specifications[index] = item
-    })
+    // specifications?.map((item, index) => {
+    //     // item[PARAMS.categoryId] = cat_id
+    //     item[PARAMS.values] = item[PARAMS.values].split(",")
+    //     specifications[index] = item
+    // })
 
-    data[PARAMS.category_specifications] = specifications
+    // data[PARAMS.category_specifications] = data.specifications
     data["uid"] = `CAT_${createUUID()}`
 
     const category = await createCategoryQuery(data)
@@ -73,6 +77,15 @@ exports.fetchCategories = catchAsync(async (req, res) => {
     skip = (Number(page_) - 1) * offset
 
     const data = await fetchCategoryQuery(Number(offset), Number(skip))
+    return success(res, data, "Fetched")
+})
+
+exports.fetchSingleCategoryController = catchAsync(async (req, res) => {
+    const { id } = req.params
+
+
+
+    data = await fetchSingleCategory(id)
     return success(res, data, "Fetched")
 })
 
@@ -167,11 +180,19 @@ exports.updateCategoryOrder = catchAsync(async (req, res) => {
         return error
     }
 
-    req.body.categories.forEach(async (cat_order) => {
+    console.log("body ====> ", req.body)
+
+    // req.body.categories.forEach(async (cat_order) => {
+    //     await updateDifferentCategory({ [PARAMS.sortOrder]: cat_order.sortOrder }, { sortOrder: null })
+
+    //     await updateSpecificCategory(cat_order.uid, { sortOrder: cat_order.sortOrder })
+    // })
+
+    for (const cat_order of req.body.categories) {
         await updateDifferentCategory({ [PARAMS.sortOrder]: cat_order.sortOrder }, { sortOrder: null })
 
         await updateSpecificCategory(cat_order.uid, { sortOrder: cat_order.sortOrder })
-    })
+    }
 
     success(res, {}, "Orders have been sorted.")
 
@@ -180,49 +201,81 @@ exports.updateCategoryOrder = catchAsync(async (req, res) => {
 // admin products
 exports.addProducts = catchAsync(async (req, res) => {
 
+
+    console.dir(req.body, { depth: 12 })
+
     const error = baseValidator(productUploadSchema, req.body, res)
+
     if (error) {
-        return error
+        return
     }
 
-    const category_exists = await fetchCategoryById(req.body?.categoryId)
-    if (!category_exists) {
+    const category = await fetchCategoryById(req.body.categoryId)
+
+    if (!category) {
         return notFound(res, "Category selected not found")
     }
 
-    let data = {}
-    data["uid"] = "PRD-" + createUUID()
-    data["name"] = req.body?.name
-    data["categoryId"] = req.body?.categoryId
-    data["discount"] = req.body?.discount ?? 0.0
-    data["price"] = req.body?.price
-    data["description"] = req.body?.description
-    data["units"] = req.body?.units
-    data["parentCategoryId"] = category_exists?.parentId
-    data[MODEL_NAMES.product_specifications] = req.body["specifications"]
+    // const transaction = await conn.transaction()
 
     try {
-        const productId = (await uploadProduct(data)).uid
-        const images = req.body["images"]
-        // const specifications = req.body["specifications"]
 
-        images.map((img, index) => {
-            images[index] = {
-                [PARAMS.productId]: productId,
-                [PARAMS.imageId]: img
-            }
-        })
+        const productPayload = {
+            uid: "PRD-" + createUUID(),
+            name: req.body.name,
+            categoryId: req.body.categoryId,
+            discount: req.body.discount ?? 0,
+            price: req.body.price,
+            description: req.body.description,
+            units: req.body.units,
+            parentCategoryId: category.parentId,
+            [MODEL_NAMES.product_specifications]: req.body.specifications
+        }
 
-        await uploadProductImages(images)
+        const product = await uploadProduct(productPayload)
+
+        const imagesPayload = (req.body.images || []).map((img) => ({
+            productId: product.uid,
+            imageId: img
+        }))
+
+        if (imagesPayload.length > 0) {
+            await uploadProductImages(imagesPayload)
+        }
+
+        const variantsPayload = (req.body.variants || []).map((variant) => ({
+            ...variant,
+            uid: "PRD-VAR-" + createUUID(),
+            productId: product.uid,
+            Product_Specifications: variant.specifications
+        }))
+
+        if (variantsPayload.length > 0) {
+            await createProductVariants(variantsPayload)
+        }
+
+        // await transaction.commit()
+
+        return success(res, {}, "Product uploaded successfully")
 
     } catch (error) {
 
-        console.log("error===>", error)
-        sendEmail("Error on product upload", "okoroaforc14@gmail.com", error)
-        return generalError(res, "Unable to add product at current time.", {})
-    }
+        // await transaction.rollback()
 
-    return success(res, {}, "Product uploaded successfully")
+        console.log("errorrrrrrrrr==== >", error)
+
+        // sendEmail(
+        //     "Error on product upload",
+        //     "okoroaforc14@gmail.com",
+        //     String(error)
+        // ).catch(console.error)
+
+        // return generalError(
+        //     res,
+        //     "Unable to add product at current time.",
+        //     {}
+        // )
+    }
 })
 
 exports.fetchProductsUnderCategory = catchAsync(async (req, res) => {
@@ -512,26 +565,38 @@ exports.getAllProductsWithFilter = catchAsync(async (req, res) => {
         }
     }
     if (h && l) {
-        product_query[PARAMS.price] = {
-            [Op.between]: [Number(l), Number(h)]
+
+        product_query["variants"] = {
+            some: {
+                price: { [Op.between]: [Number(l), Number(h)] }
+            }
         }
+
+        // product_query[PARAMS.price] = {
+        //     [Op.between]: [Number(l), Number(h)]
+        // }
     }
 
-    let data = []
+    let data
 
 
     if (category && !subcategory) {
-        
+
         data = await getProductsByCategoryTree(category, product_query)
     }
     if (category && subcategory) {
         // product_query[PARAMS.parentId] = category
         product_query[PARAMS.categoryId] = subcategory
+
+    }
+
+    // console.dir(product_query, {depth: 12})
+
+    if (!data) {
+
         data = await searchProduct(product_query, offset, FETCH_LIMIT)
     }
-    
 
-    // const data = await searchProduct(actual_query, offset, FETCH_LIMIT)
 
     return success(res, data, "testing")
 

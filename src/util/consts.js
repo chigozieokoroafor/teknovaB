@@ -14,7 +14,8 @@ exports.MODEL_NAMES = {
     product_specifications: "Product_Specifications",
     product_images: "Product_Images",
     coupon:"Coupon",
-    productdiscount: "Product_Discount"
+    productdiscount: "Product_Discount",
+    product_variants: "Product_Variants"
 }
 
 exports.STATUSES = {
