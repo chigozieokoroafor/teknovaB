@@ -110,7 +110,7 @@ exports.getspecificProduct = async (productId) => {
                     name: true
                 }
             },
-            Product_Images: {
+            images: {
                 select: {
                     id: true,
                     imageId: true,
@@ -121,13 +121,13 @@ exports.getspecificProduct = async (productId) => {
                     }
                 }
             },
-            Product_Discount: {
+            discount: {
                 where: {
                     startDate: { lt: new Date() },
                     endDate: { gte: new Date() }
                 }
             },
-            Product_Variants: true
+            variants: true
         }
     });
     return mapProduct(p);
@@ -335,12 +335,6 @@ exports.getProductsByCategoryTree = async (categoryUid, product_query, offset = 
 
 exports.createProductVariants = async (data) => {
     return prisma.product_Variants.createMany({
-        data: data.map(variant => ({
-            uid: variant.uid,
-            productId: variant.productId,
-            name: variant.name,
-            price: Number(variant.price),
-            units: Number(variant.units || 0)
-        }))
+        data
     });
 };

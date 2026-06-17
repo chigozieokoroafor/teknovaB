@@ -225,9 +225,7 @@ exports.addProducts = catchAsync(async (req, res) => {
             name: req.body.name,
             categoryId: req.body.categoryId,
             discount: req.body.discount ?? 0,
-            price: req.body.price,
             description: req.body.description,
-            units: req.body.units,
             parentCategoryId: category.parentId,
             [MODEL_NAMES.product_specifications]: req.body.specifications
         }
@@ -247,14 +245,12 @@ exports.addProducts = catchAsync(async (req, res) => {
             ...variant,
             uid: "PRD-VAR-" + createUUID(),
             productId: product.uid,
-            Product_Specifications: variant.specifications
+            // specifications: variant.specifications
         }))
 
         if (variantsPayload.length > 0) {
             await createProductVariants(variantsPayload)
         }
-
-        // await transaction.commit()
 
         return success(res, {}, "Product uploaded successfully")
 
