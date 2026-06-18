@@ -21,24 +21,10 @@ exports.addToCartSchema = Joi.object(
                 // "number.empty": "Unit price  of product to be purchased cannot be less than 1."
             }
         ),
-        [PARAMS.specifications]: Joi.array(
-            // {
-            //     "color",
-            //     "size"
-            // }
-        ).items(
-            Joi.object({
-                "name": Joi.string().required().messages({ "any.required": "name of specification selected, required" }),
-                "value": Joi.string().required().messages({ "any.required": "value of specification selected, required" }),
-            }).required().messages({
-                "any.required": "Kindly provide a product specification."
+        variantId: Joi.string().required().messages({
+                "any.required": "Kindly select a variant to proceed."
             })
-        ).required().messages(
-            {
-                "any.required": "Kindly provide a product specification.",
-                'array.includesRequiredUnknowns': "specifications must contain atleast one item. "
-            }
-        )
+        
     }
 ).required().messages(
     {

@@ -28,7 +28,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "bun --watch app.js",
     "start": "bun --watch app.js",
-    "migrate": "npx prisma db push && sleep 2 && npx prisma generate"
+    "prestart": "npx prisma db push && sleep 2 && npx prisma generate"
   },
   "repository": {
     "type": "git",

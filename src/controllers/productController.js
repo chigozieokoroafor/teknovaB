@@ -38,6 +38,8 @@ exports.createCategory = catchAsync(async (req, res) => {
     // const specifications = data.specifications
 
     const cat_exists = await checkCategoryExists(req.body?.name)
+
+    console.log(cat_exists)
     if (cat_exists) {
         return generalError(res, `Category "${req.body?.name}" exists`)
     }

@@ -13,6 +13,8 @@ const { fetchSingleCouponRecord } = require("../db/querys/coupons");
 exports.addItemToCart = catchAsync(async (req, res) => {
     const user_id = req.user.uid
 
+    console.log(req.body)
+
     const error = baseValidator(addToCartSchema, req.body, res)
     if (error) {
         return error
@@ -20,35 +22,55 @@ exports.addItemToCart = catchAsync(async (req, res) => {
 
     let data = req.body
 
+    
+
+    // get specific product
     const product = await getspecificProductRaw(req.body[PARAMS.productId])
     if (!product) {
         return notFound(res, "Product selected not found 🤔.")
     }
 
-    // return success(res, product)
+    // success(res, product)
+
+    // identify. specific variant
+    const variant = product.variants.find(i => i.uid == req.body.variantId)
+
+    if (!variant || variant.units < 1) {
+        generalError(res, "Whoops, selected variant  is currently out of stock")
+        return
+    }
+
+    // return
+
+
 
     // data["unit_price"] = product[PARAMS.price]
-    let price = product[PARAMS.price]
+    let price = variant?.price
+    let existingUnits = variant?.units
 
-    if(product[MODEL_NAMES.productdiscount]){
+    if (product[MODEL_NAMES.productdiscount]) {
         price = product[MODEL_NAMES.productdiscount][PARAMS.price]
     }
 
-    const isUnitAvailable = product[PARAMS.units] > data[PARAMS.units]
+    const isUnitAvailable = existingUnits > data[PARAMS.units]
 
     if (!isUnitAvailable) {
         return generalError(res, "Proposed units to purchase exist the available units.")
     }
 
-    data[PARAMS.uid] = user_id
+    data["userId"] = user_id
 
     data[PARAMS.total_amount] = price * data[PARAMS.units]
     data[PARAMS.unit_price] = price
+    data["specification"] = variant.specifications
 
     if (data[PARAMS.isTechnicianRequired]) {
         const cost = (await getExtraPayments(PARAMS.isTechnicianRequired))?.price ?? 0
         data[PARAMS.isTechnicianRequiredCost] = cost
     }
+
+    console.dir(data, {depth: 5})
+
 
 
     try {
@@ -110,6 +132,8 @@ exports.checkout = catchAsync(async (req, res) => {
     let coupon_code = req.body.coupon
 
 
+    console.log(req.body)
+
     // "add contact info and billing info"
     const cart = await fetchCartItemsToOrder(user_id)
 
@@ -152,7 +176,7 @@ exports.checkout = catchAsync(async (req, res) => {
                 calculatedProductPrice = (product.unit_price - (product.unit_price * (discount_value / 100))) * product.units
             }
             coupon_usage_count += 1
-        }else{
+        } else {
             calculatedProductPrice = product[PARAMS.total_amount] + product[PARAMS.isTechnicianRequiredCost]
         }
         cart_ids.push(product.id)
@@ -175,7 +199,7 @@ exports.checkout = catchAsync(async (req, res) => {
 
     if (req.body[PARAMS.deliveryType]) {
 
-        if (!["pick-up", "free", "express"].includes(req.body[PARAMS.deliveryType].toLowerCase())) {
+        if (!["pickup", "free", "express"].includes(req.body[PARAMS.deliveryType].toLowerCase())) {
             return generalError(res, "Selected delivery method is not available.")
         }
 
@@ -251,37 +275,38 @@ exports.getDeliveryPrices = catchAsync(async (req, res) => {
     return success(res, { express: extra, free: 0.0, pickup: 0.0 })
 })
 
-exports.validateCoupon = catchAsync( async (req, res) =>{
+exports.validateCoupon = catchAsync(async (req, res) => {
     const code = req?.body?.code
 
-    if(!code){
+    if (!code) {
         return generalError(res, "Kindly provide a coupon code for use.")
     }
 
-    const coupon = await fetchSingleCouponRecord( 
-        { code, 
+    const coupon = await fetchSingleCouponRecord(
+        {
+            code,
             status: "Active",
             endDate: {
-                [Op.gte] : new Date()
+                [Op.gte]: new Date()
             }
-        } 
-    ) 
+        }
+    )
 
-    if(!coupon){
+    if (!coupon) {
         return notFound(res, "Sorry, seems the coupon provided has expired.")
     }
 
-    if (coupon.limit <= coupon.usage){
+    if (coupon.limit <= coupon.usage) {
         return generalError(res, "Oops, Coupon")
     }
-    
+
     const data = {
         code,
         status: coupon.status,
         coupon_type: coupon[PARAMS.coupon_type],
         discount_type: coupon[PARAMS.discount_type],
         discount_value: coupon[PARAMS.discount_value],
-        list: coupon[PARAMS.coupon_type].toLowerCase() == "product" ? coupon[PARAMS.product_list] : (coupon[PARAMS.coupon_type].toLowerCase() == "category" ? coupon[PARAMS.category_list]: undefined )
+        list: coupon[PARAMS.coupon_type].toLowerCase() == "product" ? coupon[PARAMS.product_list] : (coupon[PARAMS.coupon_type].toLowerCase() == "category" ? coupon[PARAMS.category_list] : undefined)
 
     }
 

@@ -35,7 +35,8 @@ const productSelect = {
         select: {
             uid: true,
             name: true,
-            price: true, units: true,
+            price: true,
+            units: true,
             specifications: true
         }
     }
@@ -45,24 +46,24 @@ const productSelect = {
 const mapProduct = (p) => {
     if (!p) return p;
     const res = { ...p };
-    
-    if (p.category) {
-        res.Category = p.category;
-    }
-    
-    if (p.Product_Discount) {
-        res.Product_Discount = p.Product_Discount;
-        res.productdiscount = p.Product_Discount;
-    }
-    
-    if (p.Product_Images) {
-        res.Product_Images = p.Product_Images.map(pi => ({
-            id: pi.id,
-            imageId: pi.imageId,
-            image: pi.image
-        }));
-    }
-    
+
+    // if (p.category) {
+    //     res.Category = p.category;
+    // }
+
+    // if (p.Product_Discount) {
+    //     res.Product_Discount = p.Product_Discount;
+    //     res.productdiscount = p.Product_Discount;
+    // }
+
+    // if (p.Product_Images) {
+    //     res.Product_Images = p.Product_Images.map(pi => ({
+    //         id: pi.id,
+    //         imageId: pi.imageId,
+    //         image: pi.image
+    //     }));
+    // }
+
     return addPrototypeHelpers(res);
 };
 
@@ -77,7 +78,7 @@ exports.uploadProduct = async (data) => {
             description: data.description,
             // units: Number(data.units || 0),  .
             parentCategoryId: data?.parentCategoryId,
-            
+
         }
     });
     return addPrototypeHelpers(created);
@@ -237,33 +238,36 @@ exports.getspecificProductRaw = async (productId) => {
             uid: productId,
             isDeleted: false
         },
-        include: {
-            category: {
-                select: {
-                    uid: true,
-                    name: true
-                }
-            },
-            Product_Images: {
-                select: {
-                    id: true,
-                    imageId: true,
-                    image: {
-                        select: {
-                            img_url: true
-                        }
-                    }
-                }
-            },
-            Product_Discount: {
-                where: {
-                    startDate: { lt: new Date() },
-                    endDate: { gte: new Date() }
-                }
-            }
-        }
+        // include: {
+        //     category: {
+        //         select: {
+        //             uid: true,
+        //             name: true
+        //         }
+        //     },
+        //     Product_Images: {
+        //         select: {
+        //             id: true,
+        //             imageId: true,
+        //             image: {
+        //                 select: {
+        //                     img_url: true
+        //                 }
+        //             }
+        //         }
+        //     },
+        //     Product_Discount: {
+        //         where: {
+        //             startDate: { lt: new Date() },
+        //             endDate: { gte: new Date() }
+        //         }
+        //     }
+        // }
+
+        select: productSelect
     });
-    return mapProduct(p);
+    // return mapProduct(p);
+    return p
 };
 
 exports.getNewProducts = async () => {
@@ -313,11 +317,11 @@ exports.getProductsByCategoryTree = async (categoryUid, product_query, offset = 
 
     const categoryUids = rows.map(r => r.uid).filter(Boolean);
 
-    
+
 
     const where = buildPrismaWhere(product_query);
 
-    
+
     where.categoryId = {
         in: categoryUids
     };

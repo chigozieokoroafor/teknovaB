@@ -9,7 +9,7 @@ const mapCartItem = (item) => {
             uid: item.product.uid,
             name: item.product.name,
             price: item.product.price,
-            Product_Images: (item.product.Product_Images || []).map(pi => ({
+            images: (item.product.Product_Images || []).map(pi => ({
                 id: pi.id,
                 imageId: pi.imageId,
                 image: pi.image
@@ -53,7 +53,7 @@ exports.addToCartQuery = async (data) => {
 exports.fetchCartItems = async (uid, offset, limit) => {
     const items = await prisma.cart.findMany({
         where: {
-            uid,
+            userId: uid,
             ordered: false
         },
         include: {
@@ -73,19 +73,19 @@ exports.fetchCartItems = async (uid, offset, limit) => {
                             }
                         }
                     }
-                }
+                },
             }
         },
         skip: offset,
         take: limit
     });
-    return items.map(mapCartItem);
+    return items;
 };
 
 exports.fetchCartItemsToOrder = async (uid) => {
     const items = await prisma.cart.findMany({
         where: {
-            uid,
+            userId: uid,
             ordered: false
         },
         select: {
@@ -97,7 +97,7 @@ exports.fetchCartItemsToOrder = async (uid) => {
                 select: {
                     uid: true,
                     categoryId: true,
-                    price: true
+                    // price: true
                 }
             }
         }
@@ -138,14 +138,14 @@ exports.fetchOrdersForClient = async (uid, limit, offset) => {
             uid
         },
         include: {
-            Cart: {
+            cart: {
                 include: {
                     product: {
                         select: {
                             uid: true,
                             name: true,
-                            price: true,
-                            Product_Images: {
+                            // price: true,
+                            images: {
                                 select: {
                                     id: true,
                                     imageId: true,
@@ -176,9 +176,32 @@ exports.fetchAllOrders = async (limit, offset) => {
                     email: true
                 }
             },
-            Transactions: {
+            transactions: {
                 select: {
                     amount: true
+                }
+            },
+            cart: {
+                select: {
+                    units: true,
+                    unit_price: true,
+                    specification: true,
+                    total_amount:true,
+                    isTechnicianRequiredCost: true,
+                    product:{
+                        select: {
+                            name: true,
+                            images: {
+                                select: {
+                                    image: {
+                                        select: {
+                                            img_url: true
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             }
         },
@@ -238,8 +261,8 @@ exports.getTopProductCounts = async () => {
         select: {
             uid: true,
             name: true,
-            price: true,
-            Product_Images: {
+            // price: true,
+            images: {
                 select: {
                     imageId: true,
                     image: {
@@ -262,8 +285,8 @@ exports.getTopProductCounts = async () => {
             totalUnitSold: Number(sale.totalUnitSold),
             Product: prod ? {
                 name: prod.name,
-                price: prod.price,
-                Product_Images: prod.Product_Images.map(pi => ({
+                // price: prod.price,
+                Product_Images: prod.images.map(pi => ({
                     imageId: pi.imageId,
                     image: pi.image ? { img_url: pi.image.img_url } : null
                 }))

@@ -138,19 +138,19 @@ model Product_Discount {
 }
 
 model Category {
-  id                      Int        @id @default(autoincrement())
-  uid                     String     @unique @db.VarChar(255)
-  name                    String?    @db.VarChar(255)
-  imageId                 Int?
+  id             Int        @id @default(autoincrement())
+  uid            String     @unique @db.VarChar(255)
+  name           String?    @db.VarChar(255)
+  imageId        Int?
   // category_specifications Json?
-  parentId                String?    @db.VarChar(255)
-  sortOrder               Int?
-  createdAt               DateTime   @default(now()) @db.DateTime(0)
-  updatedAt               DateTime   @updatedAt @db.DateTime(0)
-  image                   Images?    @relation(fields: [imageId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  product                 Product[]
-  subCategories           Category[] @relation("CategoryToSubCategory")
-  parentCategory          Category?  @relation("CategoryToSubCategory", fields: [parentId], references: [uid], onDelete: NoAction, onUpdate: NoAction)
+  parentId       String?    @db.VarChar(255)
+  sortOrder      Int?
+  createdAt      DateTime   @default(now()) @db.DateTime(0)
+  updatedAt      DateTime   @updatedAt @db.DateTime(0)
+  image          Images?    @relation(fields: [imageId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  product        Product[]
+  subCategories  Category[] @relation("CategoryToSubCategory")
+  parentCategory Category?  @relation("CategoryToSubCategory", fields: [parentId], references: [uid], onDelete: NoAction, onUpdate: NoAction)
 
   @@index([imageId])
   @@index([parentId])
@@ -160,11 +160,12 @@ model Category {
 
 model Cart {
   id                       Int      @id @default(autoincrement())
-  productId                String?  @db.VarChar(255)
-  uid                      String   @db.VarChar(255)
-  units                    String?  @db.VarChar(255)
-  specifications           Json?
-  unit_price               Float?
+  productId                String
+  userId                   String
+  units                    Int
+  specification            Json?
+  variantId                Json
+  unit_price               Float? //this comes from the price on the variant
   total_amount             Float?
   orderId                  String?  @db.VarChar(255)
   ordered                  Boolean  @default(false)
@@ -190,7 +191,7 @@ model Orders {
   paymentStatus   String        @default("Pending") @db.VarChar(255)
   contact_Info    Json?
   billing_address Json?
-  deliveryType    String?       @default("Pick-up") @db.VarChar(50)
+  deliveryType    String?       @default("pickup") @db.VarChar(50)
   deliveryCost    Float?        @default(0)
   createdAt       DateTime      @default(now()) @db.DateTime(0)
   updatedAt       DateTime      @updatedAt @db.DateTime(0)
