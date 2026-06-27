@@ -95,7 +95,7 @@ exports.getProductsByCategory = async (query, limit, offset) => {
         take: limit,
         skip: offset
     });
-    return list.map(mapProduct);
+    return list //.map(mapProduct);
 };
 
 exports.getspecificProduct = async (productId) => {
@@ -104,34 +104,35 @@ exports.getspecificProduct = async (productId) => {
             uid: productId,
             isDeleted: false
         },
-        include: {
-            category: {
-                select: {
-                    uid: true,
-                    name: true
-                }
-            },
-            images: {
-                select: {
-                    id: true,
-                    imageId: true,
-                    image: {
-                        select: {
-                            img_url: true
-                        }
-                    }
-                }
-            },
-            discount: {
-                where: {
-                    startDate: { lt: new Date() },
-                    endDate: { gte: new Date() }
-                }
-            },
-            variants: true
-        }
+        // include: {
+        //     category: {
+        //         select: {
+        //             uid: true,
+        //             name: true
+        //         }
+        //     },
+        //     images: {
+        //         select: {
+        //             id: true,
+        //             imageId: true,
+        //             image: {
+        //                 select: {
+        //                     img_url: true
+        //                 }
+        //             }
+        //         }
+        //     },
+        //     discount: {
+        //         where: {
+        //             startDate: { lt: new Date() },
+        //             endDate: { gte: new Date() }
+        //         }
+        //     },
+        //     variants: true
+        // }
+        select: productSelect
     });
-    return mapProduct(p);
+    return p
 };
 
 exports.searchProduct = async (query, offset, limit) => {
@@ -145,25 +146,41 @@ exports.searchProduct = async (query, offset, limit) => {
         take: limit,
         skip: offset
     });
-    return list.map(mapProduct);
+
+    // console.dir(list, {depth: 12})
+
+
+    return list
+    // return list.map(mapProduct);
 };
 
-exports.getDiscountedProducts = async (query, offset, limit) => {
-    const where = buildPrismaWhere(query);
-    where.isDeleted = false;
-    where.isActive = true;
-    where.Product_Discount = {
-        startDate: { lt: new Date() },
-        endDate: { gte: new Date() }
-    };
+exports.getDiscountedProducts = async (offset, limit) => {
+    // const where = buildPrismaWhere(query);
+    // where.isDeleted = false;
+    // where.isActive = true;
+    // where.discount = {
+    //     where: {
+    //         startDate: { lt: new Date() },
+    //         endDate: { gte: new Date() }
+    //     }
+    // };
 
     const list = await prisma.product.findMany({
-        where,
+        where: {
+            isDeleted: false,
+            isActive: true,
+            discount: {
+                startDate: { lt: new Date() },
+                endDate: { gte: new Date() }
+            }
+        },
         select: productSelect,
         take: limit,
-        skip: offset
+        skip: Number(offset)
     });
-    return list.map(mapProduct);
+
+    return list
+    // return list.map(mapProduct);
 };
 
 exports.getProductsWithoutDiscount = async (offset, limit) => {
@@ -289,7 +306,8 @@ exports.addDiscountToProductRecord = async (data) => {
     return prisma.product_Discount.create({
         data: {
             productId: data.productId,
-            price: Number(data.price),
+            discount_type: data.discount_type,
+            discount_value: Number(data.discount_value),
             startDate: data.startDate ? new Date(data.startDate) : null,
             endDate: data.endDate ? new Date(data.endDate) : null
         }

@@ -25,24 +25,20 @@ app.use("/admin", adminRouter)
 app.use("/", (req, res) => {
     console.log(req.url)
     return notFound(res, `Path not found : ${req.url}`)
-    // (res, {}, `Welcome to TekNova. Kindly note path specified not found {} `)
+    
 })
 
 app.use(errorHandler)
 
 const port = process.env.PORT ?? 9500
 
-
-console.log("proposed port::", port)
+// console.log("proposed port::", port)
 createDatabaseIfNotExists().then(() => {
-    sync().then(() => {
+    
         app.listen(port, () => {
             console.log("running:::", port)
         })
-    }).catch((error) => {
-        console.log("unable to sync")
-        console.log(error)
-    })
+    
 }).catch((db_create_error) => {
     console.log("unable to createDb:::")
     console.log(db_create_error)

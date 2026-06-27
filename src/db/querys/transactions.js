@@ -8,6 +8,13 @@ exports.uploadTransaction = async (data) => {
 
 exports.fetchTransactions = async (limit, offset) => {
     return prisma.transactions.findMany({
+        where: {
+            status: {
+                not: {
+                    contains: "pending"
+                }
+            }
+        },
         select: {
             reference: true,
             amount: true,
@@ -41,7 +48,7 @@ exports.getRevenue = async () => {
             status: "Success"
         }
     });
-    
+
     return [
         {
             revenue_sum: aggregate._sum.amount || 0

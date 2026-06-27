@@ -562,7 +562,7 @@ exports.getAllProductsWithFilter = catchAsync(async (req, res) => {
             [Op.like]: `%${search}%`
         }
     }
-    if (h && l) {
+    if ((h && l) && (h != undefined || l !=undefined)) {
 
         product_query["variants"] = {
             some: {
@@ -624,13 +624,10 @@ exports.addDiscountToProducts = catchAsync(async (req, res) => {
         return notFound(res, "Product not found.")
     }
 
-    product = product.toJSON()
-
-    const price = req.body[PARAMS.discount_type].toLowerCase() == "percentage" ? product.price - (product.price * req.body[PARAMS.discount_value] / 100) : product.price - req.body[PARAMS.discount_value]
-
     const body = {
         productId: product.uid,
-        price,
+        discount_type: req.body[PARAMS.discount_type],
+        discount_value: req.body[PARAMS.discount_value],
         [PARAMS.startDate]: req.body[PARAMS.startDate],
         [PARAMS.endDate]: req.body[PARAMS.endDate],
     }
@@ -665,16 +662,19 @@ exports.getAllProductsDiscount = catchAsync(async (req, res) => {
     const { discount } = req.query
 
     let products
-
+    
     if (discount || discount == "false") {
         if (discount == "false") {
             products = await getProductsWithoutDiscount(offset, FETCH_LIMIT)
         } else {
-            products = await getDiscountedProducts({}, offset, FETCH_LIMIT)
+            products = await getDiscountedProducts( offset, FETCH_LIMIT)
         }
     } else {
         products = await searchProduct({}, offset, FETCH_LIMIT)
     }
+
+
+    
 
     return success(res, products, "Fetched")
 })
