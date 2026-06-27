@@ -130,7 +130,7 @@ exports.fetchSingleCartItem = async (uid, cartId) => {
     return prisma.cart.findFirst({
         where: {
             id: Number(cartId),
-            uid: uid
+            userId: uid
         }
     });
 };
@@ -139,7 +139,7 @@ exports.destroyCartItem = async (uid, cartId) => {
     return prisma.cart.deleteMany({
         where: {
             id: Number(cartId),
-            uid: uid
+            userId: uid
         }
     });
 };

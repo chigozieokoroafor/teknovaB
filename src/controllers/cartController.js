@@ -13,7 +13,7 @@ const { fetchSingleCouponRecord } = require("../db/querys/coupons");
 exports.addItemToCart = catchAsync(async (req, res) => {
     const user_id = req.user.uid
 
-    console.log(req.body)
+    // console.log(req.body)
 
     const error = baseValidator(addToCartSchema, req.body, res)
     if (error) {
@@ -48,8 +48,14 @@ exports.addItemToCart = catchAsync(async (req, res) => {
     let price = variant?.price
     let existingUnits = variant?.units
 
-    if (product[MODEL_NAMES.productdiscount]) {
-        price = product[MODEL_NAMES.productdiscount][PARAMS.price]
+    const discObj = product.discount || product.Product_Discount;
+    if (discObj) {
+        const val = Number(discObj.discount_value) || 0;
+        if (discObj.discount_type === "fixed") {
+            price = Math.max(0, price - val);
+        } else if (discObj.discount_type === "percentage") {
+            price = Math.max(0, price - (price * val) / 100);
+        }
     }
 
     const isUnitAvailable = existingUnits > data[PARAMS.units]

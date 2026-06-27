@@ -72,6 +72,12 @@ exports.fetchCartItems = async (uid, offset, limit) => {
                                 }
                             }
                         }
+                    },
+                    discount: {
+                        where: {
+                            startDate: { lt: new Date() },
+                            endDate: { gte: new Date() }
+                        }
                     }
                 },
             }
@@ -186,9 +192,9 @@ exports.fetchAllOrders = async (limit, offset) => {
                     units: true,
                     unit_price: true,
                     specification: true,
-                    total_amount:true,
+                    total_amount: true,
                     isTechnicianRequiredCost: true,
-                    product:{
+                    product: {
                         select: {
                             name: true,
                             images: {

@@ -299,7 +299,7 @@ exports.getNewProducts = async () => {
         },
         take: 10
     });
-    return list.map(mapProduct);
+    return list//.map(mapProduct);
 };
 
 exports.addDiscountToProductRecord = async (data) => {

@@ -41,11 +41,11 @@ async function fetchCouponRecord(query, limit, offset) {
 }
 
 async function fetchSingleCouponRecord(query) {
-    const where = buildPrismaWhere(query);
-    where.deletedAt = null;
+    // const where = buildPrismaWhere(query);
+    query.deletedAt = null;
 
     return prisma.coupon.findFirst({
-        where,
+        where: query,
         select: selectAttributes
     });
 }
