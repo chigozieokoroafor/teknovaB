@@ -12,7 +12,7 @@ const morgan = require("morgan")
 
 const app = express()
 
-app.use(cors({ origin: "*" }))
+app.use(cors({ origin: "*", credentials: true }))
 app.use(morgan("dev"));
 
 app.use(express.json({ limit: '50mb' }));
@@ -25,7 +25,7 @@ app.use("/admin", adminRouter)
 app.use("/", (req, res) => {
     console.log(req.url)
     return notFound(res, `Path not found : ${req.url}`)
-    
+
 })
 
 app.use(errorHandler)
@@ -34,11 +34,11 @@ const port = process.env.PORT ?? 9500
 
 // console.log("proposed port::", port)
 createDatabaseIfNotExists().then(() => {
-    
-        app.listen(port, () => {
-            console.log("running:::", port)
-        })
-    
+
+    app.listen(port, () => {
+        console.log("running:::", port)
+    })
+
 }).catch((db_create_error) => {
     console.log("unable to createDb:::")
     console.log(db_create_error)
