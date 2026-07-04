@@ -93,8 +93,8 @@ exports.checkoutSchema = Joi.object(
             }
         ),
         [PARAMS.deliveryType] : Joi.string(),
-        [PARAMS.coupon]: Joi.string()
-
+        [PARAMS.coupon]: Joi.string(),
+        deliveryZoneId: Joi.number().optional()
     }
 ).required().messages(
     {

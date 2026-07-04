@@ -238,3 +238,32 @@ model ShippingAddress {
 
   @@map("ShippingAddress")
 }
+
+model DeliveryState {
+  id        Int            @id @default(autoincrement())
+  name      String         @unique @db.VarChar(255)
+  priceType String         @default("FLAT") @db.VarChar(20) // FLAT or ZONED
+  flatPrice Float?
+  createdAt DateTime       @default(now()) @db.DateTime(0)
+  updatedAt DateTime       @updatedAt @db.DateTime(0)
+  zones     DeliveryZone[]
+
+  @@map("DeliveryState")
+}
+
+model DeliveryZone {
+  id        Int           @id @default(autoincrement())
+  stateId   Int
+  name      String        @db.VarChar(255)
+  price     Float
+  locations Json          // JSON array of strings e.g. ["Ojuelegba", "Costain"]
+  createdAt DateTime      @default(now()) @db.DateTime(0)
+  updatedAt DateTime      @updatedAt @db.DateTime(0)
+  state     DeliveryState @relation(fields: [stateId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@index([stateId])
+  @@map("DeliveryZone")
+}
+
+
+

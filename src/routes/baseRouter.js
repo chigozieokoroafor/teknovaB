@@ -3,6 +3,7 @@ const baseController = require("../controllers/baseController")
 const productController = require("../controllers/productController")
 const cartController = require("../controllers/cartController")
 const paymentController = require("../controllers/paymentController")
+const deliveryController = require("../controllers/deliveryController")
 const { baseAuth } = require("../middleware/auth")
 
 
@@ -36,7 +37,8 @@ base.post("/coupon/validate", baseAuth, cartController.validateCoupon)
 base.post("/payment/webhook", paymentController.paymentWebhook)
 
 base.post("/contactUs", baseController.contactUs)
-base.get("/deliveryPrice", cartController.getDeliveryPrices)
+base.get("/deliveryPrice", deliveryController.getDeliveryPrice)
+base.get("/delivery-states", deliveryController.fetchStates)
 
 
 module.exports = {

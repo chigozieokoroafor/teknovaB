@@ -1,6 +1,7 @@
 const { Router } = require("express")
 const adminController = require("../controllers/adminController")
 const productController = require("../controllers/productController")
+const deliveryController = require("../controllers/deliveryController")
 // const  adminController = require("../controllers/adminController")
 const { multipleuploadMiddleWare } = require("../middleware/upload")
 const { adminAuth } = require("../middleware/auth")
@@ -56,6 +57,12 @@ admin.post("/coupon", adminAuth, adminController.createCoupons)
 admin.post("/discount", adminAuth, productController.addDiscountToProducts)
 admin.delete("/discount", adminAuth, productController.deleteDiscountFromProducts)
 admin.get("/discount", adminAuth, productController.getAllProductsDiscount)
+
+// delivery states & zones
+admin.post("/delivery-states", adminAuth, deliveryController.createState)
+admin.get("/delivery-states", adminAuth, deliveryController.fetchStates)
+admin.put("/delivery-states/:id", adminAuth, deliveryController.updateState)
+admin.delete("/delivery-states/:id", adminAuth, deliveryController.deleteState)
 
 
 module.exports = {

@@ -9,6 +9,7 @@ const { addToCartSchema, checkoutSchema } = require("../util/validators/cartVali
 const { uploadTransaction } = require("../db/querys/transactions");
 const { fetchSingleCartItem, destroyCartItem } = require("../db/querys/category");
 const { fetchSingleCouponRecord } = require("../db/querys/coupons");
+const { prisma } = require("../db/base");
 
 exports.addItemToCart = catchAsync(async (req, res) => {
     const user_id = req.user.uid
@@ -204,13 +205,40 @@ exports.checkout = catchAsync(async (req, res) => {
     const orderId = `#ORD${createUUID(6)}`
 
     if (req.body[PARAMS.deliveryType]) {
-
         if (!["pickup", "free", "express"].includes(req.body[PARAMS.deliveryType].toLowerCase())) {
             return generalError(res, "Selected delivery method is not available.")
         }
 
         deliveryType = req.body[PARAMS.deliveryType]
-        deliveryCost = (await getExtraPayments(deliveryType.toLowerCase()))?.price ?? 0.0
+
+        if (deliveryType.toLowerCase() === "express") {
+            const stateName = req.body.billing_address?.state;
+            let matchedState = null;
+            if (stateName) {
+                matchedState = await prisma.deliveryState.findFirst({
+                    where: { name: stateName },
+                    include: { zones: true }
+                });
+            }
+
+            if (matchedState) {
+                if (matchedState.priceType === "ZONED" && matchedState.zones.length > 0) {
+                    const zoneId = req.body.deliveryZoneId;
+                    const matchedZone = matchedState.zones.find(z => z.id === Number(zoneId));
+                    if (matchedZone) {
+                        deliveryCost = matchedZone.price;
+                    } else {
+                        deliveryCost = matchedState.zones[0].price;
+                    }
+                } else {
+                    deliveryCost = matchedState.flatPrice ?? 0.0;
+                }
+            } else {
+                deliveryCost = (await getExtraPayments(deliveryType.toLowerCase()))?.price ?? 0.0;
+            }
+        } else {
+            deliveryCost = (await getExtraPayments(deliveryType.toLowerCase()))?.price ?? 0.0;
+        }
 
         if (coupon_type == "shipping") {
             if (deliveryCost > 0) {
