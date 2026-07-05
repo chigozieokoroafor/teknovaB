@@ -129,8 +129,8 @@ model Product_Discount {
   productId      String    @unique @db.VarChar(255)
   discount_type  String
   discount_value Int
-  startDate      DateTime? 
-  endDate        DateTime? 
+  startDate      DateTime?
+  endDate        DateTime?
   createdAt      DateTime  @default(now()) @db.DateTime(0)
   updatedAt      DateTime  @updatedAt @db.DateTime(0)
   product        Product   @relation(fields: [productId], references: [uid], onDelete: NoAction, onUpdate: NoAction)
@@ -139,19 +139,19 @@ model Product_Discount {
 }
 
 model Category {
-  id             Int        @id @default(autoincrement())
-  uid            String     @unique @db.VarChar(255)
-  name           String?    @db.VarChar(255)
-  imageId        Int?
-  // category_specifications Json?
-  parentId       String?    @db.VarChar(255)
-  sortOrder      Int?
-  createdAt      DateTime   @default(now()) @db.DateTime(0)
-  updatedAt      DateTime   @updatedAt @db.DateTime(0)
-  image          Images?    @relation(fields: [imageId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  product        Product[]
-  subCategories  Category[] @relation("CategoryToSubCategory")
-  parentCategory Category?  @relation("CategoryToSubCategory", fields: [parentId], references: [uid], onDelete: NoAction, onUpdate: NoAction)
+  id               Int        @id @default(autoincrement())
+  uid              String     @unique @db.VarChar(255)
+  name             String?    @db.VarChar(255)
+  imageId          Int?
+  isQuoteOnlyOrder Boolean    @default(false)
+  parentId         String?    @db.VarChar(255)
+  sortOrder        Int?
+  createdAt        DateTime   @default(now()) @db.DateTime(0)
+  updatedAt        DateTime   @updatedAt @db.DateTime(0)
+  image            Images?    @relation(fields: [imageId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  product          Product[]
+  subCategories    Category[] @relation("CategoryToSubCategory")
+  parentCategory   Category?  @relation("CategoryToSubCategory", fields: [parentId], references: [uid], onDelete: NoAction, onUpdate: NoAction)
 
   @@index([imageId])
   @@index([parentId])
@@ -256,7 +256,7 @@ model DeliveryZone {
   stateId   Int
   name      String        @db.VarChar(255)
   price     Float
-  locations Json          // JSON array of strings e.g. ["Ojuelegba", "Costain"]
+  locations Json // JSON array of strings e.g. ["Ojuelegba", "Costain"]
   createdAt DateTime      @default(now()) @db.DateTime(0)
   updatedAt DateTime      @updatedAt @db.DateTime(0)
   state     DeliveryState @relation(fields: [stateId], references: [id], onDelete: Cascade, onUpdate: Cascade)
@@ -264,6 +264,3 @@ model DeliveryZone {
   @@index([stateId])
   @@map("DeliveryZone")
 }
-
-
-

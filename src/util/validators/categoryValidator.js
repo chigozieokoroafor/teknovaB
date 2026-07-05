@@ -71,7 +71,8 @@ exports.categoryUpdateSchema = Joi.object(
                 "array.min.base": "At least one specification must be provided."
             }
         ),
-        parentId: Joi.string().allow(null).optional()
+        parentId: Joi.string().allow(null).optional(),
+        isQuoteOnlyOrder: Joi.boolean().allow(null).optional()
     }
 ).required().messages(
     {

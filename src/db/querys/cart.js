@@ -73,6 +73,18 @@ exports.fetchCartItems = async (uid, offset, limit) => {
                             }
                         }
                     },
+                    category: {
+                        select: {
+                            isQuoteOnlyOrder: true,
+                            name: true,
+                            uid: true,
+                            parentCategory: {
+                                select: {
+                                    isQuoteOnlyOrder: true,
+                                }
+                            }
+                        }
+                    },
                     discount: {
                         where: {
                             startDate: { lt: new Date() },

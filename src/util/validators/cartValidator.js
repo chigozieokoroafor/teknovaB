@@ -22,9 +22,9 @@ exports.addToCartSchema = Joi.object(
             }
         ),
         variantId: Joi.string().required().messages({
-                "any.required": "Kindly select a variant to proceed."
-            })
-        
+            "any.required": "Kindly select a variant to proceed."
+        })
+
     }
 ).required().messages(
     {
@@ -38,30 +38,19 @@ exports.checkoutSchema = Joi.object(
     {
         [PARAMS.billing_address]: Joi.object(
             {
-                [PARAMS.street]: Joi.string().required().messages(
-                    {
-                        "any.required": "Kindly provide a street",
-
-                    }),
+                [PARAMS.street]: Joi.string().allow(null).optional(),
                 [PARAMS.country]: Joi.string().required().messages(
                     {
                         "any.required": "Kindly provide a country destination.",
 
                     }),
-                [PARAMS.town]: Joi.string().required().messages(
-                    {
-                        "any.required": "Kindly provide town/city",
-
-                    }),
+                [PARAMS.town]: Joi.string().allow(null).optional(),
                 [PARAMS.state]: Joi.string().required().messages(
                     {
                         "any.required": "Kindly provide a state",
 
                     }),
-                [PARAMS.zip]: Joi.string().required().messages(
-                    {
-                        "any.required": "Kindly provide a location  zipcode"
-                    }),
+                [PARAMS.zip]: Joi.string().allow(null).optional(),
 
             }
         ).required().messages(
@@ -92,7 +81,7 @@ exports.checkoutSchema = Joi.object(
                 "any.required": "Kindly provide the contact info of receipient."
             }
         ),
-        [PARAMS.deliveryType] : Joi.string(),
+        [PARAMS.deliveryType]: Joi.string(),
         [PARAMS.coupon]: Joi.string(),
         deliveryZoneId: Joi.number().optional(),
         deliveryStateId: Joi.number().optional()

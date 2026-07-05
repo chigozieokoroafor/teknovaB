@@ -46,6 +46,7 @@ exports.fetchCategoryQuery = async (limit, skip) => {
                     img_url: true
                 }
             },
+            isQuoteOnlyOrder: true,
             subCategories: {
                 select: {
                     uid: true,
