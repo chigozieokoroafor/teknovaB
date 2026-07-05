@@ -138,8 +138,8 @@ exports.checkout = catchAsync(async (req, res) => {
     let coupon_used = false
     let coupon_code = req.body.coupon
 
-
-    console.log(req.body)
+    console.log("req body =====> ")
+    console.dir(req.body, {depth: 12})
 
     // "add contact info and billing info"
     const cart = await fetchCartItemsToOrder(user_id)
@@ -184,7 +184,7 @@ exports.checkout = catchAsync(async (req, res) => {
             }
             coupon_usage_count += 1
         } else {
-            calculatedProductPrice = product[PARAMS.total_amount] + product[PARAMS.isTechnicianRequiredCost]
+            calculatedProductPrice = product[PARAMS.total_amount] //+ product[PARAMS.isTechnicianRequiredCost]
         }
         cart_ids.push(product.id)
 
@@ -212,33 +212,22 @@ exports.checkout = catchAsync(async (req, res) => {
         deliveryType = req.body[PARAMS.deliveryType]
 
         if (deliveryType.toLowerCase() === "express") {
-            const stateName = req.body.billing_address?.state;
-            let matchedState = null;
-            if (stateName) {
-                matchedState = await prisma.deliveryState.findFirst({
-                    where: { name: stateName },
-                    include: { zones: true }
+            if (req.body.deliveryStateId) {
+                const state = await prisma.deliveryState.findFirst({
+                    where: { id: Number(req.body.deliveryStateId) }
                 });
-            }
-
-            if (matchedState) {
-                if (matchedState.priceType === "ZONED" && matchedState.zones.length > 0) {
-                    const zoneId = req.body.deliveryZoneId;
-                    const matchedZone = matchedState.zones.find(z => z.id === Number(zoneId));
-                    if (matchedZone) {
-                        deliveryCost = matchedZone.price;
-                    } else {
-                        deliveryCost = matchedState.zones[0].price;
-                    }
-                } else {
-                    deliveryCost = matchedState.flatPrice ?? 0.0;
+                if (state) {
+                    deliveryCost = state.flatPrice ?? 0.0;
                 }
-            } else {
-                deliveryCost = (await getExtraPayments(deliveryType.toLowerCase()))?.price ?? 0.0;
+            } else if (req.body.deliveryZoneId) {
+                const zone = await prisma.deliveryZone.findFirst({
+                    where: { id: Number(req.body.deliveryZoneId) }
+                });
+                if (zone) {
+                    deliveryCost = zone.price ?? 0.0;
+                }
             }
-        } else {
-            deliveryCost = (await getExtraPayments(deliveryType.toLowerCase()))?.price ?? 0.0;
-        }
+        } 
 
         if (coupon_type == "shipping") {
             if (deliveryCost > 0) {
@@ -258,6 +247,7 @@ exports.checkout = catchAsync(async (req, res) => {
 
     if (coupon_type == "order") coupon_usage_count += 1
 
+    console.log({total_amount, total_cart_amount, deliveryCost})
 
     const ref = `TRX_${createUUID(7)}`
     const response = await initializePayment(ref, total_amount, req.user?.email, { [PARAMS.orderId]: orderId, [PARAMS.cart_ids]: cart_ids, coupon_used, coupon_code })
