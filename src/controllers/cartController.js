@@ -62,7 +62,7 @@ exports.addItemToCart = catchAsync(async (req, res) => {
     const isUnitAvailable = existingUnits > data[PARAMS.units]
 
     if (!isUnitAvailable) {
-        return generalError(res, "Proposed units to purchase exist the available units.")
+        return generalError(res, "Proposed units to purchase not available.")
     }
 
     data["userId"] = user_id
