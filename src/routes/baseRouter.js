@@ -29,6 +29,7 @@ base.get("/products/new", productController.getNewArrivals)
 base.post("/cart", baseAuth, cartController.addItemToCart)
 base.get("/cart", baseAuth, cartController.getCart)
 base.delete("/cart", baseAuth, cartController.deleteCartItems)
+base.delete("/cart/clear", baseAuth, cartController.clearCart)
 
 base.post("/checkout", baseAuth, cartController.checkout)
 base.get("/orders", baseAuth, cartController.getOrders)

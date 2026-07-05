@@ -124,6 +124,17 @@ exports.deleteCartItems = catchAsync(async (req, res) => {
 
 })
 
+exports.clearCart = catchAsync(async (req, res) => {
+    const uid = req.user?.uid
+    await prisma.cart.deleteMany({
+        where: {
+            userId: uid,
+            ordered: false
+        }
+    })
+    success(res, {}, "Cart cleared.")
+})
+
 exports.checkout = catchAsync(async (req, res) => {
     const user_id = req.user?.uid
     let deliveryType = "Pick-up"
