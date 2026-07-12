@@ -71,7 +71,7 @@ const baseAuth = (req, res, next) => { // auth for students
         if (req?.err?.err) {
             return newError(res, req.err.err, req.err.status);
         } else if (!req?.user?.uid) {
-            return unAuthorized(res, "Unauthorized");
+            return unAuthorized(res, "Kindly signin to continue.");
         }
         next();
     });
