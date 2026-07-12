@@ -33,13 +33,16 @@ app.use(errorHandler)
 const port = process.env.PORT ?? 9500
 
 // console.log("proposed port::", port)
-createDatabaseIfNotExists().then(() => {
+// createDatabaseIfNotExists().then(() => {
 
-    app.listen(port, () => {
+    
+
+// }).catch((db_create_error) => {
+//     console.log("unable to createDb:::")
+//     console.log(db_create_error)
+// })
+
+
+app.listen(port, () => {
         console.log("running:::", port)
     })
-
-}).catch((db_create_error) => {
-    console.log("unable to createDb:::")
-    console.log(db_create_error)
-})

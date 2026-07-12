@@ -15,13 +15,12 @@ const {
 const { uploadProduct, getProductsByCategory, getspecificProduct, searchProduct, deleteProductQuery, uploadProductImages, deleteProductImages, updateProductDetails, getNewProducts, deleteDiscountToProductRecord, addDiscountToProductRecord, getProductsWithoutDiscount, getDiscountedProducts, getProductsByCategoryTree, createProductVariants } = require("../db/querys/products");
 const { catchAsync } = require("../errorHandler/allCatch");
 const { generalError, success, notFound } = require("../errorHandler/statusCodes");
-const { createUUID, sendEmail, baseValidator } = require("../util/base");
+const { createUUID, baseValidator } = require("../util/base");
 const { FETCH_LIMIT, PARAMS, MODEL_NAMES } = require("../util/consts");
 const { categoryCreationSchema, categoryUpdateSchema, categoryOrderSchema } = require("../util/validators/categoryValidator");
 const { productUploadSchema, productUpdateSchema } = require("../util/validators/productsValidator");
 const { getTopProductCounts } = require("../db/querys/cart");
 const { discountValidator } = require("../util/validators/couponValidator");
-const { conn } = require("../db/base");
 
 // admin category 
 exports.createCategory = catchAsync(async (req, res) => {
